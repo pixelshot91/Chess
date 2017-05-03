@@ -1,0 +1,4 @@
+[Piece|-color:enum color|]^-[Pawn], [Piece]^-[Bishop], [Piece]^-[Rook], [Piece]^-[Knight], [Piece]^-[Queen], [Piece]^-[King]
+[ChessBoardAdaptater]^-.-[ChessBoardInterface]
+[ChessBoard]
+[Move|-moveFrom:Position;-moveTo:Position]
