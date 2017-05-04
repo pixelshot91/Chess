@@ -1,0 +1,19 @@
+[game_started]	
+[move]	PieceType: 5
+[move]	PieceType: 5
+[move]	PieceType: 4
+[move]	PieceType: 4
+[move]	PieceType: 5
+[move]	PieceType: 5
+[piece_taken]	 piece: 5 file: 4 rank: 4
+[move]	PieceType: 5
+[move]	PieceType: 4
+[move]	PieceType: 1
+[piece_taken]	 piece: 5 file: 4 rank: 4
+[move]	PieceType: 4
+[move]	PieceType: 4
+[move]	PieceType: 4
+[move]	PieceType: 1
+[move]	PieceType: 3
+[move]	PieceType: 3
+[game_finished]	

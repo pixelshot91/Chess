@@ -1,0 +1,18 @@
+[game_started]	
+[move]	PieceType: 5
+[move]	PieceType: 5
+[move]	PieceType: 5
+[move]	PieceType: 5
+[move]	PieceType: 4
+[move]	PieceType: 4
+[move]	PieceType: 5
+[move]	PieceType: 5
+[move]	PieceType: 3
+[move]	PieceType: 4
+[move]	PieceType: 4
+[move]	PieceType: 3
+[move]	PieceType: 0
+[kingside castling]	color: 0
+[move]	PieceType: 0
+[kingside castling]	color: 1
+[game_finished]	
