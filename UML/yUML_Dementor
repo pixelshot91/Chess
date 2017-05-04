@@ -1,0 +1,29 @@
+[note: Move: defines the start and end position of a Piece|Piece: Abstract class describing a Piece inherited by each individual Piece|ChessBoard: Represents the state of the board and can retrieve information for each tile|GameEngine: Allow each player to play in turn|Parser: Parses the PGN file and fill the History class with the read moves]
+[Move|-moveFrom:Position;-moveTo:Position]++-2>[Position|-file:File;-rank:Rank|+getFile() : enum Position::File;+getRank() : enum Position::Rank]
+[Piece|-color : enum color;-pos : Position;-static population : uint8_t|+getColor() : enum color;+getType() : enum PieceType;+getPosition() : Position;+getPopulation() : uint8_t;+getMoves():list\<Move\>]->[Move]
+
+[Piece]->[Color]
+[Piece]++-1>[Position]
+[Pawn|-first_move : bool;-last_move_double_jump() : bool]
+[Piece]^-[Pawn||Promte(Piece): bool], [Piece]^-[Bishop], [Piece]^-[Rook], [Piece]^-[Knight], [Piece]^-[Queen], [Piece]^-[King]
+[History|-moves : vector\<Move\>|+reverse();add(Move)]
+[ChessBoard|-bitboard : vector\<bitset\<64\>\>;+nb_piece : uint8_t;-history : History|+get_Piece(Position) : Piece;+movePiece(Position Piece);+promotePawn(Pawn enum PieceType)]
+[ChessBoard]->[Piece]
+[ChessBoard]->[History]
+[\<\<Interface\>\>;ChessBoardInterface||operator()]^-.-[ChessBoardAdaptater]
+
+[ChessBoardAdaptater]->[ChessBoard]
+
+[ChessListener||+register_board();+on_game_started() : bool;+on_player_timeout() : bool;+on_player_disqualified() : bool; +on_piece_moved(King) : bool;+on_queen_side_castling() : bool;+on_king_side_castling() : bool;+on_piece_moved() : bool;+on_piece_taken() : bool;+on_piece_promoted() : bool;+on_player_mat() : bool;+on_player_check() : bool;+on_player_pat() : bool;+on_draw() : bool;+on_game_finished() : bool]
+[ChessListener]->[ChessBoard]
+[ChessListener]->[GameEngine]
+
+[ServerNetworkAPI||+ServerNetworkAPI();+acknowledge();+receive();+send()]
+[ClientNetworkAPI||+ClientNetworkAPI();+acknowledge();+receive();+send()]
+
+[AI|-chessboard : ChessBoard&|+search() : Move;+evaluation(Move) : int16_t]->[ChessBoard]
+[Parser|Parser(string)]->[GameEngine]
+
+[GameEngine||+canMove(Position Piece) : bool;+canPromote(Pawn enum PieceType)]
+[GameEngine]->[ClientNetworkAPI]
+[GameEngine]->[ServerNetworkAPI]
