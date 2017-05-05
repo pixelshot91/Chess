@@ -1,0 +1,12 @@
+[X] Level 0: Modeling
+
+[.] Level 1: Input/Output
+    [.] Build System
+    [.] Option parser
+    [ ] PGN parser
+    [ ] Listeners
+
+[ ] Level 2: Move Checking
+[ ] Level 3: Rules
+[ ] Level 4: Network and Human Player
+[ ] Level 5: Artificial Intelligence

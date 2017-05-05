@@ -1,0 +1,7 @@
+To install, type the following command:
+  ./configure
+  make (all|chessengine|human|ai)
+
+make all build the chessengine, the human player and the AI player
+
+
