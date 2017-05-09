@@ -6,7 +6,7 @@ set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(BIN_NAME "chess")
 
-set(SRC src/main.cc)
+set(SRC src/main.cc src/move.cc src/parser.cc)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
@@ -17,4 +17,5 @@ include_directories(src
 add_executable(${BIN_NAME} ${SRC})
 
 target_link_libraries(${BIN_NAME} boost_program_options)
+target_link_libraries(${BIN_NAME} boost_regex)
 
