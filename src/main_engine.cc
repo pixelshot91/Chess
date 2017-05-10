@@ -10,7 +10,6 @@ namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
 {
-  Adaptater test();
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "show usage")
@@ -24,16 +23,21 @@ int main(int argc, char* argv[])
 
   if (vm.count("help")) {
     std::cout << desc << "\n";
-    return 1;
+    return 0;
   }
-  if (vm.count("port"))
+  if (vm.count("port")) {
     std::cout << "port is: " << vm["port"].as<int>() << std::endl;
-  if (vm.count("pgn")) {
+    return 0;
+  }
+  else if (vm.count("pgn")) {
     std::string pgn_path = vm["pgn"].as<std::string>();
     std::cout << "pgn path is: " << pgn_path << std::endl;
     std::cout << "Parsing..." << std::endl;
     Parser parser(pgn_path);
+    return parser.parse();
   }
+  std::cerr << "No option were given." << std::endl << "Please use --pgn or -port option" << std::endl;
+  return 0;
   /*if (vm.count("listeners"))
     std::cout << "listeners are: " << vm["listeners"].as<std::vector<std::string>>() << std::endl;*/
 }

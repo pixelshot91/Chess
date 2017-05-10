@@ -1,11 +1,17 @@
 #pragma once
 
 #include <string>
+#include <boost/regex.hpp>
+
+#include "move.hh"
+#include "quiet-move.hh"
 
 class Parser
 {
 public:
   Parser(std::string pgn_path);
+  int parse();
 private:
-  std::string pgn_path;
+  QuietMove* generateMove(boost::smatch what);
+  std::string pgn_path_;
 };
