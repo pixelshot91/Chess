@@ -10,7 +10,7 @@ using namespace plugin;
 class Piece
 {
   public :
-    Piece(Color color, Position pos, PieceType piece);
+    Piece(Color color, Position pos, bool has_moved, PieceType piece);
 
   public :
     virtual bool isMoveAuthorized(Move) = 0;
@@ -26,6 +26,7 @@ class Piece
     Color color_;
     Position pos_;
     PieceType type_;
+    bool has_moved_;
 
     static uint8_t population_;
     list<Move> moves_;

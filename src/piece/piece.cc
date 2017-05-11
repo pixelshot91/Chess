@@ -1,9 +1,10 @@
 #include "piece.hh"
 
-Piece::Piece(Color color, Position pos, PieceType type)
+Piece::Piece(Color color, Position pos, bool has_moved, PieceType type)
   : color_(color)
   , pos_(pos)
   , type_(type)
+  , has_moved_(has_moved)
   {};
 
 Color Piece::getColor()

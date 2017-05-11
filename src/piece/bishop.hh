@@ -2,7 +2,5 @@
 
 class Bishop : public Piece
 {
-public:
-  bool isMoveAuthorized(Move)  override;
-  bool isMoveLegal(Move) override;
+   Bishop(Color color, Position pos, bool has_moved, PieceType piece);
 };

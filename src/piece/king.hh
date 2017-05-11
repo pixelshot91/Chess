@@ -2,6 +2,5 @@
 
 class King : public Piece
 {
-  King(Color color, Position pos, PieceType piece);
-    : Piece(color, pos, PieceType::KING);
+  King(Color color, Position pos, bool has_moved,PieceType piece);
 }

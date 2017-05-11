@@ -1,6 +1,5 @@
 #include "bishop.hh"
 
-bool isMoveAuthorized(Move)
-{
-  board[Move.end
-}
+Bishop::Bishop(Color color, Position pos, PieceType piece)
+    : Piece(color, pos,has_moved, PieceType::BISHOP)
+{}

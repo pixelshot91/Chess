@@ -27,6 +27,8 @@ class ChessBoard
     //bool moved(plugin::Position);
     //Color color(plugin::Position);
     void print_board();
+
+
   private:
     std::array<std::array<cell_t, 8>, 8> board_;
 };

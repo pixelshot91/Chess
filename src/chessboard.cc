@@ -59,3 +59,16 @@ bool ChessBoard::is_attacked(Color color, plugin::Position cell)
       return true;
   return false;
 }
+
+std::vector<Piece*> ChessBoard::get_piece()
+{
+  std::vector<Piece*> pieces;
+  Position position;
+  for(int i = 0; i < 8; i++)
+    for(int j = 0; j < 8 ; j++)
+    {
+      position = Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+
+    }
+}
+
