@@ -90,11 +90,12 @@ bool RuleChecker::isMoveLegal(ChessBoard board, Move move)
     for (char file = static_cast<char>(king_pos.file_get()) + dir_x; file + dir_x != static_cast<char>(rook_pos.file_get()); file += dir_x)
       if (board.piecetype_get(plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get())) != std::experimental::nullopt)
         return false;
-    plugin::Position king_end_position = ChessBoard::castling_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
+    plugin::Position king_end_position = ChessBoard::castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
 
     for (char file = static_cast<char>(king_pos.file_get()); file != static_cast<char>(king_end_position.file_get()); file += dir_x)
       if (board.is_attacked(move.color_get(), plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get()))) // first parameter is the one who is under attack
         return false;
 
   }
+  return true;
 }

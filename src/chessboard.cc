@@ -5,6 +5,28 @@ ChessBoard::ChessBoard()
 {
 }
 
+void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
+  //if (!RuleChecker::check(*this, move)) throw invalid_move;
+  
+  if (move.move_type_get() == Move::Type::QUIET) {
+    const QuietMove& quiet_move = reinterpret_cast<const QuietMove&>(move);
+    move_piece(quiet_move.start_get(), quiet_move.end_get());
+  }
+  else {
+    move_piece(initial_king_position(move.color_get()), castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
+    move_piece(initial_rook_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING)
+        , castling_rook_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
+  }
+}
+
+void ChessBoard::move_piece(plugin::Position start, plugin::Position end) {
+  cell_t moving_piece = get_square(start);
+  moving_piece |= 0b00001000;
+  set_square(end, moving_piece);
+
+  set_square(start, 0x7); //0b000001111
+}
+
 void ChessBoard::print_board()
 {
   for (unsigned i = 0; i < board_.size(); ++i)
@@ -13,6 +35,10 @@ void ChessBoard::print_board()
       std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
     std::cout << std::endl;
   }
+}
+
+void ChessBoard::set_square(plugin::Position position, cell_t value) {
+  board_[static_cast<char>(position.file_get())][static_cast<char>(position.rank_get())] = value;
 }
 
 ChessBoard::cell_t ChessBoard::get_square(plugin::Position position)
@@ -130,10 +156,16 @@ plugin::Position ChessBoard::initial_king_position(plugin::Color c)
 }
 
 plugin::Position ChessBoard::initial_rook_position(plugin::Color c, bool king_side)
-{}
+{
+  return plugin::Position(king_side ? plugin::File::H : plugin::File::A, c == plugin::Color::WHITE ? plugin::Rank::ONE : plugin::Rank::EIGHT);
+}
 
-plugin::Position ChessBoard::castling_end_position(plugin::Color color, bool king_side)
-{}
+plugin::Position ChessBoard::castling_king_end_position(plugin::Color color, bool king_side)
+{
+  return plugin::Position(king_side ? plugin::File::G : plugin::File::C, color == plugin::Color::WHITE ? plugin::Rank::ONE : plugin::Rank::EIGHT);
+}
 
-//King(Color color, Position pos, bool has_moved,PieceType piece);
-
+plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color, bool king_side)
+{
+  return plugin::Position(king_side ? plugin::File::F : plugin::File::D, color == plugin::Color::WHITE ? plugin::Rank::ONE : plugin::Rank::EIGHT);
+}

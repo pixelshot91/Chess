@@ -14,6 +14,11 @@ class ChessBoard
   public:
     using cell_t = uint8_t;
     ChessBoard();
+
+    void update(Move& move);
+    void move_piece(plugin::Position start, plugin::Position end);
+
+    void set_square(plugin::Position position, cell_t value);
     cell_t get_square(plugin::Position position);
     cell_t get_opt(plugin::Position position, cell_t mask);
 
@@ -27,7 +32,8 @@ class ChessBoard
 
     static plugin::Position initial_king_position(plugin::Color c);
     static plugin::Position initial_rook_position(plugin::Color c, bool king_side);
-    static plugin::Position castling_end_position(plugin::Color color, bool king_side);
+    static plugin::Position castling_king_end_position(plugin::Color color, bool king_side);
+    static plugin::Position castling_rook_end_position(plugin::Color color, bool king_side);
     //bool moved(plugin::Position);
     //Color color(plugin::Position);
     void print_board();
