@@ -1,5 +1,4 @@
 #include "chessboard.hh"
-
 #include "rule-checker.hh"
 
 ChessBoard::ChessBoard()
@@ -81,39 +80,37 @@ std::vector<Piece*> ChessBoard::get_piece(Color color)
       position = Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       if(color_get(position) == color)
       {
-        switch ((int)piecetype_get(position))
+        switch (piecetype_get(position))
         {
-          case 0:
+          case plugin::PieceType::KING:
             pieces.push_back(&King(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 1:
+          case plugin::PieceType::QUEEN:
             pieces.push_back(&Queen(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 2:
+          case plugin::PieceType::ROOK:
             pieces.push_back(&Rook(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 3:
+          case plugin::PieceType::BISHOP:
             pieces.push_back(&Bishop(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 4:
+          case plugin::PieceType::KNIGHT:
             pieces.push_back(&Knight(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 5:
+          case plugin::PieceType::PAWN:
             pieces.push_back(&Pawn(color_get(position), position, has_moved(position),piece_typeget(position)));
             break;
 
-          case 6:
-            break;
-
-          case 7:
+          case std::experimental::nullopt:
             break;
 
           default:
+            exit(58);
             break;
         }
       }
