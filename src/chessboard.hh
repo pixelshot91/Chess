@@ -8,6 +8,8 @@
 #include "plugin/piece-type.hh"
 #include "plugin/color.hh"
 #include "history.hh"
+#include "piece/piece.hh"
+#include "rule-checker.hh"
 
 class ChessBoard
 {
@@ -27,6 +29,7 @@ class ChessBoard
     plugin::Color color_get(plugin::Position position);
     bool castleflag_get(plugin::Position position);
     bool is_attacked(plugin::Color color, plugin::Position);
+    std::vector<Piece*> get_piece(Color color);
 
     History history_get() const;
 

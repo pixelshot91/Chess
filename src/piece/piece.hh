@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../plugin/colors.hh"
+#include "../plugin/color.hh"
 #include "../plugin/piece-type.hh"
 #include "../move.hh"
 

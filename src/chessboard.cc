@@ -1,5 +1,4 @@
 #include "chessboard.hh"
-#include "rule-checker.hh"
 
 ChessBoard::ChessBoard()
 {
