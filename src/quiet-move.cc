@@ -1,7 +1,7 @@
 #include "quiet-move.hh"
 
-QuietMove::QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType type, bool attack)
-  : Move(QUIET, color), start_(start), end_(end), piecetype_(type), attack_(attack)
+QuietMove::QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType type, bool attack, bool promotion)
+  : Move(QUIET, color), start_(start), end_(end), piecetype_(type), attack_(attack), promotion_(promotion)
 {
   std::cout << "Creating QuietMove" << std::endl;
 }
@@ -16,6 +16,18 @@ plugin::Position QuietMove::start_get() const {
 
 plugin::Position QuietMove::end_get() const {
   return end_;
+}
+
+bool QuietMove::is_an_attack() const {
+  return attack_;
+}
+
+bool QuietMove::is_promotion() const {
+  return promotion_;
+}
+
+bool QuietMove::is_a_test() const {
+  return test_;
 }
 
 std::ostream& operator<<(std::ostream& o, const plugin::Position p)

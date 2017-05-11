@@ -13,7 +13,8 @@ public:
   Engine(std::vector<plugin::Listener*> listeners, unsigned short port, ChessBoard chessboard);
   int start();
 private:
+  unsigned short port_;
   std::vector<plugin::Listener*> listeners_;
-  network_api::ServerNetworkAPI clients_[2];
+  //network_api::ServerNetworkAPI clients_[2];
   ChessBoard chessboard_;
 };

@@ -1,5 +1,7 @@
 #include "chessboard.hh"
 
+#include "rule-checker.hh"
+
 ChessBoard::ChessBoard()
 {
 }
@@ -28,23 +30,23 @@ ChessBoard::cell_t ChessBoard::get_opt(plugin::Position position, cell_t mask)
   return get_square(position) & mask;
 }
 
-bool ChessBoard::moved_at(plugin::Position position)
+bool ChessBoard::has_moved(plugin::Position position)
 {
   return (bool)get_opt(position, 0b00001000);
 }
 
-bool ChessBoard::color_at(plugin::Position position)
+plugin::Color ChessBoard::color_get(plugin::Position position)
 {
-  return (bool)get_opt(position, 0b10000000);
+  return static_cast<plugin::Color>(get_opt(position, 0b10000000));
 }
 
-bool ChessBoard::castleflag_at(plugin::Position position)
+bool ChessBoard::castleflag_get(plugin::Position position)
 {
   return (bool)get_opt(position, 0b00010000);
 }
 
 std::experimental::optional<plugin::PieceType>
-ChessBoard::piece_type_at(plugin::Position position)
+ChessBoard::piecetype_get(plugin::Position position)
 {
   cell_t type_b = get_opt(position, 0b00000111);
   if(type_b != 0b00000111)
@@ -52,15 +54,24 @@ ChessBoard::piece_type_at(plugin::Position position)
   return std::experimental::nullopt;
 }
 
-bool ChessBoard::is_attacked(Color color, plugin::Position cell)
+bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
 {
-  for (auto p : getPieces())
-    if (RuleChecker::check(*this, QuietMove(!color, p.position_get(), cell, p.piecetype_get(), true)))
-      return true;
+  //for (auto p : getPieces())
+  for (int i = 0; i < 8; ++i)
+    for (int j = 0; j < 8; ++j)
+    {
+      plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      if (piecetype_get(pos) != std::experimental::nullopt) {
+        if (RuleChecker::check(*this,
+              QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
+              pos, current_cell, piecetype_get(pos).value(), true, false)))
+          return true;
+      }
+    }
   return false;
 }
 
-std::vector<Piece*> ChessBoard::get_piece()
+/*std::vector<Piece*> ChessBoard::get_piece()
 {
   std::vector<Piece*> pieces;
   Position position;
@@ -70,5 +81,21 @@ std::vector<Piece*> ChessBoard::get_piece()
       position = Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
 
     }
+}*/
+
+History ChessBoard::history_get() const {
+  return history_;
 }
 
+plugin::Position ChessBoard::initial_king_position(plugin::Color c)
+{
+  if (c == plugin::Color::WHITE)
+    return plugin::Position(plugin::File::E, plugin::Rank::ONE);
+  return plugin::Position(plugin::File::E, plugin::Rank::EIGHT);
+}
+
+plugin::Position ChessBoard::initial_rook_position(plugin::Color c, bool king_side)
+{}
+
+plugin::Position ChessBoard::castling_end_position(plugin::Color color, bool king_side)
+{}

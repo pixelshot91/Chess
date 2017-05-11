@@ -2,13 +2,14 @@
 
 #include "move.hh"
 #include "quiet-move.hh"
+#include "chessboard.hh"
 
 class RuleChecker
 {
 public:
   RuleChecker() = default;
-  static bool check(plugin::ChessBoard board, const Move& m);
+  static bool check(ChessBoard board, const Move& m);
 private:
-  static bool isMoveAuthorized(plugin::ChessBoard board, const Move& m);
-  static bool isMoveLegal(plugin::ChessBoard board, Move m);
+  static bool isMoveAuthorized(ChessBoard board, const Move& m);
+  static bool isMoveLegal(ChessBoard board, Move m);
 };

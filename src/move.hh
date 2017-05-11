@@ -10,7 +10,7 @@ public:
   enum Type {
     QUIET,
     KING_CASTLING,
-    QUEEN_CASTLING
+    QUEEN_CASTLING,
   };
   
   Move(Type move_type, plugin::Color color);

@@ -102,7 +102,7 @@ int Parser::parse()
     std::string match_str = match.str();
     std::cout << "  " << match_str << '\n';
   }*/
-
+  return 0;
 }
 
 QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
@@ -110,5 +110,5 @@ QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
   plugin::Position pos_start(static_cast<plugin::File>(what["start_file"].str()[0]), static_cast<plugin::Rank>(what["start_rank"].str()[0]));
   plugin::Position pos_end(static_cast<plugin::File>(what["end_file"].str()[0]), static_cast<plugin::Rank>(what["end_rank"].str()[0]));
   char type = (what["piece"] == std::string("") ? 'P' : what["piece"].str()[0]);
-  return new QuietMove(color, pos_start, pos_end, static_cast<plugin::PieceType>(type), what["take"].str() == std::string("x"));
+  return new QuietMove(color, pos_start, pos_end, static_cast<plugin::PieceType>(type), what["take"].str() == std::string("x"), false); // FIX PROMOTION
 }

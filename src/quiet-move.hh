@@ -5,7 +5,7 @@
 class QuietMove : public Move
 {
 public:
-  QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType, bool attack);
+  QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType, bool attack, bool promotion);
   plugin::PieceType piecetype_get() const;
   plugin::Position start_get() const;
   plugin::Position end_get() const;
@@ -19,6 +19,7 @@ private:
   plugin::Position end_;
   plugin::PieceType piecetype_;
   bool attack_;
+  bool promotion_;
   bool test_;
 };
 std::ostream& operator<<(std::ostream& o, const QuietMove& m);
