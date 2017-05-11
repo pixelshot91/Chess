@@ -55,11 +55,11 @@ int Parser::parse()
       std::cout << (what["piece"] == std::string("") ? "Pawn" : what["piece"].str() ) << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
         << what["end_file"] << " " << what["end_rank"] << std::endl;*/
       //std::cout << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
-      moves.push_back(generateMove(what));
+      moves.push_back(generateMove(plugin::Color::WHITE, what));
     }
     else if (boost::regex_search(s, what, kingside_rook)) {
       std::cout << "KINGSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::CASTLING));
+      moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
     }
     else
       std::cout << "no match for EXP1" << std::endl;
@@ -72,11 +72,11 @@ int Parser::parse()
         << what["end_file"] << " " << what["end_rank"] << std::endl;*/
       //std::cout << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
       std::cout << "remaining_string = " << remaining_string << std::endl;
-      moves.push_back(generateMove(what));
+      moves.push_back(generateMove(plugin::Color::BLACK, what));
     }
     else if (boost::regex_search(remaining_string, what2, kingside_rook)) {
       std::cout << "KINGSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::CASTLING));
+      moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::BLACK));
     }
     else {
       std::cout << "no match for EXP2, remaining_string = " << remaining_string << "$" << std::endl;
@@ -105,10 +105,10 @@ int Parser::parse()
 
 }
 
-QuietMove* Parser::generateMove(boost::smatch what)
+QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
 {
   plugin::Position pos_start(static_cast<plugin::File>(what["start_file"].str()[0]), static_cast<plugin::Rank>(what["start_rank"].str()[0]));
   plugin::Position pos_end(static_cast<plugin::File>(what["end_file"].str()[0]), static_cast<plugin::Rank>(what["end_rank"].str()[0]));
   char type = (what["piece"] == std::string("") ? 'P' : what["piece"].str()[0]);
-  return new QuietMove(pos_start, pos_end, static_cast<plugin::PieceType>(type));
+  return new QuietMove(color, pos_start, pos_end, static_cast<plugin::PieceType>(type), what["take"].str() == std::string("x"));
 }

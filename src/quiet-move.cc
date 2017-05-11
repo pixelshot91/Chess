@@ -1,7 +1,7 @@
 #include "quiet-move.hh"
 
-QuietMove::QuietMove(plugin::Position start, plugin::Position end, plugin::PieceType type)
-  : Move(QUIET), start_(start), end_(end), piecetype_(type)
+QuietMove::QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType type, bool attack)
+  : Move(QUIET, color), start_(start), end_(end), piecetype_(type), attack_(attack)
 {
   std::cout << "Creating QuietMove" << std::endl;
 }

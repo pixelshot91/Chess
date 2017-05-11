@@ -2,18 +2,6 @@
 
 ChessBoard::ChessBoard()
 {
-  /*
-  board_ = {
-  {0x20, 0x3000, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90},
-  {20, 30, 40, 50, 60, 70, 80, 90}
-};
-  */
 }
 
 void ChessBoard::print_board()
@@ -62,4 +50,12 @@ ChessBoard::piece_type_at(plugin::Position position)
   if(type_b != 0b00000111)
     return plugin::piecetype_array()[type_b];
   return std::experimental::nullopt;
+}
+
+bool ChessBoard::is_attacked(Color color, plugin::Position cell)
+{
+  for (auto p : getPieces())
+    if (RuleChecker::check(*this, QuietMove(!color, p.position_get(), cell, p.piecetype_get(), true)))
+      return true;
+  return false;
 }

@@ -7,8 +7,8 @@ class RuleChecker
 {
 public:
   RuleChecker() = default;
-  bool check(uint64_t board[6], const Move& m);
+  static bool check(plugin::ChessBoard board, const Move& m);
 private:
-  bool isMoveAuthorized(uint64_t board[6], const Move& m);
-  bool isMoveLegal(uint64_t board[6], Move m);
+  static bool isMoveAuthorized(plugin::ChessBoard board, const Move& m);
+  static bool isMoveLegal(plugin::ChessBoard board, Move m);
 };

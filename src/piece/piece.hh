@@ -16,11 +16,11 @@ class Piece
     virtual bool isMoveAuthorized(Move) = 0;
     virtual bool isMoveLegal(Move) = 0;
 
-    Color getColor();
-    PieceType getType();
-    const Position& getPosition();
-    uint8_t getPopulation();
-    const list<Move>& getMoves();
+    Color color_get();
+    PieceType piecetype_get();
+    const Position& position_get();
+    //uint8_t population_get();
+    //const list<Move>& moves_get();
 
   private :
     Color color_;

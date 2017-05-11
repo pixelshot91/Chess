@@ -20,13 +20,15 @@ class ChessBoard
     bool moved_at(plugin::Position position);
     bool color_at(plugin::Position position);
     bool castleflag_at(plugin::Position position);
+    bool is_attacked(Color color, plugin::Position);
 
+    static plugin::Position initial_king_position(plugin::Color c);
+    static plugin::Position initial_rook_position(plugin::Color c, bool king_side);
     //bool moved(plugin::Position);
     //Color color(plugin::Position);
     void print_board();
   private:
     std::array<std::array<cell_t, 8>, 8> board_;
-    RuleChecker checker_;
 };
 
 /*
