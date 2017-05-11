@@ -13,6 +13,9 @@ class Piece
     Piece(Color color, Position pos, PieceType piece);
 
   public :
+    virtual bool isMoveAuthorized(Move) = 0;
+    virtual bool isMoveLegal(Move) = 0;
+
     Color getColor();
     PieceType getType();
     const Position& getPosition();
