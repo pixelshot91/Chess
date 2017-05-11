@@ -21,7 +21,7 @@ ChessBoard::cell_t ChessBoard::get_square(plugin::Position position)
   int j = (int)position.file_get();
   int i = (int)position.rank_get();
   std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
-    std::cout << std::endl;
+  std::cout << std::endl;
   return board_[i][j];
 }
 
@@ -45,7 +45,7 @@ bool ChessBoard::castleflag_get(plugin::Position position)
   return (bool)get_opt(position, 0b00010000);
 }
 
-std::experimental::optional<plugin::PieceType>
+  std::experimental::optional<plugin::PieceType>
 ChessBoard::piecetype_get(plugin::Position position)
 {
   cell_t type_b = get_opt(position, 0b00000111);
@@ -64,14 +64,14 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
       if (piecetype_get(pos) != std::experimental::nullopt) {
         if (RuleChecker::check(*this,
               QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
-              pos, current_cell, piecetype_get(pos).value(), true, false)))
+                pos, current_cell, piecetype_get(pos).value(), true, false)))
           return true;
       }
     }
   return false;
 }
 
-/*std::vector<Piece*> ChessBoard::get_piece()
+std::vector<Piece*> ChessBoard::get_piece(Color color)
 {
   std::vector<Piece*> pieces;
   Position position;
@@ -79,9 +79,47 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     for(int j = 0; j < 8 ; j++)
     {
       position = Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      if(color_get(position) == color)
+      {
+        switch ((int)piecetype_get(position))
+        {
+          case 0:
+            pieces.push_back(&King(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
 
+          case 1:
+            pieces.push_back(&Queen(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
+
+          case 2:
+            pieces.push_back(&Rook(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
+
+          case 3:
+            pieces.push_back(&Bishop(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
+
+          case 4:
+            pieces.push_back(&Knight(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
+
+          case 5:
+            pieces.push_back(&Pawn(color_get(position), position, has_moved(position),piece_typeget(position)));
+            break;
+
+          case 6:
+            break;
+
+          case 7:
+            break;
+
+          default:
+            break;
+        }
+      }
     }
-}*/
+  return pieces;
+}
 
 History ChessBoard::history_get() const {
   return history_;
@@ -99,3 +137,6 @@ plugin::Position ChessBoard::initial_rook_position(plugin::Color c, bool king_si
 
 plugin::Position ChessBoard::castling_end_position(plugin::Color color, bool king_side)
 {}
+
+//King(Color color, Position pos, bool has_moved,PieceType piece);
+
