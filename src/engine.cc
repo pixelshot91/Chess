@@ -7,5 +7,16 @@ Engine::Engine(std::vector<plugin::Listener*> listeners, unsigned short port, Ch
 
 int Engine::start()
 {
+  /*while {
+    // EACH player play
+
+    if(is_player_mat()) {
+      Listener.on_player_mat();
+      Listener.on_game_finished();
+      return;
+    }
+    if(check()) Listener.on_player_check();
+  }*/
+
   return 0;
 }

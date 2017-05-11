@@ -46,7 +46,9 @@ bool RuleChecker::isMoveLegal(plugin::ChessBoard board, Move move)
 {
   if (move.move_type_get() == Move::Type::QUIET)
   {
-    if (move.piecetype_get() != plugin::PieceType::PAWN and move.is_an_attack()) {
+    if (move.piecetype_get() == plugin::PieceType::KING and board.is_attacked(move.color_get(), move.end_get())) return false;
+      
+    if (move.piecetype_get() == plugin::PieceType::PAWN and move.is_an_attack()) {
       if (board.piecetype_get(move.end_get()) != nullopt_t) // case non vide
         return  move.color_get() != board.color(move.end_get()); // different color
       else // en passant ?
