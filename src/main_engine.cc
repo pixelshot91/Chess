@@ -6,6 +6,7 @@
 
 #include "adaptater.hh" // TO DELETE
 
+#include "chessboard.hh"
 namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
@@ -38,6 +39,8 @@ int main(int argc, char* argv[])
   }
   std::cerr << "No option were given." << std::endl << "Please use --pgn or -port option" << std::endl;
   return 0;
-  /*if (vm.count("listeners"))
-    std::cout << "listeners are: " << vm["listeners"].as<std::vector<std::string>>() << std::endl;*/
+  /*
+   if (vm.count("listeners"))
+    std::cout << "listeners are: " << vm["listeners"].as<std::vector<std::string>>() << std::endl;
+    */
 }

@@ -4,14 +4,13 @@
 #include <iostream>
 #include "plugin/piece-type.hh"
 
-
 class Move {
 public:
   enum Type {
     QUIET,
     CASTLING
   };
-  
+
   Move(Type move_type);
   Type move_type_get() const;
   virtual void print(std::ostream& o) const;
