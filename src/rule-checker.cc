@@ -51,7 +51,4 @@ bool RuleChecker::isMoveLegal(uint64_t board[6], Move m)
       if (board.piecetype(pos) != nullopt_t)
         return false;
   }
-
-  
-
 }
