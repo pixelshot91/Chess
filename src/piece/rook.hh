@@ -1,6 +1,9 @@
 #pragma once
 
+#include "piece.hh"
+
 class Rook : public Piece
 {
-  Rook(Color color, Position pos, bool has_moved, PieceType piece);
-}
+  public:
+  Rook(plugin::Color color, plugin::Position pos, bool has_moved);
+};

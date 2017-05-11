@@ -1,4 +1,12 @@
 #include "chessboard.hh"
+#include "rule-checker.hh"
+#include "piece/pawn.hh"
+#include "piece/king.hh"
+#include "piece/queen.hh"
+#include "piece/bishop.hh"
+#include "piece/knight.hh"
+#include "piece/rook.hh"
+
 
 ChessBoard::ChessBoard()
 {
@@ -6,7 +14,7 @@ ChessBoard::ChessBoard()
 
 void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   //if (!RuleChecker::check(*this, move)) throw invalid_move;
-  
+
   if (move.move_type_get() == Move::Type::QUIET) {
     const QuietMove& quiet_move = reinterpret_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
@@ -94,44 +102,43 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     }
   return false;
 }
-/*
-std::vector<Piece*> ChessBoard::get_piece(Color color)
+
+std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
 {
   std::vector<Piece*> pieces;
-  Position position;
   for(int i = 0; i < 8; i++)
     for(int j = 0; j < 8 ; j++)
     {
-      position = Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      plugin::Position position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       if(color_get(position) == color)
       {
-        switch (piecetype_get(position))
+        std::experimental::optional<plugin::PieceType> piece_type = piecetype_get(position);
+        if (piece_type == std::experimental::nullopt)
+          continue;
+        switch (piece_type.value())
         {
           case plugin::PieceType::KING:
-            pieces.push_back(&King(color_get(position), position, has_moved(position),piece_typeget(position)));
+            pieces.push_back(new King(color_get(position), position, has_moved(position)));
             break;
 
           case plugin::PieceType::QUEEN:
-            pieces.push_back(&Queen(color_get(position), position, has_moved(position),piece_typeget(position)));
+            pieces.push_back(new Queen(color_get(position), position, has_moved(position)));
             break;
 
           case plugin::PieceType::ROOK:
-            pieces.push_back(&Rook(color_get(position), position, has_moved(position),piece_typeget(position)));
+            pieces.push_back(new Rook(color_get(position), position, has_moved(position)));
             break;
 
           case plugin::PieceType::BISHOP:
-            pieces.push_back(&Bishop(color_get(position), position, has_moved(position),piece_typeget(position)));
+            pieces.push_back(new Bishop(color_get(position), position, has_moved(position)));
             break;
 
           case plugin::PieceType::KNIGHT:
-            pieces.push_back(&Knight(color_get(position), position, has_moved(position),piece_typeget(position)));
+            pieces.push_back(new Knight(color_get(position), position, has_moved(position)));
             break;
 
           case plugin::PieceType::PAWN:
-            pieces.push_back(&Pawn(color_get(position), position, has_moved(position),piece_typeget(position)));
-            break;
-
-          case std::experimental::nullopt:
+            pieces.push_back(new Pawn(color_get(position), position, has_moved(position)));
             break;
 
           default:
@@ -141,7 +148,9 @@ std::vector<Piece*> ChessBoard::get_piece(Color color)
       }
     }
   return pieces;
-}*/
+}
+
+//King(Color color, Position pos, bool has_moved,PieceType piece);
 
 History ChessBoard::history_get() const {
   return history_;

@@ -1,5 +1,5 @@
 #include "bishop.hh"
 
-Bishop::Bishop(Color color, Position pos, PieceType piece)
-    : Piece(color, pos,has_moved, PieceType::BISHOP)
+Bishop::Bishop(plugin::Color color, plugin::Position pos, bool has_moved)
+    : Piece(color, pos,has_moved, plugin::PieceType::BISHOP)
 {}

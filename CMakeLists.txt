@@ -9,7 +9,9 @@ set(BIN_ENGINE "chessengine")
 set(BIN_HUMAN "human")
 
 set(SRC_engine src/main_engine.cc src/move.cc src/quiet-move.cc src/parser.cc src/adaptater.cc
-  src/chessboard.cc src/rule-checker.cc src/engine.cc src/history.cc)
+  src/chessboard.cc src/rule-checker.cc src/engine.cc src/history.cc
+  src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
+  src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
 
 set(SRC_human src/main_human.cc)
 

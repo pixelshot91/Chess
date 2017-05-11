@@ -1,5 +1,5 @@
 #include "pawn.hh"
 
-Pawn::Pawn(Color color, Position pos, PieceType piece)
-    : Piece(color, pos,has_moved, PieceType::PAWN)
+Pawn::Pawn(plugin::Color color, plugin::Position pos, bool has_moved)
+    : Piece(color, pos,has_moved, plugin::PieceType::PAWN)
 {}

@@ -1,6 +1,9 @@
 #pragma once
 
+#include "piece.hh"
+
 class King : public Piece
 {
-  King(Color color, Position pos, bool has_moved,PieceType piece);
-}
+  public:
+  King(plugin::Color color, plugin::Position pos, bool has_moved);
+};

@@ -1,6 +1,9 @@
-pragma once
+#pragma once
+
+#include "piece.hh"
 
 class Knight : public Piece
 {
-  Knight(Color color, Position pos, bool has_moved, PieceType piece);
-}
+  public:
+  Knight(plugin::Color color, plugin::Position pos, bool has_moved);
+};
