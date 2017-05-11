@@ -18,6 +18,23 @@ int Engine::start()
     clients_[i]->send("uci");
     clients_[i]->receive();
   }
+  for (int i = 0; i < 2; ++i) {
+    clients_[i]->send("isready");
+    if (clients_[i]->receive() != "readyok") return -1;
+  }
+  std::string received_moves;
+
+  clients_[0]->send("ucinewgame");
+  clients_[0]->send("go");
+  std::string new_move = clients_[0]->receive();
+  chessboard_.update(Parser::parse_move(new_move));
+  received_moves += " " + new_move;
+
+  clients_[1]->send("ucinewgame");
+  clients_[1]->send("position startpos moves " + received_moves);
+  clients_[1]->send("go");
+  clients_[1]->receive();
+
 
 
   /*while {

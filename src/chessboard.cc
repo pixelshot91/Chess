@@ -95,7 +95,7 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     }
   return false;
 }
-
+/*
 std::vector<Piece*> ChessBoard::get_piece(Color color)
 {
   std::vector<Piece*> pieces;
@@ -142,7 +142,7 @@ std::vector<Piece*> ChessBoard::get_piece(Color color)
       }
     }
   return pieces;
-}
+}*/
 
 History ChessBoard::history_get() const {
   return history_;

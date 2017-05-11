@@ -8,6 +8,21 @@ Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
 {}
 
+Move& Parser::parse_move(std::string s)
+{
+    boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
+    boost::regex kingside_rook("O-O");
+    boost::smatch what;
+    if (boost::regex_search(s, what, exp)) {
+      return *generateMove(plugin::Color::WHITE, what);
+    }
+    else if (boost::regex_search(s, what, kingside_rook)) {
+      return *(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
+    }
+    else
+      throw std::invalid_argument("invalid move");
+}
+
 int Parser::parse()
 {
   std::ifstream pgn(pgn_path_);
@@ -39,17 +54,7 @@ int Parser::parse()
     boost::regex kingside_rook("O-O");
     boost::regex queenside_rook("0-0-0");
     boost::regex game_termination("(?<resultat>(1-0|0-1|1/2-1/2))");
-
-    //std::string test(" O-O 9");
-
-
     boost::smatch what;
-
-    /*if (boost::regex_search(test, what, kingside_rook)) { 
-      std::cout << "match" << std::endl;
-      exit(0);
-    }*/
-
     if (boost::regex_search(s, what, exp1)) {
       /*std::cout << "WHAT " << what[0] << std::endl;
       std::cout << (what["piece"] == std::string("") ? "Pawn" : what["piece"].str() ) << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "

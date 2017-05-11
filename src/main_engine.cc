@@ -11,7 +11,6 @@ namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
 {
-  std::cout << "Malloc or die" << std::endl;
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "show usage")
