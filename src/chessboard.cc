@@ -13,10 +13,10 @@ ChessBoard::ChessBoard()
 }
 
 void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
-  //if (!RuleChecker::check(*this, move)) throw invalid_move;
-
+  if (!RuleChecker::check(*this, move)) throw std::invalid_argument("invalid move");;
+  
   if (move.move_type_get() == Move::Type::QUIET) {
-    const QuietMove& quiet_move = reinterpret_cast<const QuietMove&>(move);
+    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
   }
   else {
@@ -48,37 +48,37 @@ void ChessBoard::set_square(plugin::Position position, cell_t value) {
   board_[static_cast<char>(position.file_get())][static_cast<char>(position.rank_get())] = value;
 }
 
-ChessBoard::cell_t ChessBoard::get_square(plugin::Position position)
+ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
 {
   int j = (int)position.file_get();
   int i = (int)position.rank_get();
-  std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
-  std::cout << std::endl;
+  //std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
+  //std::cout << std::endl;
   return board_[i][j];
 }
 
-ChessBoard::cell_t ChessBoard::get_opt(plugin::Position position, cell_t mask)
+ChessBoard::cell_t ChessBoard::get_opt(plugin::Position position, cell_t mask) const
 {
   return get_square(position) & mask;
 }
 
-bool ChessBoard::has_moved(plugin::Position position)
+bool ChessBoard::has_moved(plugin::Position position) const
 {
   return (bool)get_opt(position, 0b00001000);
 }
 
-plugin::Color ChessBoard::color_get(plugin::Position position)
+plugin::Color ChessBoard::color_get(plugin::Position position) const
 {
   return static_cast<plugin::Color>(get_opt(position, 0b10000000));
 }
 
-bool ChessBoard::castleflag_get(plugin::Position position)
+bool ChessBoard::castleflag_get(plugin::Position position) const
 {
   return (bool)get_opt(position, 0b00010000);
 }
 
   std::experimental::optional<plugin::PieceType>
-ChessBoard::piecetype_get(plugin::Position position)
+ChessBoard::piecetype_get(plugin::Position position) const
 {
   cell_t type_b = get_opt(position, 0b00000111);
   if(type_b != 0b00000111)
@@ -86,7 +86,7 @@ ChessBoard::piecetype_get(plugin::Position position)
   return std::experimental::nullopt;
 }
 
-bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
+bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell) const
 {
   //for (auto p : getPieces())
   for (int i = 0; i < 8; ++i)

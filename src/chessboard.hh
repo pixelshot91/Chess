@@ -20,15 +20,14 @@ class ChessBoard
     void move_piece(plugin::Position start, plugin::Position end);
 
     void set_square(plugin::Position position, cell_t value);
-    cell_t get_square(plugin::Position position);
-    cell_t get_opt(plugin::Position position, cell_t mask);
+    cell_t get_square(plugin::Position position) const;
+    cell_t get_opt(plugin::Position position, cell_t mask) const;
 
-    std::experimental::optional<plugin::PieceType> piecetype_get(plugin::Position position);
-    bool has_moved(plugin::Position position);
-    plugin::Color color_get(plugin::Position position);
-    bool castleflag_get(plugin::Position position);
-    bool is_attacked(plugin::Color color, plugin::Position);
-    std::vector<Piece*> get_piece(plugin::Color color);
+    std::experimental::optional<plugin::PieceType> piecetype_get(plugin::Position position) const;
+    bool has_moved(plugin::Position position) const;
+    plugin::Color color_get(plugin::Position position) const;
+    bool castleflag_get(plugin::Position position) const;
+    bool is_attacked(plugin::Color color, plugin::Position) const;
 
     History history_get() const;
 

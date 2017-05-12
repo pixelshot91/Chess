@@ -8,8 +8,8 @@ class RuleChecker
 {
 public:
   RuleChecker() = default;
-  static bool check(ChessBoard board, const Move& m);
+  static bool check(const ChessBoard& board, const Move& m);
 private:
-  static bool isMoveAuthorized(ChessBoard board, const Move& m);
-  static bool isMoveLegal(ChessBoard board, Move m);
+  static bool isMoveAuthorized(const ChessBoard& board, const Move& m);
+  static bool isMoveLegal(const ChessBoard& board, const Move& m);
 };

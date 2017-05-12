@@ -4,6 +4,8 @@
 
 #include "parser.hh"
 
+#include "chessboard.hh"
+
 Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
 {}
@@ -90,12 +92,14 @@ int Parser::parse()
         std::cout << "result is " << what["resultat"] << std::endl; 
       }
     }
-
-
   }
-
-  for (auto m : moves)
+  ChessBoard board;
+  for (auto m : moves) {
+    std::cout << "move description" << std::endl;
     std::cout << *m << std::endl;
+    std::cout << "end move description" << std::endl;
+    board.update(*m);
+  }
 
   /*std::regex word_regex("\\[(\\S+)");
   auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_regex);
