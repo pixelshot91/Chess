@@ -29,6 +29,8 @@ class ChessBoard
     bool castleflag_get(plugin::Position position) const;
     bool is_attacked(plugin::Color color, plugin::Position) const;
 
+    std::vector<Piece*> get_piece(plugin::Color color);
+
     History history_get() const;
 
     static plugin::Position initial_king_position(plugin::Color c);
