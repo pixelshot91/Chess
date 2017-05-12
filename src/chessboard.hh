@@ -41,7 +41,10 @@ class ChessBoard
     void print_board();
 
   private:
-    std::array<std::array<cell_t, 8>, 8> board_;
+    std::array<std::array<cell_t, 8>, 8> board_=
+    {
+      {0x82,0x84,0x83,0x81,0x80,0x83,0x84,0x82}
+    };
     History history_;
 };
 

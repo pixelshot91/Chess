@@ -13,6 +13,8 @@ set(SRC_engine src/main_engine.cc src/move.cc src/quiet-move.cc src/parser.cc sr
   src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
   src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
 
+set (SRC_TEST_ChessBoard src/move.cc src/quiet-move.cc src/chessboard.cc)
+
 set(SRC_human src/main_human.cc)
 
 
@@ -23,6 +25,7 @@ include_directories(src
 
 add_executable(${BIN_ENGINE} ${SRC_engine})
 add_executable(${BIN_HUMAN} ${SRC_human})
+add_executable("test_chessboard" ${SRC_TEST_ChessBoard})
 
 target_link_libraries(${BIN_ENGINE} boost_program_options)
 target_link_libraries(${BIN_ENGINE} boost_regex)
