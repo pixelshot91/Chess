@@ -51,16 +51,16 @@ int Parser::parse()
     getline(pgn, s, '.');
     std::cout << "line = " << s << std::endl;
     //boost::regex exp("(?<var>\\S+)");
-    boost::regex exp1("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
+    boost::regex exp1("^[\n ]*(?<piece>\\S?)(?<start_file>[a-h])(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
     boost::regex exp2("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
     boost::regex kingside_rook("O-O");
-    boost::regex queenside_rook("0-0-0");
+    boost::regex queenside_rook("O-O-O");
     boost::regex game_termination("(?<resultat>(1-0|0-1|1/2-1/2))");
     boost::smatch what;
     if (boost::regex_search(s, what, exp1)) {
-      /*std::cout << "WHAT " << what[0] << std::endl;
+      std::cout << "WHAT " << what[0] << std::endl;
       std::cout << (what["piece"] == std::string("") ? "Pawn" : what["piece"].str() ) << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
-        << what["end_file"] << " " << what["end_rank"] << std::endl;*/
+        << what["end_file"] << " " << what["end_rank"] << std::endl;
       //std::cout << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
       moves.push_back(generateMove(plugin::Color::WHITE, what));
     }
@@ -71,9 +71,8 @@ int Parser::parse()
     else
       std::cout << "no match for EXP1" << std::endl;
     std::string remaining_string = s.substr(what[0].str().length() + 1);
-    boost::smatch what2;
     std::cout << "remaining_string = " << remaining_string << std::endl;
-    if (boost::regex_search(remaining_string, what2, exp2)) {
+    if (boost::regex_search(remaining_string, what, exp2)) {
       /*std::cout << "WHAT " << what[0] << std::endl;
       std::cout << what["piece"] << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
         << what["end_file"] << " " << what["end_rank"] << std::endl;*/
@@ -81,7 +80,7 @@ int Parser::parse()
       std::cout << "remaining_string = " << remaining_string << std::endl;
       moves.push_back(generateMove(plugin::Color::BLACK, what));
     }
-    else if (boost::regex_search(remaining_string, what2, kingside_rook)) {
+    else if (boost::regex_search(remaining_string, what, kingside_rook)) {
       std::cout << "KINGSIDE MOVE" << std::endl;
       moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::BLACK));
     }
@@ -99,6 +98,7 @@ int Parser::parse()
     std::cout << *m << std::endl;
     std::cout << "end move description" << std::endl;
     board.update(*m);
+    board.print();
   }
 
   /*std::regex word_regex("\\[(\\S+)");
@@ -116,8 +116,8 @@ int Parser::parse()
 
 QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
 {
-  plugin::Position pos_start(static_cast<plugin::File>(what["start_file"].str()[0]), static_cast<plugin::Rank>(what["start_rank"].str()[0]));
-  plugin::Position pos_end(static_cast<plugin::File>(what["end_file"].str()[0]), static_cast<plugin::Rank>(what["end_rank"].str()[0]));
+  plugin::Position pos_start(static_cast<plugin::File>(what["start_file"].str()[0] - 'a'), static_cast<plugin::Rank>(what["start_rank"].str()[0] - '1'));
+  plugin::Position pos_end(static_cast<plugin::File>(what["end_file"].str()[0] - 'a'), static_cast<plugin::Rank>(what["end_rank"].str()[0] - '1'));
   char type = (what["piece"] == std::string("") ? 'P' : what["piece"].str()[0]);
   return new QuietMove(color, pos_start, pos_end, static_cast<plugin::PieceType>(type), what["take"].str() == std::string("x"), false); // FIX PROMOTION
 }

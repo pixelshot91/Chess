@@ -32,12 +32,12 @@ bool QuietMove::is_a_test() const {
 
 std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 {
-  o << static_cast<char>(p.file_get()) << static_cast<char>(p.rank_get());
+  o << (char)(static_cast<char>(p.file_get()) + 'A') << (char)(static_cast<char>(p.rank_get()) + '1');
   return o;
 }
 
 void QuietMove::print(std::ostream& o) const {
-  o << static_cast<char>(piecetype_get()) << " from " << start_get() << " to " << end_get();
+  o << static_cast<char>(piecetype_get()) << (attack_ ? " attack" : " move") << " from " << start_get() << " to " << end_get();
 }
 
 

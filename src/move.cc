@@ -13,7 +13,10 @@ plugin::Color Move::color_get() const {
 }
 
 void Move::print(std::ostream& o) const {
-  o << "move";//static_cast<char>(m.type_get()) << " from " << m.start_get() << " to " << m.end_get();
+  if (move_type_ == KING_CASTLING)
+    o << "King_castling";
+  else
+    o << "Queen castling";
 }
 
 std::ostream& operator<<(std::ostream& o, const Move& m)

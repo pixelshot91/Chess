@@ -39,7 +39,7 @@ class ChessBoard
     static plugin::Position castling_rook_end_position(plugin::Color color, bool king_side);
     //bool moved(plugin::Position);
     //Color color(plugin::Position);
-    void print_board();
+    void print() const;
 
   private:
     std::array<std::array<cell_t, 8>, 8> board_=

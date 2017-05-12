@@ -7,6 +7,12 @@
 #include "piece/knight.hh"
 #include "piece/rook.hh"
 
+std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
+/*std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
+{
+  o << (char)(static_cast<char>(p.file_get()) + 'A') << (char)(static_cast<char>(p.rank_get()) + '1');
+  return o;
+}*/
 
 ChessBoard::ChessBoard()
 {
@@ -34,26 +40,33 @@ void ChessBoard::move_piece(plugin::Position start, plugin::Position end) {
   set_square(start, 0x7); //0b000001111
 }
 
-void ChessBoard::print_board()
+void ChessBoard::print() const
 {
-  for (unsigned i = 0; i < board_.size(); ++i)
+  for (int i = board_.size() - 1; i >= 0; --i)
   {
-    for (unsigned j = 0; j < board_[0].size(); j++)
-      std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
+    for (unsigned j = 0; j < board_[0].size(); j++) {
+      if (piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)) == std::experimental::nullopt)
+        std::cout << "_ ";
+      else
+        std::cout << static_cast<char>(piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)).value()) << " ";
+
+      //std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+    }
     std::cout << std::endl;
   }
 }
 
 void ChessBoard::set_square(plugin::Position position, cell_t value) {
-  board_[static_cast<char>(position.file_get())][static_cast<char>(position.rank_get())] = value;
+  board_[ 7 - static_cast<char>(position.rank_get())][static_cast<char>(position.file_get())] = value;
 }
 
 ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
 {
-  int j = (int)position.file_get();
-  int i = (int)position.rank_get();
-  //std::cout << std::hex << std::setfill('0') << std::setw(2) << board_[i][j] << " ";
-  //std::cout << std::endl;
+  char j = static_cast<char>(position.file_get());
+  char i = 7 - static_cast<char>(position.rank_get());
+  /*std::cout << "i = " << (unsigned)i << " j = " << (unsigned int)j << std::endl;
+  std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+  std::cout << std::endl;*/
   return board_[i][j];
 }
 
@@ -69,7 +82,7 @@ bool ChessBoard::has_moved(plugin::Position position) const
 
 plugin::Color ChessBoard::color_get(plugin::Position position) const
 {
-  return static_cast<plugin::Color>(get_opt(position, 0b10000000));
+  return static_cast<plugin::Color>(get_opt(position, 0b10000000) != 0);
 }
 
 bool ChessBoard::castleflag_get(plugin::Position position) const
@@ -93,11 +106,18 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     for (int j = 0; j < 8; ++j)
     {
       plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
-      if (piecetype_get(pos) != std::experimental::nullopt) {
-        if (RuleChecker::check(*this,
-              QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
-                pos, current_cell, piecetype_get(pos).value(), true, false)))
-          return true;
+      if (piecetype_get(pos) != std::experimental::nullopt and color_get(pos) != color) {
+        std::cout << " ATTACKER : " << pos << std::endl;
+        try {
+          if (RuleChecker::check(*this,
+            QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
+            pos, current_cell, piecetype_get(pos).value(), true, false))) {
+            return true;
+          }
+        }
+        catch (std::invalid_argument& e) {
+          return false;
+        }
       }
     }
   return false;
