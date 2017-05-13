@@ -10,10 +10,11 @@
 class Engine
 {
 public:
-  Engine(std::vector<plugin::Listener*> listeners, unsigned short port, ChessBoard chessboard);
+  Engine(std::vector<plugin::Listener*> listeners, unsigned short port, std::string pgn_path);
   int start();
 private:
   unsigned short port_;
+  std::string pgn_path_;
   std::vector<plugin::Listener*> listeners_;
   //network_api::ServerNetworkAPI clients_[2];
   ChessBoard chessboard_;

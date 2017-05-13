@@ -1,12 +1,13 @@
 #include <iostream>
-
+#include <dlfcn.h>
 #include "boost/program_options.hpp"
 
 #include "parser.hh"
 
 #include "adaptater.hh" // TO DELETE
-
-#include "chessboard.hh"
+#include "engine.hh"
+#include "plugin/listener.hh"
+//#include "chessboard.hh"
 namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
@@ -16,7 +17,7 @@ int main(int argc, char* argv[])
     ("help,h", "show usage")
     ("port,p", po::value<int>(),"select the listening port for the network")
     ("pgn", po::value<std::string>(), "path to the PGN game file")
-    ("listeners,l", po::value<std::vector<std::string>>()->value_name("path"), "list of paths to listener plugins");
+    ("listeners,l", po::value<std::vector<std::string>>()->multitoken()->value_name("path"), "list of paths to listener plugins");
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -26,16 +27,31 @@ int main(int argc, char* argv[])
     std::cout << desc << "\n";
     return 0;
   }
+  std::vector<Listener*> listeners;
+  if (vm.count("listeners")) {
+    std::vector<std::string> listeners_name = vm["listeners"].as<std::vector<std::string>>();
+    for (auto s : listeners_name) {
+      std::cout << s << std::endl;
+      void* handle = dlopen(s.c_str(), RTLD_NOW);
+      if (handle == nullptr)
+        std::invalid_argument("Can't open librairy");
+      dlerror();
+      Listener* listener = reinterpret_cast<Listener*(*)()>(dlsym(handle, "listener_create"))();
+      listeners.push_back(listener);
+    }
+    std::cout << listeners.size() << std::endl;
+  }
+
   if (vm.count("port")) {
     std::cout << "port is: " << vm["port"].as<int>() << std::endl;
     return 0;
   }
-  else if (vm.count("pgn")) {
+  if (vm.count("pgn")) {
     std::string pgn_path = vm["pgn"].as<std::string>();
     std::cout << "pgn path is: " << pgn_path << std::endl;
-    std::cout << "Parsing..." << std::endl;
-    Parser parser(pgn_path);
-    return parser.parse();
+    Engine engine(listeners, 0, pgn_path);
+    engine.start();
+    return 0;
   }
   std::cerr << "No option were given." << std::endl << "Please use --pgn or -port option" << std::endl;
   return 0;

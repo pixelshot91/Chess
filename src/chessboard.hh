@@ -9,12 +9,13 @@
 #include "plugin/color.hh"
 #include "history.hh"
 #include "piece/piece.hh"
+#include "plugin/listener.hh"
 
 class ChessBoard
 {
   public:
     using cell_t = uint8_t;
-    ChessBoard();
+    ChessBoard(std::vector<plugin::Listener*>);
 
     void update(Move& move);
     void move_piece(plugin::Position start, plugin::Position end);
@@ -54,6 +55,7 @@ class ChessBoard
       0x02,0x04,0x03,0x01,0x00,0x03,0x04,0x02
     };
     History history_;
+    std::vector<plugin::Listener*> listeners_;
 };
 
 /*

@@ -14,7 +14,8 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
   return o;
 }*/
 
-ChessBoard::ChessBoard()
+ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
+  : listeners_(listeners)
 {
 }
 
@@ -24,6 +25,8 @@ void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   if (move.move_type_get() == Move::Type::QUIET) {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
+    for (auto l : listeners_)
+      l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(), quiet_move.end_get());
   }
   else {
     move_piece(initial_king_position(move.color_get()), castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));

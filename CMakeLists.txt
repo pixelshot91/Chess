@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -lboost_program_options")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")

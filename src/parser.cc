@@ -25,7 +25,7 @@ Move& Parser::parse_move(std::string s)
       throw std::invalid_argument("invalid move");
 }
 
-int Parser::parse()
+std::vector<Move*> Parser::parse()
 {
   std::ifstream pgn(pgn_path_);
   if (!pgn.is_open())
@@ -104,14 +104,15 @@ int Parser::parse()
       }
     }
   }
-  ChessBoard board;
+  /*ChessBoard board;
   for (auto m : moves) {
     std::cout << "move description" << std::endl;
     std::cout << *m << std::endl;
     std::cout << "end move description" << std::endl;
     board.update(*m);
     board.print();
-  }
+  }*/
+  return moves;
 
   /*std::regex word_regex("\\[(\\S+)");
   auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_regex);
@@ -123,7 +124,6 @@ int Parser::parse()
     std::string match_str = match.str();
     std::cout << "  " << match_str << '\n';
   }*/
-  return 0;
 }
 
 QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
