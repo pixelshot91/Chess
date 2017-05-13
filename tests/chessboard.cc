@@ -2,12 +2,48 @@
 
 int main()
 {
+
+  std::vector<plugin::PieceType> pieceline = {plugin::PieceType::ROOK,plugin::PieceType::KNIGHT,plugin::PieceType::BISHOP,plugin::PieceType::QUEEN,plugin::PieceType::KING, plugin::PieceType::BISHOP,plugin::PieceType::KNIGHT,plugin::PieceType::ROOK};
+  std::vector<plugin::PieceType> pawnline = {plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN};
+
   ChessBoard b;
-  b.print();
-  if (b.piecetype_get(plugin::Position(plugin::File::A, plugin::Rank::ONE)) != plugin::PieceType::ROOK)
-    return -1;
-  if (b.piecetype_get(plugin::Position(plugin::File::E, plugin::Rank::TWO)) != plugin::PieceType::PAWN)
-    return -1;
+
+  for(int i; i < 8; i++)
+  {
+    //PIECE TYPE
+    if (b.piecetype_get(plugin::Position(static_cast<plugin::File> (i), plugin::Rank::ONE)) != pieceline[i])
+      std::cout<< "error piece WHITE"<< std::endl;
+    if (b.piecetype_get(plugin::Position(static_cast<plugin::File> (i), plugin::Rank::EIGHT)) != pieceline[i])
+      std::cout<< "error piece BLACK"<< std::endl;
+    if (b.piecetype_get(plugin::Position(static_cast<plugin::File> (i), plugin::Rank::SEVEN)) != pawnline[i])
+      std::cout<< "error pawn BLACK"<< std::endl;
+    if (b.piecetype_get(plugin::Position(static_cast<plugin::File> (i), plugin::Rank::TWO)) != pawnline[i])
+      std::cout<< "error pawn WHITE"<< std::endl;
+
+    for(int j = 2; j < 6 ; j++)
+    {
+      //PIECE TYPE
+      if (b.piecetype_get(plugin::Position(static_cast<plugin::File> (i), static_cast<plugin::Rank> (j) )) != std::experimental::nullopt)
+        std::cout<< "error not empty piece"<< std::endl;
+    }
+    std::cout<< "new Piece" << std::endl;
+  }
+
+  for(int i; i < 8; i++)
+  {
+    for(int k = 0; k < 2; k++)
+    {
+      if (b.color_get(plugin::Position(static_cast<plugin::File> (i), static_cast<plugin::Rank> (k) != plugin::color::BLACK )))
+        std::cout<< "color fail"<< std::endl;
+    }
+    for(int j = 6; j < 8; j++)
+    {
+      if (b.color_get(plugin::Position(static_cast<plugin::File> (i), static_cast<plugin::Rank> (k) != plugin::color::WHITE)))
+        std::cout<< "color fail"<< std::endl;
+
+    }
+  }
+
 
   //std::cout << static_cast<char>(b.piecetype_get(plugin::Position(plugin::File::A, plugin::Rank::ONE))) << std::endl;
   return 0;
