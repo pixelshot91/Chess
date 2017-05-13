@@ -12,4 +12,10 @@ public:
 private:
   static bool isMoveAuthorized(const ChessBoard& board, const Move& m);
   static bool isMoveLegal(const ChessBoard& board, const Move& m);
+
+public:
+  static bool isStalemate(const ChessBoard& board, plugin::Position
+  king_pos);
+  static bool isCheckmate(const ChessBoard& board, plugin::Position
+  king_pos);
 };

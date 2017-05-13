@@ -116,10 +116,11 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
       }
     }
   }
-  else // Special Move
+  else // Special Move  // CHECKING IS CASTLING POSSIBLE
   {
     plugin::Position king_pos = ChessBoard::initial_king_position(move.color_get());
     if (board.has_moved(king_pos)) throw std::invalid_argument("king has already moved");
+
     plugin::Position rook_pos = ChessBoard::initial_rook_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
     if (board.has_moved(rook_pos)) throw std::invalid_argument("rook has already moved");
 
@@ -144,4 +145,28 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
 
   }
   return true;
+}
+
+bool RuleChecker::isStalemate(const ChessBoard& board, plugin::Position
+king_pos)
+{
+  for (auto i = 0, file = static_cast<int>(king_pos.file_get()) - 1; i < 2; i++, file++)
+  {
+    for (auto j = 0, rank = static_cast<int>(king_pos.file_get()) - 1; j < 2; j++,
+rank++)
+    {
+      if ((i == 1 and j == 1) or file > 7 or rank > 7 or file < 0 or rank < 0)
+        continue;
+      if (!board.is_attacked(board.color_get(king_pos), king_pos))
+        return false;
+    }
+  }
+  return true;
+}
+
+bool RuleChecker::isCheckmate(const ChessBoard& board, plugin::Position
+king_pos)
+{
+  return (isStalemate(board, king_pos) and
+board.is_attacked(board.color_get(king_pos), king_pos));
 }
