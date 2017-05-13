@@ -23,7 +23,7 @@ void ChessboardListener::on_piece_moved(const PieceType piece, const Position& f
       if (piece == nullopt)
         std::cout << background + " ";
       else {
-        if(piece.get<plugin::Color> == )
+        if(piece.get<plugin::Color> == plugin::color:WHITE)
         {
           std::cout << background + "Hello, ф or \u0444!";
         }
