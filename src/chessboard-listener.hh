@@ -6,6 +6,8 @@ using namespace plugin;
 
 class ChessboardListener : public Listener
 {
+  public:
+  ChessboardListener();
   /**
    ** \brief Register the ChessboardInterface for later use.
    ** Called once per game at the beginning.
@@ -119,6 +121,9 @@ class ChessboardListener : public Listener
    ** \brief Event when there is a draw game.
    */
   void on_draw();
+
+  private:
+    const ChessboardInterface* adaptater_;
 };
 
 
