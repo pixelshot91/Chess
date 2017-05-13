@@ -64,12 +64,10 @@ std::vector<Move*> Parser::parse()
       //std::cerr << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
       moves.push_back(generateMove(plugin::Color::WHITE, what));
     }
-    //RM ME
     else if (boost::regex_search(s, what, queenside_rook)) {
       std::cerr << "QUEENSIDE MOVE" << std::endl;
       moves.push_back(new Move(Move::Type::QUEEN_CASTLING, plugin::Color::WHITE));
     }
-    //RM ME 
    else if (boost::regex_search(s, what, kingside_rook)) {
       std::cerr << "KINGSIDE MOVE" << std::endl;
       moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
@@ -86,12 +84,10 @@ std::vector<Move*> Parser::parse()
       std::cerr << "remaining_string = " << remaining_string << std::endl;
       moves.push_back(generateMove(plugin::Color::BLACK, what));
     }
-    // RM ME
     else if (boost::regex_search(remaining_string, what, queenside_rook)) {
       std::cerr << "QUEENSIDE MOVE" << std::endl;
       moves.push_back(new Move(Move::Type::QUEEN_CASTLING, plugin::Color::BLACK));
     }
-    // RM ME
     else if (boost::regex_search(remaining_string, what, kingside_rook)) {
       std::cerr << "KINGSIDE MOVE" << std::endl;
       moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::BLACK));

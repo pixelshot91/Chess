@@ -22,6 +22,8 @@ void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   if (!RuleChecker::check(*this, move)) 
     throw std::invalid_argument("invalid move - in ChessBoard update()");
 
+  for (auto l : listeners_)
+    l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(), quiet_move.end_get());
   /* Update piece position*/
   if (move.move_type_get() == Move::Type::QUIET) 
   {
