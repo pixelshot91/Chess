@@ -14,9 +14,9 @@ plugin::Color Move::color_get() const {
 
 void Move::print(std::ostream& o) const {
   if (move_type_ == KING_CASTLING)
-    o << "King_castling";
+    o << "King_castling" << std::endl;
   else
-    o << "Queen castling";
+    o << "Queen castling" << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& o, const Move& m)
