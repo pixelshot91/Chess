@@ -24,14 +24,14 @@ int main(int argc, char* argv[])
   po::notify(vm);
 
   if (vm.count("help")) {
-    std::cout << desc << "\n";
+    std::cerr << desc << "\n";
     return 0;
   }
   std::vector<Listener*> listeners;
   if (vm.count("listeners")) {
     std::vector<std::string> listeners_name = vm["listeners"].as<std::vector<std::string>>();
     for (auto s : listeners_name) {
-      std::cout << s << std::endl;
+      std::cerr << s << std::endl;
       void* handle = dlopen(s.c_str(), RTLD_NOW);
       if (handle == nullptr)
         std::invalid_argument("Can't open librairy");
@@ -39,16 +39,16 @@ int main(int argc, char* argv[])
       Listener* listener = reinterpret_cast<Listener*(*)()>(dlsym(handle, "listener_create"))();
       listeners.push_back(listener);
     }
-    std::cout << listeners.size() << std::endl;
+    std::cerr << listeners.size() << std::endl;
   }
 
   if (vm.count("port")) {
-    std::cout << "port is: " << vm["port"].as<int>() << std::endl;
+    std::cerr << "port is: " << vm["port"].as<int>() << std::endl;
     return 0;
   }
   if (vm.count("pgn")) {
     std::string pgn_path = vm["pgn"].as<std::string>();
-    std::cout << "pgn path is: " << pgn_path << std::endl;
+    std::cerr << "pgn path is: " << pgn_path << std::endl;
     Engine engine(listeners, 0, pgn_path);
     engine.start();
     return 0;
@@ -57,6 +57,6 @@ int main(int argc, char* argv[])
   return 0;
   /*
    if (vm.count("listeners"))
-    std::cout << "listeners are: " << vm["listeners"].as<std::vector<std::string>>() << std::endl;
+    std::cerr << "listeners are: " << vm["listeners"].as<std::vector<std::string>>() << std::endl;
     */
 }

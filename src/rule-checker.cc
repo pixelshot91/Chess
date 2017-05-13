@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
 bool RuleChecker::check(const ChessBoard& board, const Move& move)
 {
   if (!isMoveAuthorized(board, move)) return false; // Based on the Piece Type and position of start and end cell
-  std::cout << "Move AUTHORIZED" << std::endl;
+  std::cerr << "Move AUTHORIZED" << std::endl;
   return isMoveLegal(board, move);
 
 }
@@ -95,21 +95,21 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     else {
       if (not quiet_move.is_a_test() and quiet_move.is_an_attack() and board.piecetype_get(quiet_move.end_get()) == std::experimental::nullopt) throw std::invalid_argument("can't attack an empty cell");
       if (board.piecetype_get(quiet_move.end_get()) != std::experimental::nullopt and quiet_move.color_get() == board.color_get(quiet_move.end_get())) {
-        std::cout << "color " << ~board.color_get(quiet_move.end_get()) << std::endl;
+        std::cerr << "color " << ~board.color_get(quiet_move.end_get()) << std::endl;
         throw std::invalid_argument("cant move to a cell containing the same color as the moving piece"); // same color
       }
       if (quiet_move.piecetype_get() != plugin::PieceType::KNIGHT) { // Piece in the path
 
-        std::cout << " MOVE THROUGH PIECE " << std::endl;
+        std::cerr << " MOVE THROUGH PIECE " << std::endl;
         auto d_file = static_cast<char>(quiet_move.end_get().file_get()) - static_cast<char>(quiet_move.start_get().file_get());
         auto d_rank = static_cast<char>(quiet_move.end_get().rank_get()) - static_cast<char>(quiet_move.start_get().rank_get());
         char dir_x = (d_file > 0) ? 1 : (d_file == 0) ? 0 : -1;
         char dir_y = (d_rank > 0) ? 1 : (d_rank == 0) ? 0 : -1;
         char file = static_cast<char>(quiet_move.start_get().file_get()) + dir_x;
         char rank = static_cast<char>(quiet_move.start_get().rank_get()) + dir_y;
-        std::cout << "file " << (int)file << " rank " << (int) rank << std::endl;
+        std::cerr << "file " << (int)file << " rank " << (int) rank << std::endl;
         for (; not (file == static_cast<char>(quiet_move.end_get().file_get()) and rank == static_cast<char>(quiet_move.end_get().rank_get())); file += dir_x, rank += dir_y) {
-          std::cout << "checking : " << plugin::Position(static_cast<plugin::File>(file), static_cast<plugin::Rank>(rank)) << std::endl;
+          std::cerr << "checking : " << plugin::Position(static_cast<plugin::File>(file), static_cast<plugin::Rank>(rank)) << std::endl;
           if (board.piecetype_get(plugin::Position(static_cast<plugin::File>(file), static_cast<plugin::Rank>(rank))) != std::experimental::nullopt)
             throw std::invalid_argument("Cant move through piece");
         }
@@ -124,21 +124,21 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     plugin::Position rook_pos = ChessBoard::initial_rook_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
     if (board.has_moved(rook_pos)) throw std::invalid_argument("rook has already moved");
 
-    std::cout << "king pos " << king_pos << " rook pos " << rook_pos << std::endl;
+    std::cerr << "king pos " << king_pos << " rook pos " << rook_pos << std::endl;
 
     char d_file = static_cast<char>(rook_pos.file_get()) - static_cast<char>(king_pos.file_get()); // No piece between King and Rook
     char dir_x = (d_file > 0) ? 1 : -1;
-    std::cout << "d_file = " << (int)d_file << std::endl;
-    std::cout << "dir_x " << (int) dir_x << std::endl;
+    std::cerr << "d_file = " << (int)d_file << std::endl;
+    std::cerr << "dir_x " << (int) dir_x << std::endl;
     for (char file = static_cast<char>(king_pos.file_get()) + dir_x; file + dir_x != static_cast<char>(rook_pos.file_get()); file += dir_x) {
-      std::cout << "checking : " << plugin::Position(static_cast<plugin::File>(file), static_cast<plugin::Rank>(king_pos.rank_get())) << std::endl;
+      std::cerr << "checking : " << plugin::Position(static_cast<plugin::File>(file), static_cast<plugin::Rank>(king_pos.rank_get())) << std::endl;
       if (board.piecetype_get(plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get())) != std::experimental::nullopt)
         throw std::invalid_argument("Cell between king and rook are not empty");
     }
     plugin::Position king_end_position = ChessBoard::castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
 
     for (char file = static_cast<char>(king_pos.file_get()); file != static_cast<char>(king_end_position.file_get()); file += dir_x) {
-      std::cout << "checking CHECK at " << plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get()) << std::endl;
+      std::cerr << "checking CHECK at " << plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get()) << std::endl;
       if (board.is_attacked(move.color_get(), plugin::Position(static_cast<plugin::File>(file), king_pos.rank_get()))) // first parameter is the one who is under attack
         throw std::invalid_argument("The king go through a cell in check");
     }

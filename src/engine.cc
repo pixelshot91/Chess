@@ -10,14 +10,14 @@ Engine::Engine(std::vector<plugin::Listener*> listeners, unsigned short port, st
 int Engine::start()
 {
   if (port_ == 0) {
-    std::cout << "Parsing..." << std::endl;
+    std::cerr << "Parsing..." << std::endl;
     Parser parser(pgn_path_);
     auto moves = parser.parse();
 
     for (auto m : moves) {
-      std::cout << "move description" << std::endl;
-      std::cout << *m << std::endl;
-      std::cout << "end move description" << std::endl;
+      std::cerr << "move description" << std::endl;
+      std::cerr << *m << std::endl;
+      std::cerr << "end move description" << std::endl;
       chessboard_.update(*m);
       chessboard_.print();
     }

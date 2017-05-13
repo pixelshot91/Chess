@@ -56,13 +56,13 @@ void ChessBoard::print() const
   {
     for (unsigned j = 0; j < board_[0].size(); j++) {
       if (piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)) == std::experimental::nullopt)
-        std::cout << "_ ";
+        std::cerr << "_ ";
       else
-        std::cout << static_cast<char>(piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)).value()) << " ";
+        std::cerr << static_cast<char>(piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)).value()) << " ";
 
-      //std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+      //std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
     }
-    std::cout << std::endl;
+    std::cerr << std::endl;
   }
 }
 
@@ -74,9 +74,9 @@ ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
 {
   char j = static_cast<char>(position.file_get());
   char i = 7 - static_cast<char>(position.rank_get());
-  /*std::cout << "i = " << (unsigned)i << " j = " << (unsigned int)j << std::endl;
-  std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
-  std::cout << std::endl;*/
+  /*std::cerr << "i = " << (unsigned)i << " j = " << (unsigned int)j << std::endl;
+  std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+  std::cerr << std::endl;*/
   return board_[i][j];
 }
 
@@ -117,7 +117,7 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     {
       plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       if (piecetype_get(pos) != std::experimental::nullopt and color_get(pos) != color) {
-        std::cout << " ATTACKER : " << pos << std::endl;
+        std::cerr << " ATTACKER : " << pos << std::endl;
         try {
           if (RuleChecker::check(*this,
             QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
