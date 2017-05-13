@@ -28,6 +28,15 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   //throw std::invalid_argument("invalid move - in ChessBoard update()");
   std::cerr << "Move is pseudo valid" << std::endl;
 
+  plugin::PieceType piecetype_eaten;
+  if (move.move_type_get() == Move::Type::QUIET) 
+  {
+    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
+    if (quiet_move.is_an_attack())
+      piecetype_eaten = piecetype_get(quiet_move.end_get()).value();
+  }
+
+
   apply_move(*this, move);
   if (RuleChecker::isCheck(*this, get_king_position(move.color_get()))) {
     for (auto l : listeners_)
@@ -48,7 +57,7 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
       l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(), quiet_move.end_get());
     if (quiet_move.is_an_attack()) // Piece Taken
       for (auto l : listeners_)
-        l->on_piece_taken(quiet_move.piecetype_get(), quiet_move.end_get());
+        l->on_piece_taken(piecetype_eaten, quiet_move.end_get());
   }
   else /* Castling */
   {
