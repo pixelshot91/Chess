@@ -17,14 +17,20 @@ int Engine::start()
     std::cerr << "Parsing..." << std::endl;
     Parser parser(pgn_path_);
     auto moves = parser.parse();
+    
+    for (auto l : listeners_)
+      l->on_game_started();
 
     for (auto m : moves) {
       std::cerr << "move description" << std::endl;
       std::cerr << *m << std::endl;
       std::cerr << "end move description" << std::endl;
-      chessboard_.update(*m);
-      chessboard_.print();
+      if (chessboard_.update(*m) == -1)
+        break;
+      //chessboard_.print();
     }
+    for (auto l : listeners_)
+      l->on_game_finished();
     return 0;
   }
   else {

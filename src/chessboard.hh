@@ -17,8 +17,9 @@ class ChessBoard
     using cell_t = uint8_t;
     ChessBoard(std::vector<plugin::Listener*>);
 
-    void update(Move& move);
+    int update(Move& move);
     void move_piece(plugin::Position start, plugin::Position end);
+    ChessBoard apply_move(ChessBoard board, Move& move);
 
     void set_square(plugin::Position position, cell_t value);
     cell_t get_square(plugin::Position position) const;
