@@ -42,6 +42,8 @@ class ChessBoard
     //Color color(plugin::Position);
     void print() const;
 
+    plugin::Position get_king_position(plugin::Color color);
+
   private:
     std::array<std::array<cell_t, 8>, 8> board_=
     {

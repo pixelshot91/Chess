@@ -20,19 +20,26 @@ ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
 }
 
 void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
-  if (!RuleChecker::check(*this, move)) throw std::invalid_argument("invalid move");;
-  
-  if (move.move_type_get() == Move::Type::QUIET) {
+  if (!RuleChecker::check(*this, move)) 
+    throw std::invalid_argument("invalid move - in ChessBoard update()");
+
+  /* Update piece position*/
+  if (move.move_type_get() == Move::Type::QUIET) 
+  {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
     for (auto l : listeners_)
       l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(), quiet_move.end_get());
   }
-  else {
+  else 
+  {
+    /* Rock */
     move_piece(initial_king_position(move.color_get()), castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
     move_piece(initial_rook_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING)
         , castling_rook_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
   }
+  if (RuleChecker::isCheckmate(*this, get_king_position(move.color_get())))
+    throw std::invalid_argument("CHECKMATE -- in chessboard update function");
 }
 
 void ChessBoard::move_piece(plugin::Position start, plugin::Position end) {
@@ -199,4 +206,19 @@ plugin::Position ChessBoard::castling_king_end_position(plugin::Color color, boo
 plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color, bool king_side)
 {
   return plugin::Position(king_side ? plugin::File::F : plugin::File::D, color == plugin::Color::WHITE ? plugin::Rank::ONE : plugin::Rank::EIGHT);
+}
+
+plugin::Position ChessBoard::get_king_position(plugin::Color color)
+{
+  for (auto i = 0; i < 8; i++)
+  {
+    for (auto j = 0; j < 8; j++)
+    {
+      auto p = plugin::Position(static_cast<plugin::File>(j),
+               static_cast<plugin::Rank>(i));
+      if (piecetype_get(p) == plugin::PieceType::KING and color_get(p) ==
+          color)
+        return p;
+    }
+  }
 }
