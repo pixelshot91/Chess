@@ -14,8 +14,7 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
   return o;
 }*/
 
-ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
-  : listeners_(listeners)
+ChessBoard::ChessBoard()
 {
 }
 
@@ -28,18 +27,31 @@ void ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
-    for (auto l : listeners_)
-      l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(), quiet_move.end_get());
   }
   else 
   {
     /* Rock */
+    
+    if (move.move_type_get() == Move::Type::KING_CASTLING)
+    {
+      for (auto l : listeners_)
+        on_kingside_castling(move.color_get());
+    }
+    else
+    {
+      for (auto l : listeners_)
+        on_queenside_castling(move.color_get());
+    }
     move_piece(initial_king_position(move.color_get()), castling_king_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
     move_piece(initial_rook_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING)
         , castling_rook_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
   }
   if (RuleChecker::isCheckmate(*this, get_king_position(move.color_get())))
-    throw std::invalid_argument("CHECKMATE -- in chessboard update function");
+  {
+    for (auto l : listeners_)
+      on_player_check(move.color_get());
+    //throw std::invalid_argument("CHECKMATE -- in chessboard update function");
+  }
 }
 
 void ChessBoard::move_piece(plugin::Position start, plugin::Position end) {
@@ -56,13 +68,13 @@ void ChessBoard::print() const
   {
     for (unsigned j = 0; j < board_[0].size(); j++) {
       if (piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)) == std::experimental::nullopt)
-        std::cerr << "_ ";
+        std::cout << "_ ";
       else
-        std::cerr << static_cast<char>(piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)).value()) << " ";
+        std::cout << static_cast<char>(piecetype_get(plugin::Position((plugin::File)j,(plugin::Rank) i)).value()) << " ";
 
-      //std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+      //std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
     }
-    std::cerr << std::endl;
+    std::cout << std::endl;
   }
 }
 
@@ -74,9 +86,9 @@ ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
 {
   char j = static_cast<char>(position.file_get());
   char i = 7 - static_cast<char>(position.rank_get());
-  /*std::cerr << "i = " << (unsigned)i << " j = " << (unsigned int)j << std::endl;
-  std::cerr << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
-  std::cerr << std::endl;*/
+  /*std::cout << "i = " << (unsigned)i << " j = " << (unsigned int)j << std::endl;
+  std::cout << std::hex << std::setfill('0') << std::setw(2) << (int)board_[i][j] << " ";
+  std::cout << std::endl;*/
   return board_[i][j];
 }
 
@@ -117,7 +129,7 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
     {
       plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       if (piecetype_get(pos) != std::experimental::nullopt and color_get(pos) != color) {
-        std::cerr << " ATTACKER : " << pos << std::endl;
+        std::cout << " ATTACKER : " << pos << std::endl;
         try {
           if (RuleChecker::check(*this,
             QuietMove(static_cast<plugin::Color>(not static_cast<bool>(color)),
