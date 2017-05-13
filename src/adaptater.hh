@@ -9,7 +9,8 @@ using namespace plugin;
 class Adaptater : public ChessboardInterface
 {
 public:
+  Adaptater(const ChessBoard& board);
   opt_piece_t operator[](const Position& position) const;
 private:
-  ChessBoard* chessboard_;
+  const ChessBoard& chessboard_;
 };

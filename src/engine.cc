@@ -1,5 +1,6 @@
 #include "engine.hh"
 
+#include "adaptater.hh"
 
 Engine::Engine(std::vector<plugin::Listener*> listeners, unsigned short port, std::string pgn_path)
   : port_(port), pgn_path_(pgn_path), listeners_(listeners),  chessboard_(listeners)
@@ -10,6 +11,9 @@ Engine::Engine(std::vector<plugin::Listener*> listeners, unsigned short port, st
 int Engine::start()
 {
   if (port_ == 0) {
+    Adaptater adaptater(chessboard_);
+    for (auto l : listeners_)
+      l->register_board(adaptater);
     std::cerr << "Parsing..." << std::endl;
     Parser parser(pgn_path_);
     auto moves = parser.parse();
