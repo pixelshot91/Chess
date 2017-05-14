@@ -1,11 +1,13 @@
 #include "piece.hh"
 
-Piece::Piece(plugin::Color color, plugin::Position pos, bool has_moved, plugin::PieceType type)
+Piece::Piece(plugin::Color color, plugin::Position pos, bool has_moved,
+             plugin::PieceType type)
   : color_(color)
   , pos_(pos)
   , type_(type)
   , has_moved_(has_moved)
-  {}
+{
+}
 
 plugin::Color Piece::color_get()
 {

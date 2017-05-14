@@ -4,6 +4,6 @@
 
 class King : public Piece
 {
-  public:
+public:
   King(plugin::Color color, plugin::Position pos, bool has_moved);
 };

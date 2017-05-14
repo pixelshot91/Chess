@@ -4,6 +4,6 @@
 
 class Rook : public Piece
 {
-  public:
+public:
   Rook(plugin::Color color, plugin::Position pos, bool has_moved);
 };

@@ -6,7 +6,7 @@ using namespace plugin;
 
 class ChessboardListener : public Listener
 {
-  public:
+public:
   ChessboardListener();
   /**
    ** \brief Register the ChessboardInterface for later use.
@@ -35,9 +35,8 @@ class ChessboardListener : public Listener
    ** @param from:  The initial position of the piece.
    ** @param to:    The final position of the piece.
    */
-  void on_piece_moved(const PieceType piece,
-      const Position& from,
-      const Position& to);
+  void on_piece_moved(const PieceType piece, const Position& from,
+                      const Position& to);
 
   /**
    ** \brief Must be called every time a piece is taken.
@@ -46,8 +45,7 @@ class ChessboardListener : public Listener
    ** @param piece: The taken piece.
    ** @param at:    The position where the piece is taken.
    */
-  void on_piece_taken(const PieceType piece,
-      const Position& at);
+  void on_piece_taken(const PieceType piece, const Position& at);
 
   /**
    ** \brief Must be called when a pawn is promoted.
@@ -56,8 +54,7 @@ class ChessboardListener : public Listener
    ** @param piece: The chosen type of piece of the promotion.
    ** @param at:    The position of the piece promoted.
    */
-  void on_piece_promoted(const PieceType piece,
-      const Position& at);
+  void on_piece_promoted(const PieceType piece, const Position& at);
 
   /**
    ** \brief Event when a Kingside castling happens.
@@ -122,8 +119,6 @@ class ChessboardListener : public Listener
    */
   void on_draw();
 
-  private:
-    const ChessboardInterface* adaptater_;
+private:
+  const ChessboardInterface* adaptater_;
 };
-
-

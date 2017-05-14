@@ -4,6 +4,6 @@
 
 class Queen : public Piece
 {
-  public:
+public:
   Queen(plugin::Color color, plugin::Position pos, bool has_moved);
 };

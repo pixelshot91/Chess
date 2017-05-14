@@ -5,7 +5,8 @@
 class QuietMove : public Move
 {
 public:
-  QuietMove(plugin::Color color, plugin::Position start, plugin::Position end, plugin::PieceType, bool attack, bool promotion);
+  QuietMove(plugin::Color color, plugin::Position start, plugin::Position end,
+            plugin::PieceType, bool attack, bool promotion);
   plugin::PieceType piecetype_get() const;
   plugin::Position start_get() const;
   plugin::Position end_get() const;
@@ -14,6 +15,7 @@ public:
   bool is_a_test() const;
 
   void print(std::ostream& o) const override;
+
 private:
   plugin::Position start_;
   plugin::Position end_;

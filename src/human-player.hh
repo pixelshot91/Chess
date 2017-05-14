@@ -4,11 +4,11 @@
 
 class HumanPlayer
 {
-  public:
+public:
   HumanPlayer(const std::string& ip, const std::string& port);
   int start();
 
-  private:
+private:
   network_api::ClientNetworkAPI client_;
   std::string ip_;
   std::string port_;

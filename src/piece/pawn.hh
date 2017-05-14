@@ -4,6 +4,6 @@
 
 class Pawn : public Piece
 {
-  public:
+public:
   Pawn(plugin::Color color, plugin::Position pos, bool has_moved);
 };
