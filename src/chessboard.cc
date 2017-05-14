@@ -33,8 +33,12 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOTION
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    if (quiet_move.is_an_attack())
-      piecetype_eaten = piecetype_get(quiet_move.end_get()).value();
+    if (quiet_move.is_an_attack()) {
+      if (piecetype_get(quiet_move.end_get()) == std::experimental::nullopt)
+        piecetype_eaten = piecetype_get(plugin::Position(quiet_move.end_get().file_get(), quiet_move.start_get().rank_get())).value();
+      else
+        piecetype_eaten = piecetype_get(quiet_move.end_get()).value();
+    }
   }
 
 
@@ -45,6 +49,7 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOTION
     return -1;
   }
   std::cerr << "Move is completly valid" << std::endl;
+  history_.add(move);
 
   //throw std::invalid_argument("invalid move : The King would be in check");
 
@@ -418,15 +423,17 @@ plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color, boo
 
 plugin::Position ChessBoard::get_king_position(plugin::Color color)
 {
+  plugin::Position p(plugin::File::A, plugin::Rank::ONE));
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
     {
-      auto p = plugin::Position(static_cast<plugin::File>(j),
+      p = plugin::Position(static_cast<plugin::File>(j),
                static_cast<plugin::Rank>(i));
       if (piecetype_get(p) == plugin::PieceType::KING and color_get(p) ==
           color)
-        return p;
+        break;
     }
   }
+  return p;
 }
