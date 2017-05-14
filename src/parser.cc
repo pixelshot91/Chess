@@ -12,17 +12,17 @@ Parser::Parser(std::string pgn_path)
 
 Move& Parser::parse_move(std::string s)
 {
-    boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
-    boost::regex kingside_rook("O-O");
-    boost::smatch what;
-    if (boost::regex_search(s, what, exp)) {
-      return *generateMove(plugin::Color::WHITE, what);
-    }
-    else if (boost::regex_search(s, what, kingside_rook)) {
-      return *(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
-    }
-    else
-      throw std::invalid_argument("invalid move");
+  boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
+  boost::regex kingside_rook("O-O");
+  boost::smatch what;
+  if (boost::regex_search(s, what, exp)) {
+    return *generateMove(plugin::Color::WHITE, what);
+  }
+  else if (boost::regex_search(s, what, kingside_rook)) {
+    return *(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
+  }
+  else
+    throw std::invalid_argument("invalid move");
 }
 
 std::vector<Move*> Parser::parse()
@@ -51,75 +51,41 @@ std::vector<Move*> Parser::parse()
     getline(pgn, s, '.');
     std::cerr << "line = " << s << std::endl;
     //boost::regex exp("(?<var>\\S+)");
-    boost::regex exp1("^[\n ]*(?<piece>\\S?)(?<start_file>[a-h])(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
-    boost::regex exp2("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
+    boost::regex exp1("^[\n ]*(?<piece>[BRNQK]?)(?<start_file>[a-h])(?<start_rank>[1-8])(?<take>[-x])(?<end_file>[a-h])(?<end_rank>[1-8])(?<check>[+#]?)");
     boost::regex kingside_rook("O-O");
     boost::regex queenside_rook("O-O-O");
     boost::regex game_termination("(?<resultat>(1-0|0-1|1/2-1/2))");
     boost::smatch what;
-    if (boost::regex_search(s, what, exp1)) {
-      std::cerr << "WHAT " << what[0] << std::endl;
-      std::cerr << (what["piece"] == std::string("") ? "Pawn" : what["piece"].str() ) << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
-        << what["end_file"] << " " << what["end_rank"] << std::endl;
-      //std::cerr << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
-      moves.push_back(generateMove(plugin::Color::WHITE, what));
-    }
-    else if (boost::regex_search(s, what, queenside_rook)) {
-      std::cerr << "QUEENSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::QUEEN_CASTLING, plugin::Color::WHITE));
-    }
-   else if (boost::regex_search(s, what, kingside_rook)) {
-      std::cerr << "KINGSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
-    }
-    else
-      std::cerr << "no match for EXP1" << std::endl;
-    std::string remaining_string = s.substr(what[0].str().length() + 1);
-    std::cerr << "remaining_string = " << remaining_string << std::endl;
-    if (boost::regex_search(remaining_string, what, exp2)) {
-      /*std::cerr << "WHAT " << what[0] << std::endl;
-      std::cerr << what["piece"] << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
-        << what["end_file"] << " " << what["end_rank"] << std::endl;*/
-      //std::cerr << "piece = " << what["piece"] << std::endl << "start = " << what["start_file"] << std::endl;
-      std::cerr << "remaining_string = " << remaining_string << std::endl;
-      moves.push_back(generateMove(plugin::Color::BLACK, what));
-    }
-    else if (boost::regex_search(remaining_string, what, queenside_rook)) {
-      std::cerr << "QUEENSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::QUEEN_CASTLING, plugin::Color::BLACK));
-    }
-    else if (boost::regex_search(remaining_string, what, kingside_rook)) {
-      std::cerr << "KINGSIDE MOVE" << std::endl;
-      moves.push_back(new Move(Move::Type::KING_CASTLING, plugin::Color::BLACK));
-    }
-    else {
-      std::cerr << "no match for EXP2, remaining_string = " << remaining_string << "$" << std::endl;
-      std::cerr << remaining_string[0] << std::endl;
-      if (boost::regex_search(remaining_string, what, game_termination)) {
-        std::cerr << "result is " << what["resultat"] << std::endl; 
+
+    for(int i = 0; i < 2 ; i++)
+    {
+      if (boost::regex_search(s, what, exp1))
+      {
+        std::cerr << "WHAT " << what[0] << std::endl;
+        std::cerr << (what["piece"] == std::string("") ? "Pawn" : what["piece"].str() ) << " " << what["start_file"] << " " << what["start_rank"] << " " << what["take"] << " "
+          << what["end_file"] << " " << what["end_rank"] << std::endl;
+        moves.push_back(generateMove(static_cast<plugin::Color> (i), what));
+
+      }
+      else if (boost::regex_search(s, what, queenside_rook)) {
+        std::cerr << "QUEENSIDE MOVE" << std::endl;
+        moves.push_back(new Move(Move::Type::QUEEN_CASTLING, static_cast<plugin::Color> (i)));
+      }
+      else if (boost::regex_search(s, what, kingside_rook)) {
+        std::cerr << "KINGSIDE MOVE" << std::endl;
+        moves.push_back(new Move(Move::Type::KING_CASTLING, static_cast<plugin::Color> (i)));
+      }
+      else
+        std::cerr << "no match for EXP1" << std::endl;
+
+      if(!i)
+      {
+        s = s.substr(what[0].str().length() + 1);
+        std::cerr << "remaining_string = " << s << std::endl;
       }
     }
   }
-  /*ChessBoard board;
-  for (auto m : moves) {
-    std::cerr << "move description" << std::endl;
-    std::cerr << *m << std::endl;
-    std::cerr << "end move description" << std::endl;
-    board.update(*m);
-    board.print();
-  }*/
   return moves;
-
-  /*std::regex word_regex("\\[(\\S+)");
-  auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_regex);
-  auto words_end = std::sregex_iterator();
-
-  //std::cerr << "Found " << std::distance(words_begin words_end) << " words\n";
-  for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-    std::smatch match = *i;
-    std::string match_str = match.str();
-    std::cerr << "  " << match_str << '\n';
-  }*/
 }
 
 QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)

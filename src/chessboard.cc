@@ -6,6 +6,7 @@
 #include "piece/bishop.hh"
 #include "piece/knight.hh"
 #include "piece/rook.hh"
+#include "rule-checker.hh"
 
 std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
 /*std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
@@ -19,7 +20,7 @@ ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
 {
 }
 
-int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
+int ChessBoard::update(Move& move) { // FIX ME PROMOTION
   if (!RuleChecker::is_move_valid(*this, move)) {
     for (auto l : listeners_)
       l->on_player_disqualified(move.color_get()); // Disqualified
@@ -29,7 +30,7 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
   std::cerr << "Move is pseudo valid" << std::endl;
 
   plugin::PieceType piecetype_eaten;
-  if (move.move_type_get() == Move::Type::QUIET) 
+  if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     if (quiet_move.is_an_attack())
@@ -44,11 +45,11 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
     return -1;
   }
   std::cerr << "Move is completly valid" << std::endl;
-  
+
   //throw std::invalid_argument("invalid move : The King would be in check");
 
   /* Update piece position*/
-  if (move.move_type_get() == Move::Type::QUIET) 
+  if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     /*move_piece(quiet_move.start_get(), quiet_move.end_get());
@@ -67,7 +68,7 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
     plugin::Position rook_end_position = castling_rook_end_position(move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
     /*move_piece(king_start_position, king_end_position);
     move_piece(rook_start_postion, rook_end_position);*/
-    
+
     for (auto l : listeners_)
       l->on_piece_moved(plugin::PieceType::KING, king_start_position, king_end_position);
     if (move.move_type_get() == Move::Type::KING_CASTLING)
@@ -115,7 +116,7 @@ int ChessBoard::update(Move& move) { // FIX ME PROMOtiOn
 
 ChessBoard ChessBoard::apply_move(ChessBoard board, Move& move)
 {
-  if (move.move_type_get() == Move::Type::QUIET) 
+  if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     move_piece(quiet_move.start_get(), quiet_move.end_get());
@@ -200,7 +201,6 @@ ChessBoard::piecetype_get(plugin::Position position) const
 // Color : the color of the cell that is attacked
 bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell) const
 {
-  //for (auto p : getPieces())
   for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
     {
@@ -220,6 +220,109 @@ bool ChessBoard::is_attacked(plugin::Color color, plugin::Position current_cell)
       }
     }
   return false;
+}
+
+std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
+{
+  std::vector<Move> moves{};
+  auto color_piece = color_get(position);
+  auto piece_type = piecetype_get(position);
+  if (piece_type == std::experimental::nullopt)
+    return moves;
+
+  switch (piece_type.value())
+  {
+    case plugin::PieceType::KING:
+      for(int i = -1; i < 1; i++)
+      {
+        for(int j = -1; j < 1; j++)
+          {
+            if(i + static_cast<int>(position.file_get()) < 7
+                && i + static_cast<int>(position.file_get()) > 0
+                && j + static_cast<int>(position.rank_get()) < 7
+                && j + static_cast<int>(position.rank_get()) > 0)
+            {
+              plugin::Position endpos1(static_cast<plugin::File>(i + static_cast<int>(0 + static_cast<int>(position.file_get()))), static_cast<plugin::Rank> (j + static_cast<int>(position.rank_get())));
+              QuietMove move1(color_piece, position, endpos1, piece_type.value(),piecetype_get(endpos1) != std::experimental::nullopt , false);
+              if(RuleChecker::isMoveAuthorized(*this, move1) && RuleChecker::isMoveLegal(*this,move1))
+                moves.push_back(move1);
+            }
+          }
+      }
+      break;
+
+    case plugin::PieceType::QUEEN:
+      break;
+
+    case plugin::PieceType::ROOK:
+      for(int i = 0; i < 8; i++)
+      {
+        if(i + static_cast<int>(position.file_get()) < 7 )
+        {
+          plugin::Position endpos1(static_cast<plugin::File>(i + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (0 + static_cast<int>(position.rank_get())));
+          QuietMove move1(color_piece, position, endpos1, piece_type.value(),piecetype_get(endpos1) != std::experimental::nullopt , false);
+          if(RuleChecker::isMoveAuthorized(*this, move1) && RuleChecker::isMoveLegal(*this,move1))
+              moves.push_back(move1);
+        }
+
+        if(i + static_cast<int>(position.rank_get()) < 7)
+        {
+          plugin::Position endpos2(static_cast<plugin::File>(0 + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (i + static_cast<int>(position.rank_get())));
+          QuietMove move2(color_piece, position, endpos2, piece_type.value(), piecetype_get(endpos2)!= std::experimental::nullopt , false);
+          if(RuleChecker::isMoveAuthorized(*this, move2) && RuleChecker::isMoveLegal(*this, move2))
+            moves.push_back(move2);
+        }
+       }
+      break;
+
+    case plugin::PieceType::BISHOP:
+      for(int j = -8; j < 8; j++)
+      {
+        if(
+            j + static_cast<int>(position.rank_get()) < 7
+            && j + static_cast<int>(position.rank_get()) > 0)
+        {
+          plugin::Position endpos1(static_cast<plugin::File>(j + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (j + static_cast<int>(position.rank_get())));
+          QuietMove move1(color_piece, position, endpos1, piece_type.value(),piecetype_get(endpos1) != std::experimental::nullopt , false);
+          if(RuleChecker::isMoveAuthorized(*this, move1) && RuleChecker::isMoveLegal(*this,move1))
+            moves.push_back(move1);
+
+          plugin::Position endpos2(static_cast<plugin::File>(-j + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (j + static_cast<int>(position.rank_get())));
+          QuietMove move2(color_piece, position, endpos2, piece_type.value(), piecetype_get(endpos2)!= std::experimental::nullopt , false);
+          if(RuleChecker::isMoveAuthorized(*this, move2) && RuleChecker::isMoveLegal(*this, move2))
+            moves.push_back(move2);
+        }
+      }
+      break;
+
+    case plugin::PieceType::KNIGHT:
+      for(int i = -2; i < 3; i++)
+      {
+        for(int j = -2; j < 3; j++)
+        {
+          if(i + static_cast<int>(position.file_get()) < 7
+              && i + static_cast<int>(position.file_get()) > 0
+              && j + static_cast<int>(position.rank_get()) < 7
+              && j + static_cast<int>(position.rank_get()) > 0)
+          {
+            plugin::Position endpos1(static_cast<plugin::File>(i + static_cast<int>(0 + static_cast<int>(position.file_get()))) , static_cast<plugin::Rank> (j + static_cast<int>(position.rank_get())));
+            QuietMove move1(color_piece, position, endpos1, piece_type.value(),piecetype_get(endpos1) != std::experimental::nullopt , false);
+            if(RuleChecker::isMoveAuthorized(*this, move1) && RuleChecker::isMoveLegal(*this,move1))
+              moves.push_back(move1);
+          }
+        }
+      }
+      break;
+
+    case plugin::PieceType::PAWN:
+      break;
+
+    default:
+      throw "Impossible";
+      break;
+  }
+
+  return moves;
 }
 
 std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
@@ -261,7 +364,7 @@ std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
             break;
 
           default:
-            exit(58);
+            exit(10);
             break;
         }
       }
