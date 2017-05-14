@@ -11,7 +11,7 @@ class Parser
 public:
   Parser(std::string pgn_path);
   std::vector<Move*> parse();
-  static Move& parse_move(std::string);
+  static Move& parse_move(std::string, plugin::Color color);
 private:
   static QuietMove* generateMove(plugin::Color color, boost::smatch what);
   std::string pgn_path_;

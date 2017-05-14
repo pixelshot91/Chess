@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help,h", "show usage")
-    ("port,p", po::value<int>(),"select the listening port for the network")
+    ("port,p", po::value<unsigned short>(),"select the listening port for the network")
     ("pgn", po::value<std::string>(), "path to the PGN game file")
     ("listeners,l", po::value<std::vector<std::string>>()->multitoken()->value_name("path"), "list of paths to listener plugins");
 
@@ -43,13 +43,16 @@ int main(int argc, char* argv[])
   }
 
   if (vm.count("port")) {
-    std::cerr << "port is: " << vm["port"].as<int>() << std::endl;
+    std::cerr << "port is: " << vm["port"].as<unsigned short>() << std::endl;
+    unsigned short port = vm["port"].as<unsigned short>();
+    Engine engine(listeners, port);
+    engine.start();
     return 0;
   }
   if (vm.count("pgn")) {
     std::string pgn_path = vm["pgn"].as<std::string>();
     std::cerr << "pgn path is: " << pgn_path << std::endl;
-    Engine engine(listeners, 0, pgn_path);
+    Engine engine(listeners, pgn_path);
     engine.start();
     return 0;
   }

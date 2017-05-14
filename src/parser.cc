@@ -10,16 +10,16 @@ Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
 {}
 
-Move& Parser::parse_move(std::string s)
+Move& Parser::parse_move(std::string s, plugin::Color color)
 {
   boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>[-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
   boost::regex kingside_rook("O-O");
   boost::smatch what;
   if (boost::regex_search(s, what, exp)) {
-    return *generateMove(plugin::Color::WHITE, what);
+    return *generateMove(color, what);
   }
   else if (boost::regex_search(s, what, kingside_rook)) {
-    return *(new Move(Move::Type::KING_CASTLING, plugin::Color::WHITE));
+    return *(new Move(Move::Type::KING_CASTLING, color));
   }
   else
     throw std::invalid_argument("invalid move");

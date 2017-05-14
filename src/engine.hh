@@ -10,7 +10,8 @@
 class Engine
 {
 public:
-  Engine(std::vector<plugin::Listener*> listeners, unsigned short port, std::string pgn_path);
+  Engine(std::vector<plugin::Listener*> listeners, unsigned short port);
+  Engine(std::vector<plugin::Listener*> listeners, std::string pgn_path);
   int start();
 private:
   unsigned short port_;
