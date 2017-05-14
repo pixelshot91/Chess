@@ -54,8 +54,10 @@ void ChessboardListener::on_piece_moved(const PieceType piece, const Position& f
     std::cout << "Board isn't registered" << std::endl;
   }
   char chars[5];
+  std::cout << " a  b  c  d  e  f  g  h" << std::endl;
   for (int i = 7; i >= 0; --i)
   {
+    std::cout << i+1;
     for (unsigned j = 0; j < 8; j++) {
       auto piece = adaptater_->operator[](plugin::Position((plugin::File)j,(plugin::Rank) i));
       if((i + j)% 2 == 0) std::cout << "\e[07m";
@@ -73,9 +75,9 @@ void ChessboardListener::on_piece_moved(const PieceType piece, const Position& f
         }
       std::cout << " \e[00m";
     }
-    std::cout << std::endl;
+    std::cout << i+1 << std::endl;
   }
-  std::cout << std::endl;
+  std::cout << " a  b  c  d  e  f  g  h" << std::endl;
 }
 
 void ChessboardListener::on_piece_taken(const PieceType piece, const Position& at)
