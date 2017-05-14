@@ -278,9 +278,8 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
     case plugin::PieceType::BISHOP:
       for(int j = -8; j < 8; j++)
       {
-        if(
-            j + static_cast<int>(position.rank_get()) < 7
-            && j + static_cast<int>(position.rank_get()) > 0)
+        if(j + static_cast<int>(position.rank_get()) < 7
+           && j + static_cast<int>(position.rank_get()) > 0)
         {
           plugin::Position endpos1(static_cast<plugin::File>(j + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (j + static_cast<int>(position.rank_get())));
           QuietMove move1(color_piece, position, endpos1, piece_type.value(),piecetype_get(endpos1) != std::experimental::nullopt , false);
@@ -315,6 +314,23 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
       break;
 
     case plugin::PieceType::PAWN:
+      if(1 + static_cast<int>(position.rank_get()) < 7)
+      {
+        plugin::Position endpos1(static_cast<plugin::File>(1 + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (1 + static_cast<int>(position.rank_get())));
+        QuietMove move1(color_piece, position, endpos1, piece_type.value(), piecetype_get(endpos1)!= std::experimental::nullopt , false);
+        if(RuleChecker::isMoveAuthorized(*this, move1) && RuleChecker::isMoveLegal(*this, move1))
+          moves.push_back(move1);
+
+        plugin::Position endpos3(static_cast<plugin::File>(1 + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (1 + static_cast<int>(position.rank_get())));
+        QuietMove move3(color_piece, position, endpos3, piece_type.value(), piecetype_get(endpos3)!= std::experimental::nullopt , false);
+        if(RuleChecker::isMoveAuthorized(*this, move3) && RuleChecker::isMoveLegal(*this, move3))
+          moves.push_back(move3);
+
+        plugin::Position endpos2(static_cast<plugin::File>(0 + static_cast<int>(position.file_get())), static_cast<plugin::Rank> (1 + static_cast<int>(position.rank_get())));
+        QuietMove move2(color_piece, position, endpos2, piece_type.value(), piecetype_get(endpos2)!= std::experimental::nullopt , false);
+        if(RuleChecker::isMoveAuthorized(*this, move2) && RuleChecker::isMoveLegal(*this, move2))
+          moves.push_back(move2);
+      }
       break;
 
     default:

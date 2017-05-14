@@ -54,7 +54,7 @@ void ChessboardListener::on_piece_moved(const PieceType piece, const Position& f
     std::cout << "Board isn't registered" << std::endl;
   }
   char chars[5];
-  std::cout << " a  b  c  d  e  f  g  h" << std::endl;
+  std::cout << "  a  b  c  d  e  f  g  h" << std::endl;
   for (int i = 7; i >= 0; --i)
   {
     std::cout << i+1;
@@ -77,7 +77,7 @@ void ChessboardListener::on_piece_moved(const PieceType piece, const Position& f
     }
     std::cout << i+1 << std::endl;
   }
-  std::cout << " a  b  c  d  e  f  g  h" << std::endl;
+  std::cout << "  a  b  c  d  e  f  g  h" << std::endl;
 }
 
 void ChessboardListener::on_piece_taken(const PieceType piece, const Position& at)
