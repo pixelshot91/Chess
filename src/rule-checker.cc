@@ -24,7 +24,8 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
 
 bool RuleChecker::invalid_move(std::string reason)
 {
-  std::cerr << "Invalid move : " << reason << std::endl;
+  reason = reason;
+  //std::cerr << "Invalid move : " << reason << std::endl;
   return false;
 }
 
@@ -32,7 +33,7 @@ bool RuleChecker::is_move_valid(const ChessBoard& board, const Move& move)
 {
   if (!isMoveAuthorized(board, move))
     return false; // Based on the Piece Type and position of start and end cell
-  std::cerr << "Move AUTHORIZED" << std::endl;
+  //std::cerr << "Move AUTHORIZED" << std::endl;
   return isMoveLegal(board, move);
 }
 
@@ -143,15 +144,12 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
             std::experimental::nullopt and
           quiet_move.color_get() == board.color_get(quiet_move.end_get()))
       {
-        std::cerr << "color " << ~board.color_get(quiet_move.end_get())
-                  << std::endl;
         return invalid_move("cant move to a cell containing the same color as "
                             "the moving piece"); // same color
       }
       if (quiet_move.piecetype_get() != plugin::PieceType::KNIGHT)
       { // Piece in the path
 
-        std::cerr << " MOVE THROUGH PIECE " << std::endl;
         auto d_file = static_cast<char>(quiet_move.end_get().file_get()) -
                       static_cast<char>(quiet_move.start_get().file_get());
         auto d_rank = static_cast<char>(quiet_move.end_get().rank_get()) -
@@ -162,16 +160,15 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
           static_cast<char>(quiet_move.start_get().file_get()) + dir_x;
         char rank =
           static_cast<char>(quiet_move.start_get().rank_get()) + dir_y;
-        std::cerr << "file " << (int)file << " rank " << (int)rank << std::endl;
         for (;
              not(file == static_cast<char>(quiet_move.end_get().file_get()) and
                  rank == static_cast<char>(quiet_move.end_get().rank_get()));
              file += dir_x, rank += dir_y)
         {
-          std::cerr << "checking : "
+        /*  std::cerr << "checking : "
                     << plugin::Position(static_cast<plugin::File>(file),
                                         static_cast<plugin::Rank>(rank))
-                    << std::endl;
+                    << std::endl;*/
           if (board.piecetype_get(plugin::Position(
                 static_cast<plugin::File>(file),
                 static_cast<plugin::Rank>(rank))) != std::experimental::nullopt)
@@ -192,23 +189,18 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     if (board.has_moved(rook_pos))
       return invalid_move("rook has already moved");
 
-    std::cerr << "king pos " << king_pos << " rook pos " << rook_pos
-              << std::endl;
-
     char d_file =
       static_cast<char>(rook_pos.file_get()) -
       static_cast<char>(king_pos.file_get()); // No piece between King and Rook
     char dir_x = (d_file > 0) ? 1 : -1;
-    std::cerr << "d_file = " << (int)d_file << std::endl;
-    std::cerr << "dir_x " << (int)dir_x << std::endl;
     for (char file = static_cast<char>(king_pos.file_get()) + dir_x;
          file + dir_x != static_cast<char>(rook_pos.file_get()); file += dir_x)
     {
-      std::cerr << "checking : "
+     /* std::cerr << "checking : "
                 << plugin::Position(
                      static_cast<plugin::File>(file),
                      static_cast<plugin::Rank>(king_pos.rank_get()))
-                << std::endl;
+                << std::endl;*/
       if (board.piecetype_get(plugin::Position(static_cast<plugin::File>(file),
                                                king_pos.rank_get())) !=
           std::experimental::nullopt)
@@ -220,10 +212,10 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     for (char file = static_cast<char>(king_pos.file_get());
          file != static_cast<char>(king_end_position.file_get()); file += dir_x)
     {
-      std::cerr << "checking CHECK at "
+      /*std::cerr << "checking CHECK at "
                 << plugin::Position(static_cast<plugin::File>(file),
                                     king_pos.rank_get())
-                << std::endl;
+                << std::endl;*/
       if (board.is_attacked(move.color_get(),
                             plugin::Position(static_cast<plugin::File>(file),
                                              king_pos.rank_get()))) // first
@@ -322,44 +314,18 @@ bool RuleChecker::isCheckmate(const ChessBoard& board,
       }
     }
   }
-  std::cerr << "No move cant get out of check" << std::endl;
   return true;
 }
 
 bool RuleChecker::clear_check(const ChessBoard& board, Move& move)
 {
-  if (move.move_type_get() == Move::Type::QUIET)
-  {
-    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    if (quiet_move.start_get() == plugin::Position(plugin::File::F, plugin::Rank::EIGHT) and quiet_move.end_get() == plugin::Position(plugin::File::E, plugin::Rank::SEVEN) and quiet_move.piecetype_get() == plugin::PieceType::KING) {
-      std::cerr << "KINKGINGKING";
-    }
-  }
-
   if (!RuleChecker::is_move_valid(board, move)) return false;
-  std::cerr << "valid" << std::endl;
-  if (move.move_type_get() == Move::Type::QUIET)
-  {
-    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    if (quiet_move.start_get() == plugin::Position(plugin::File::F, plugin::Rank::EIGHT) and quiet_move.end_get() == plugin::Position(plugin::File::E, plugin::Rank::SEVEN) and quiet_move.piecetype_get() == plugin::PieceType::KING) {
-      std::cerr << "KINKGINGKING";
-    }
-  }
-
+  
   ChessBoard tmp(board);
-  std::cerr << "initial  king pos =  " << tmp.get_king_position(move.color_get()) << std::endl;
-  tmp.print();
+  //tmp.print();
 
   tmp.apply_move(move);
-  if (move.move_type_get() == Move::Type::QUIET)
-  {
-    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    if (quiet_move.start_get() == plugin::Position(plugin::File::F, plugin::Rank::EIGHT) and quiet_move.end_get() == plugin::Position(plugin::File::E, plugin::Rank::SEVEN) and quiet_move.piecetype_get() == plugin::PieceType::KING) {
-      std::cerr << "KINKGINGKING";
-    }
-  }
-  tmp.print();
-  std::cerr << "applying  king pos =  " << tmp.get_king_position(move.color_get()) << std::endl;
+  //tmp.print();
 
   if (isCheck(tmp, tmp.get_king_position(move.color_get())))
     return false;

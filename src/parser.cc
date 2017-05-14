@@ -58,7 +58,6 @@ std::vector<Move*> Parser::parse()
   while (pgn.good())
   { // Move
     getline(pgn, s, '.');
-    std::cerr << "line = " << s << std::endl;
     // boost::regex exp("(?<var>\\S+)");
     boost::regex exp1("^[\n "
                       "]*(?<piece>[BRNQK]?)(?<start_file>[a-h])(?<start_rank>["
@@ -73,33 +72,34 @@ std::vector<Move*> Parser::parse()
     {
       if (boost::regex_search(s, what, exp1))
       {
-        std::cerr << "WHAT " << what[0] << std::endl;
+        /*std::cerr << "WHAT " << what[0] << std::endl;
         std::cerr << (what["piece"] == std::string("") ? "Pawn"
                                                        : what["piece"].str())
                   << " " << what["start_file"] << " " << what["start_rank"]
                   << " " << what["take"] << " " << what["end_file"] << " "
-                  << what["end_rank"] << std::endl;
+                  << what["end_rank"] << std::endl;*/
         moves.push_back(generateMove(static_cast<plugin::Color>(i), what));
       }
       else if (boost::regex_search(s, what, queenside_rook))
       {
-        std::cerr << "QUEENSIDE MOVE" << std::endl;
+        //std::cerr << "QUEENSIDE MOVE" << std::endl;
         moves.push_back(
           new Move(Move::Type::QUEEN_CASTLING, static_cast<plugin::Color>(i)));
       }
       else if (boost::regex_search(s, what, kingside_rook))
       {
-        std::cerr << "KINGSIDE MOVE" << std::endl;
+        //std::cerr << "KINGSIDE MOVE" << std::endl;
         moves.push_back(
           new Move(Move::Type::KING_CASTLING, static_cast<plugin::Color>(i)));
       }
-      else
-        std::cerr << "no match for EXP1" << std::endl;
+      else {
+        //std::cerr << "no match for EXP1" << std::endl;
+       }
 
       if (!i)
       {
         s = s.substr(what[0].str().length() + 1);
-        std::cerr << "remaining_string = " << s << std::endl;
+        //std::cerr << "remaining_string = " << s << std::endl;
       }
     }
   }

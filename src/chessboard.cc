@@ -36,7 +36,6 @@ int ChessBoard::update(Move& move)
     return -1;
   }
   // throw std::invalid_argument("invalid move - in ChessBoard update()");
-  std::cerr << "Move is pseudo valid" << std::endl;
 
   plugin::PieceType piecetype_eaten;
   if (move.move_type_get() == Move::Type::QUIET)
@@ -61,7 +60,6 @@ int ChessBoard::update(Move& move)
       l->on_player_disqualified(move.color_get()); // Disqualified
     return -1;
   }
-  std::cerr << "Move is completly valid" << std::endl;
   history_.add(move);
 
   // throw std::invalid_argument("invalid move : The King would be in check");
@@ -70,8 +68,6 @@ int ChessBoard::update(Move& move)
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    /*move_piece(quiet_move.start_get(), quiet_move.end_get());
-    std::cerr << "Moving piece" << std::endl;*/
     for (auto l : listeners_)
       l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(),
                         quiet_move.end_get());
@@ -171,7 +167,6 @@ void ChessBoard::print() const
   {
     for (unsigned j = 0; j < board_[0].size(); j++)
     {
-      std::cerr << plugin::Position((plugin::File)j, (plugin::Rank)i);
       if (piecetype_get(plugin::Position((plugin::File)j, (plugin::Rank)i)) ==
           std::experimental::nullopt)
         std::cerr << "_ ";
@@ -249,7 +244,6 @@ bool ChessBoard::is_attacked(plugin::Color color,
       if (piecetype_get(pos) != std::experimental::nullopt and
           color_get(pos) != color)
       {
-        // std::cerr << " ATTACKER : " << pos << std::endl;
         try
         {
           if (RuleChecker::is_move_valid(
@@ -541,12 +535,9 @@ plugin::Position ChessBoard::get_king_position(plugin::Color color)
       auto p = plugin::Position(static_cast<plugin::File>(j),
           static_cast<plugin::Rank>(i));
       if (piecetype_get(p) != std::experimental::nullopt and piecetype_get(p).value() ==  plugin::PieceType::KING and color_get(p) == color) {
-        std::cerr << static_cast<char>(piecetype_get(p).value()) << std::endl;
-        std::cerr << "get_king_position = " << p << std::endl;
         return p;
       }
     }
   }
-  std::cerr << "get_king_position = " << p << std::endl;
   return plugin::Position(plugin::File::A, plugin::Rank::ONE);;
 }

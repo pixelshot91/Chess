@@ -10,7 +10,6 @@ QuietMove::QuietMove(plugin::Color color, plugin::Position start,
   , attack_(attack)
   , promotion_(promotion)
 {
-  std::cerr << "Creating QuietMove" << std::endl;
 }
 
 plugin::PieceType QuietMove::piecetype_get() const

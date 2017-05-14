@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
   if (vm.count("help"))
   {
-    std::cerr << desc << "\n";
+    std::cout << desc << "\n";
     return 0;
   }
   std::vector<Listener*> listeners;
@@ -38,7 +38,6 @@ int main(int argc, char* argv[])
       vm["listeners"].as<std::vector<std::string>>();
     for (auto s : listeners_name)
     {
-      std::cerr << s << std::endl;
       void* handle = dlopen(s.c_str(), RTLD_NOW);
       if (handle == nullptr)
         std::invalid_argument("Can't open librairy");
@@ -47,12 +46,10 @@ int main(int argc, char* argv[])
         reinterpret_cast<Listener* (*)()>(dlsym(handle, "listener_create"))();
       listeners.push_back(listener);
     }
-    std::cerr << listeners.size() << std::endl;
   }
 
   if (vm.count("port"))
   {
-    std::cerr << "port is: " << vm["port"].as<unsigned short>() << std::endl;
     unsigned short port = vm["port"].as<unsigned short>();
     Engine engine(listeners, port);
     engine.start();
@@ -61,7 +58,6 @@ int main(int argc, char* argv[])
   if (vm.count("pgn"))
   {
     std::string pgn_path = vm["pgn"].as<std::string>();
-    std::cerr << "pgn path is: " << pgn_path << std::endl;
     Engine engine(listeners, pgn_path);
     engine.start();
     return 0;
@@ -69,9 +65,4 @@ int main(int argc, char* argv[])
   std::cerr << "No option were given." << std::endl
             << "Please use --pgn or -port option" << std::endl;
   return 0;
-  /*
-   if (vm.count("listeners"))
-    std::cerr << "listeners are: " <<
-   vm["listeners"].as<std::vector<std::string>>() << std::endl;
-    */
 }
