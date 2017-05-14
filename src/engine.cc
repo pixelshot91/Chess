@@ -110,32 +110,6 @@ int Engine::start()
       total_moves += " " + client_move;
       color = !color;
     }
-
-    /*std::cerr << "UCINEWGAME client 1" << std::endl;
-
-    /* engine -> client_2 */
-    /*clients_[1]->send("ucinewgame");
-    clients_[1]->send("position startpos moves " + total_moves);
-    clients_[1]->send("go");
-    client_move = clients_[1]->receive().substr(9);
-    std::cerr << "CLIENT 1 bestmove = " << client_move << std::endl;
-
-    /* engine -> client_1 */
-    /*clients_[0]->send(total_moves);
-    clients_[0]->send("go");
-    client_move = clients_[0]->receive().substr(9);
-
-    /*while {
-    // EACH player play
-
-    if(is_player_mat()) {
-    Listener.on_player_mat();
-    Listener.on_game_finished();
-    return;
-    }
-    if(check()) Listener.on_player_check();
-    }*/
-
     return 0;
   }
 }

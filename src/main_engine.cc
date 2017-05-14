@@ -12,6 +12,7 @@ namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
 {
+  argc = argc;
   po::options_description desc("Allowed options");
   desc.add_options()("help,h",
                      "show usage")("port,p", po::value<unsigned short>(),

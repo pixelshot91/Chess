@@ -20,6 +20,13 @@ ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
 {
 }
 
+ChessBoard::ChessBoard(const ChessBoard& board)
+{
+  for (int i = 0; i < 8; ++i)
+    for (int j = 0; j < 8; ++j)
+      board_[i][j] = board.board_[i][j];
+}
+
 int ChessBoard::update(Move& move)
 { // FIX ME PROMOTION
   if (!RuleChecker::is_move_valid(*this, move))
@@ -47,7 +54,7 @@ int ChessBoard::update(Move& move)
     }
   }
 
-  apply_move(*this, move);
+  apply_move(move);
   if (RuleChecker::isCheck(*this, get_king_position(move.color_get())))
   {
     for (auto l : listeners_)
@@ -78,12 +85,6 @@ int ChessBoard::update(Move& move)
       initial_king_position(move.color_get());
     plugin::Position king_end_position = castling_king_end_position(
       move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
-    plugin::Position rook_start_postion = initial_rook_position(
-      move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
-    plugin::Position rook_end_position = castling_rook_end_position(
-      move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
-    /*move_piece(king_start_position, king_end_position);
-    move_piece(rook_start_postion, rook_end_position);*/
 
     for (auto l : listeners_)
       l->on_piece_moved(plugin::PieceType::KING, king_start_position,
@@ -101,19 +102,19 @@ int ChessBoard::update(Move& move)
   if (RuleChecker::isCheckmate(*this, king_position))
   {
     for (auto l : listeners_)
-      l->on_player_mat(move.color_get());
+      l->on_player_mat(opponent_color);
     return -1;
   }
   else if (RuleChecker::isCheck(*this, king_position))
   {
     for (auto l : listeners_)
-      l->on_player_check(move.color_get());
+      l->on_player_check(opponent_color);
     return 0;
   }
   else if (RuleChecker::isStalemate(*this, opponent_color))
   {
     for (auto l : listeners_)
-      l->on_player_pat(move.color_get());
+      l->on_player_pat(opponent_color);
     for (auto l : listeners_)
       l->on_draw();
     return -1;
@@ -133,7 +134,7 @@ int ChessBoard::update(Move& move)
   return 0;
 }
 
-ChessBoard ChessBoard::apply_move(ChessBoard board, Move& move)
+void ChessBoard::apply_move(Move& move)
 {
   if (move.move_type_get() == Move::Type::QUIET)
   {
@@ -153,7 +154,6 @@ ChessBoard ChessBoard::apply_move(ChessBoard board, Move& move)
       castling_rook_end_position(
         move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING));
   }
-  return board;
 }
 
 void ChessBoard::move_piece(plugin::Position start, plugin::Position end)
@@ -171,6 +171,7 @@ void ChessBoard::print() const
   {
     for (unsigned j = 0; j < board_[0].size(); j++)
     {
+      std::cerr << plugin::Position((plugin::File)j, (plugin::Rank)i);
       if (piecetype_get(plugin::Position((plugin::File)j, (plugin::Rank)i)) ==
           std::experimental::nullopt)
         std::cerr << "_ ";
@@ -532,16 +533,20 @@ plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color,
 
 plugin::Position ChessBoard::get_king_position(plugin::Color color)
 {
-  plugin::Position p(plugin::File::A, plugin::Rank::ONE));
+  plugin::Position p(plugin::File::A, plugin::Rank::ONE);
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
     {
-      p = plugin::Position(static_cast<plugin::File>(j),
-                           static_cast<plugin::Rank>(i));
-      if (piecetype_get(p) == plugin::PieceType::KING and color_get(p) == color)
-        break;
+      auto p = plugin::Position(static_cast<plugin::File>(j),
+          static_cast<plugin::Rank>(i));
+      if (piecetype_get(p) != std::experimental::nullopt and piecetype_get(p).value() ==  plugin::PieceType::KING and color_get(p) == color) {
+        std::cerr << static_cast<char>(piecetype_get(p).value()) << std::endl;
+        std::cerr << "get_king_position = " << p << std::endl;
+        return p;
+      }
     }
   }
-  return p;
+  std::cerr << "get_king_position = " << p << std::endl;
+  return plugin::Position(plugin::File::A, plugin::Rank::ONE);;
 }
