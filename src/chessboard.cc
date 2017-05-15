@@ -33,27 +33,34 @@ int ChessBoard::update(Move& move)
   {
     for (auto l : listeners_)
       l->on_player_disqualified(move.color_get()); // Disqualified
+    std::cerr << "Move disqualiying " << move << std::endl;
     return -1;
   }
   // throw std::invalid_argument("invalid move - in ChessBoard update()");
 
   plugin::PieceType piecetype_eaten;
+  plugin::Position position_piece_eaten_en_passant(plugin::File::A, plugin::Rank::ONE);
+  bool en_passant = false;
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     if (quiet_move.is_an_attack())
     {
-      if (piecetype_get(quiet_move.end_get()) == std::experimental::nullopt)
-        piecetype_eaten =
-          piecetype_get(plugin::Position(quiet_move.end_get().file_get(),
-                                         quiet_move.start_get().rank_get()))
+      if (piecetype_get(quiet_move.end_get()) == std::experimental::nullopt) {
+        position_piece_eaten_en_passant = plugin::Position(
+            quiet_move.end_get().file_get(), quiet_move.start_get().rank_get());
+        piecetype_eaten = piecetype_get(position_piece_eaten_en_passant)
             .value();
+        en_passant = true;
+      }
       else
         piecetype_eaten = piecetype_get(quiet_move.end_get()).value();
     }
   }
 
   apply_move(move);
+  if (en_passant)
+    set_square(position_piece_eaten_en_passant, 0x7);
   if (RuleChecker::isCheck(*this, get_king_position(move.color_get())))
   {
     for (auto l : listeners_)
@@ -71,9 +78,17 @@ int ChessBoard::update(Move& move)
     for (auto l : listeners_)
       l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(),
                         quiet_move.end_get());
-    if (quiet_move.is_an_attack()) // Piece Taken
+    if (quiet_move.is_an_attack()) {// Piece Taken
+      if (en_passant)
+        for (auto l : listeners_)
+          l->on_piece_taken(piecetype_eaten, position_piece_eaten_en_passant);
+      else
+        for (auto l : listeners_)
+          l->on_piece_taken(piecetype_eaten, quiet_move.end_get());
+    }
+    if (quiet_move.is_promotion())
       for (auto l : listeners_)
-        l->on_piece_taken(piecetype_eaten, quiet_move.end_get());
+        l->on_piece_promoted(plugin::piecetype_array()[quiet_move.promotion_piecetype_get()], quiet_move.end_get());
   }
   else /* Castling */
   {
@@ -135,15 +150,21 @@ void ChessBoard::apply_move(Move& move)
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    move_piece(quiet_move.start_get(), quiet_move.end_get());
+    if (quiet_move.is_promotion()) {
+      set_square(quiet_move.end_get(), (static_cast<bool>(move.color_get()) << 7) | 0x8 | quiet_move.promotion_piecetype_get());
+      set_square(quiet_move.start_get(), 0x7); // 0b000001111
+    }
+    else
+      move_piece(quiet_move.start_get(), quiet_move.end_get());
   }
   else /* Castling */
   {
-    if (move.move_type_get() == Move::Type::KING_CASTLING)
-      move_piece(initial_king_position(move.color_get()),
+    //Moving King
+    move_piece(initial_king_position(move.color_get()),
                  castling_king_end_position(move.color_get(),
                                             move.move_type_get() ==
                                               Move::Type::KING_CASTLING));
+    // Moving Rook
     move_piece(
       initial_rook_position(move.color_get(),
                             move.move_type_get() == Move::Type::KING_CASTLING),
@@ -250,7 +271,7 @@ bool ChessBoard::is_attacked(plugin::Color color,
                 *this,
                 QuietMove(
                   static_cast<plugin::Color>(not static_cast<bool>(color)), pos,
-                  current_cell, piecetype_get(pos).value(), true, false)))
+                  current_cell, piecetype_get(pos).value(), true, true)))
           {
             return true;
           }

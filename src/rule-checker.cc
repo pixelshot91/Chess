@@ -136,7 +136,7 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     }
     else
     {
-      if (not quiet_move.is_a_test() and quiet_move.is_an_attack() and
+      if ((not quiet_move.is_a_test()) and quiet_move.is_an_attack() and
           board.piecetype_get(quiet_move.end_get()) ==
             std::experimental::nullopt)
         return invalid_move("can't attack an empty cell");

@@ -1,4 +1,5 @@
 #include "chessboard-listener.hh"
+#include "plugin-auxiliary.hh"
 
 LISTENER_EXPORT(ChessboardListener);
 
@@ -64,14 +65,6 @@ void GetUnicodeChar(unsigned int code, char chars[5])
     chars[0] = 0xBD;
     chars[3] = '\0';
   }
-}
-
-char PieceTypeToInt(plugin::PieceType type)
-{
-  char i;
-  for (i = 0; plugin::piecetype_array()[i] != type; ++i)
-    continue;
-  return i;
 }
 
 void ChessboardListener::on_piece_moved(const PieceType piece,

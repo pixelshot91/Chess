@@ -2,19 +2,25 @@
 
 QuietMove::QuietMove(plugin::Color color, plugin::Position start,
                      plugin::Position end, plugin::PieceType type, bool attack,
-                     bool promotion)
+                     bool test, char promotion_piecetype)
   : Move(QUIET, color)
   , start_(start)
   , end_(end)
   , piecetype_(type)
   , attack_(attack)
-  , promotion_(promotion)
+  , test_(test)
+  , promotion_piecetype_(promotion_piecetype)
 {
 }
 
 plugin::PieceType QuietMove::piecetype_get() const
 {
   return piecetype_;
+}
+
+char QuietMove::promotion_piecetype_get() const
+{
+  return promotion_piecetype_;
 }
 
 plugin::Position QuietMove::start_get() const
@@ -34,7 +40,7 @@ bool QuietMove::is_an_attack() const
 
 bool QuietMove::is_promotion() const
 {
-  return promotion_;
+  return promotion_piecetype_ != -1;
 }
 
 bool QuietMove::is_a_test() const

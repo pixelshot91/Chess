@@ -5,6 +5,7 @@
 #include "parser.hh"
 
 #include "chessboard.hh"
+#include "plugin-auxiliary.hh"
 
 Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
@@ -61,7 +62,8 @@ std::vector<Move*> Parser::parse()
     // boost::regex exp("(?<var>\\S+)");
     boost::regex exp1("^[\n "
                       "]*(?<piece>[BRNQK]?)(?<start_file>[a-h])(?<start_rank>["
-                      "1-8])(?<take>[-x])(?<end_file>[a-h])(?<end_rank>[1-8])(?"
+                      "1-8])(?<take>[-x])(?<end_file>[a-h])(?<end_rank>[1-8])(?<promotion>(=[BRNQ])?)(?"
+                      //"1-8])(?<take>[-x])(?<end_file>[a-h])(?<end_rank>[1-8])(?"
                       "<check>[+#]?)");
     boost::regex kingside_rook("O-O");
     boost::regex queenside_rook("O-O-O");
@@ -72,17 +74,17 @@ std::vector<Move*> Parser::parse()
     {
       if (boost::regex_search(s, what, exp1))
       {
-        /*std::cerr << "WHAT " << what[0] << std::endl;
+        std::cerr << "WHAT " << what[0] << std::endl;
         std::cerr << (what["piece"] == std::string("") ? "Pawn"
                                                        : what["piece"].str())
                   << " " << what["start_file"] << " " << what["start_rank"]
                   << " " << what["take"] << " " << what["end_file"] << " "
-                  << what["end_rank"] << std::endl;*/
+                  << what["end_rank"] << std::endl;
         moves.push_back(generateMove(static_cast<plugin::Color>(i), what));
       }
       else if (boost::regex_search(s, what, queenside_rook))
       {
-        //std::cerr << "QUEENSIDE MOVE" << std::endl;
+        std::cerr << "QUEENSIDE MOVE : " << s << std::endl;
         moves.push_back(
           new Move(Move::Type::QUEEN_CASTLING, static_cast<plugin::Color>(i)));
       }
@@ -115,7 +117,10 @@ QuietMove* Parser::generateMove(plugin::Color color, boost::smatch what)
     static_cast<plugin::File>(what["end_file"].str()[0] - 'a'),
     static_cast<plugin::Rank>(what["end_rank"].str()[0] - '1'));
   char type = (what["piece"] == std::string("") ? 'P' : what["piece"].str()[0]);
+  char promotion_piecetype = -1;
+  if (what["promotion"].str() != "")
+    promotion_piecetype = PieceTypeToInt(static_cast<plugin::PieceType>(what["promotion"].str()[1]));
   return new QuietMove(
     color, pos_start, pos_end, static_cast<plugin::PieceType>(type),
-    what["take"].str() == std::string("x"), false); // FIX PROMOTION
+    what["take"].str() == std::string("x"), false, promotion_piecetype); // FIX PROMOTION
 }
