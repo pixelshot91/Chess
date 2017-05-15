@@ -274,31 +274,37 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
 
   switch (piece_type.value())
   {
-  case plugin::PieceType::KING:
-    for (int i = -1; i < 1; i++)
-    {
-      for (int j = -1; j < 1; j++)
+    case plugin::PieceType::KING:
+      for (int i = -1; i < 1; i++)
       {
-        if (i + static_cast<int>(position.file_get()) < 7 &&
-            i + static_cast<int>(position.file_get()) > 0 &&
-            j + static_cast<int>(position.rank_get()) < 7 &&
-            j + static_cast<int>(position.rank_get()) > 0)
+        for (int j = -1; j < 1; j++)
         {
-          plugin::Position endpos1(
-            static_cast<plugin::File>(
-              i + static_cast<int>(0 + static_cast<int>(position.file_get()))),
-            static_cast<plugin::Rank>(j +
-                                      static_cast<int>(position.rank_get())));
-          QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-                          piecetype_get(endpos1) != std::experimental::nullopt,
-                          false);
-          if (RuleChecker::isMoveAuthorized(*this, move1) &&
-              RuleChecker::isMoveLegal(*this, move1))
-            moves.push_back(move1);
+          if(i !=0 && j != 0)
+          {
+            if (i + static_cast<int>(position.file_get()) < 7 &&
+                i + static_cast<int>(position.file_get()) > 0 &&
+                j + static_cast<int>(position.rank_get()) < 7 &&
+                j + static_cast<int>(position.rank_get()) > 0)
+            {
+              plugin::Position endpos1(
+                  static_cast<plugin::File>(
+                    i + static_cast<int>(0 + static_cast<int>(position.file_get()))),
+                  static_cast<plugin::Rank>(j +
+                    static_cast<int>(position.rank_get())));
+              QuietMove move1(color_piece, position, endpos1, piece_type.value(),
+                  piecetype_get(endpos1) != std::experimental::nullopt,
+                  false);
+              if (RuleChecker::isMoveAuthorized(*this, move1) &&
+                  RuleChecker::isMoveLegal(*this, move1))
+                moves.push_back(move1);
+            }
+          }
         }
       }
-    }
-    break;
+
+      moves.push_back(Move(Move::type::KING_CASTLING,color_piece));
+      moves.push_back(Move(Move::type::QUEEN_CASTLING,color_piece));
+      break;
 
   case plugin::PieceType::QUEEN:
     break;
