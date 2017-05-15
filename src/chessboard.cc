@@ -312,31 +312,33 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
   case plugin::PieceType::ROOK:
     for (int i = 0; i < 8; i++)
     {
-      if (i + static_cast<int>(position.file_get()) < 7)
-      {
-        plugin::Position endpos1(
-          static_cast<plugin::File>(i + static_cast<int>(position.file_get())),
-          static_cast<plugin::Rank>(0 + static_cast<int>(position.rank_get())));
-        QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-                        piecetype_get(endpos1) != std::experimental::nullopt,
-                        false);
-        if (RuleChecker::isMoveAuthorized(*this, move1) &&
-            RuleChecker::isMoveLegal(*this, move1))
-          moves.push_back(move1);
-      }
 
-      if (i + static_cast<int>(position.rank_get()) < 7)
-      {
-        plugin::Position endpos2(
-          static_cast<plugin::File>(0 + static_cast<int>(position.file_get())),
-          static_cast<plugin::Rank>(i + static_cast<int>(position.rank_get())));
-        QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-                        piecetype_get(endpos2) != std::experimental::nullopt,
-                        false);
-        if (RuleChecker::isMoveAuthorized(*this, move2) &&
-            RuleChecker::isMoveLegal(*this, move2))
-          moves.push_back(move2);
-      }
+        if (i == static_cast<int>(position.file_get()))
+        {
+          plugin::Position endpos1(
+              static_cast<plugin::File>(i),
+              static_cast<plugin::Rank>(static_cast<int>(position.rank_get())));
+          QuietMove move1(color_piece, position, endpos1, piece_type.value(),
+              piecetype_get(endpos1) != std::experimental::nullopt,
+              false);
+          if (RuleChecker::isMoveAuthorized(*this, move1) &&
+              RuleChecker::isMoveLegal(*this, move1))
+            moves.push_back(move1);
+        }
+
+        if (i == static_cast<int>(position.rank_get()))
+        {
+          plugin::Position endpos2(
+              static_cast<plugin::File>(static_cast<int>(position.file_get())),
+              static_cast<plugin::Rank>(i);
+              QuietMove move2(color_piece, position, endpos2, piece_type.value(),
+                piecetype_get(endpos2) != std::experimental::nullopt,
+                false);
+              if (RuleChecker::isMoveAuthorized(*this, move2) &&
+                RuleChecker::isMoveLegal(*this, move2))
+              moves.push_back(move2);
+              }
+
     }
     break;
 

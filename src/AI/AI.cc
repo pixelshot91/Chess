@@ -1,3 +1,9 @@
+AI::AI(plugin::Color AI_color)
+  AI_color_(AI_color)
+{}
+
+
+/*
 int GameControl::Evaluate(ChessBoard _B)
 {
     int material=0,bonus=0,mobility=0;
@@ -20,6 +26,7 @@ int GameControl::Evaluate(ChessBoard _B)
         }
         return material+bonus/10+mobility/20;
 }
+*/
 
 
 std::pair<plugin::Move,int> AI::minimax(int depth , plugin::Color playing_color)
@@ -43,7 +50,7 @@ std::pair<plugin::Move,int> AI::minimax(int depth , plugin::Color playing_color)
               apply_move(move);
               move_value = minimax(depth-1 , !playing_color);
 
-              //Savebest move
+              //Save best move
               if((move_value.first > bestMove_value.second )
                   == (playing_color == AI_color))
                 bestMove_value = value;
