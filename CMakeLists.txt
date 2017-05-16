@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
 set(BIN_ENGINE "chessengine")
 set(BIN_HUMAN "human")
+set(BIN_AI "ai")
 
 set(SRC_engine src/main_engine.cc src/move.cc src/quiet-move.cc src/parser.cc src/adaptater.cc
   src/chessboard.cc src/rule-checker.cc src/engine.cc src/history.cc
