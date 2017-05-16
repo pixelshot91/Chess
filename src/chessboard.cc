@@ -379,7 +379,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
                 static_cast<plugin::File>(i),
                 static_cast<plugin::Rank>(static_cast<int>(position.rank_get())));
             QuietMove move3(color_piece, position, endpos3, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
+                piecetype_get(endpos3) != std::experimental::nullopt,
                 false);
             if (RuleChecker::isMoveAuthorized(*this, move3) &&
                 RuleChecker::isMoveLegal(*this, move3))
