@@ -35,7 +35,7 @@ int Engine::start()
 
     for (auto m : moves)
     {
-      std::cerr << *m << std::endl;
+      //std::cerr << *m << std::endl;
       if (chessboard_.update(*m) == -1)
         break;
       // chessboard_.print();

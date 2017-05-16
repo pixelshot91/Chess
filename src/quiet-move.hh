@@ -25,4 +25,4 @@ private:
   bool test_;
   char promotion_piecetype_;
 };
-std::ostream& operator<<(std::ostream& o, const QuietMove& m);
+//std::ostream& operator<<(std::ostream& o, const QuietMove& m);

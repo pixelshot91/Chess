@@ -33,7 +33,7 @@ int ChessBoard::update(Move& move)
   {
     for (auto l : listeners_)
       l->on_player_disqualified(move.color_get()); // Disqualified
-    std::cerr << "Move disqualiying " << move << std::endl;
+    //std::cerr << "Move disqualiying " << move << std::endl;
     return -1;
   }
   // throw std::invalid_argument("invalid move - in ChessBoard update()");
@@ -57,7 +57,7 @@ int ChessBoard::update(Move& move)
         piecetype_eaten = piecetype_get(quiet_move.end_get()).value();
     }
   }
-
+  previous_states_.push_back(board_);
   apply_move(move);
   if (en_passant)
     set_square(position_piece_eaten_en_passant, 0x7);
@@ -75,6 +75,10 @@ int ChessBoard::update(Move& move)
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
+    if (quiet_move.piecetype_get() == plugin::PieceType::PAWN or quiet_move.is_an_attack())
+      inactive_turn = 0;
+    else
+      ++inactive_turn;
     for (auto l : listeners_)
       l->on_piece_moved(quiet_move.piecetype_get(), quiet_move.start_get(),
                         quiet_move.end_get());
@@ -92,6 +96,7 @@ int ChessBoard::update(Move& move)
   }
   else /* Castling */
   {
+    ++inactive_turn;
     plugin::Position king_start_position =
       initial_king_position(move.color_get());
     plugin::Position king_end_position = castling_king_end_position(
@@ -109,18 +114,17 @@ int ChessBoard::update(Move& move)
   }
   plugin::Color opponent_color =
     static_cast<plugin::Color>(not static_cast<bool>(move.color_get()));
-  plugin::Position king_position = get_king_position(opponent_color);
-  if (RuleChecker::isCheckmate(*this, king_position))
+  plugin::Position opponent_king_position = get_king_position(opponent_color);
+  if (RuleChecker::isCheck(*this, opponent_king_position))
   {
+    if (RuleChecker::isCheckmate(*this, opponent_king_position))
+    {
+      for (auto l : listeners_)
+        l->on_player_mat(opponent_color); // Checkmate
+      return -1;
+    }
     for (auto l : listeners_)
-      l->on_player_mat(opponent_color);
-    return -1;
-  }
-  else if (RuleChecker::isCheck(*this, king_position))
-  {
-    for (auto l : listeners_)
-      l->on_player_check(opponent_color);
-    return 0;
+      l->on_player_check(opponent_color); // Check
   }
   else if (RuleChecker::isStalemate(*this, opponent_color))
   {
@@ -130,11 +134,11 @@ int ChessBoard::update(Move& move)
       l->on_draw();
     return -1;
   }
-  /*else if (RuleChecker::is_a_draw()) {
+  if (three_fold_repetition() or inactive_turn == 50) {
     for (auto l : listeners_)
       l->on_draw();
     return -1;
-  }*/
+  }
 
   /*if (RuleChecker::isCheckmate(*this, get_king_position(move.color_get())))
   {
@@ -143,6 +147,20 @@ int ChessBoard::update(Move& move)
     //throw std::invalid_argument("CHECKMATE -- in chessboard update function");
   }*/
   return 0;
+}
+
+bool ChessBoard::three_fold_repetition()
+{
+  int counter = 0;
+  for (auto previous : previous_states_) {
+    if (previous == board_) {
+      if (counter == 1)
+        return true;
+      ++counter;
+    }
+  }
+  return false;
+
 }
 
 void ChessBoard::apply_move(Move& move)

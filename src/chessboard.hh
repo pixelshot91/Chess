@@ -15,8 +15,11 @@ class ChessBoard
 {
 public:
   using cell_t = uint8_t;
+  using board_t = std::array<std::array<cell_t, 8>, 8>;
   ChessBoard(std::vector<plugin::Listener*>);
   ChessBoard(const ChessBoard&);
+
+  bool three_fold_repetition();
 
   int update(Move& move);
   void move_piece(plugin::Position start, plugin::Position end);
@@ -52,7 +55,7 @@ public:
   plugin::Position get_king_position(plugin::Color color);
 
 private:
-  std::array<std::array<cell_t, 8>, 8> board_ = {
+  board_t board_ = {
     0x82, 0x84, 0x83, 0x81, 0x80, 0x83, 0x84, 0x82, 0x85, 0x85, 0x85,
     0x85, 0x85, 0x85, 0x85, 0x85, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87,
     0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87,
@@ -61,6 +64,8 @@ private:
     0x05, 0x02, 0x04, 0x03, 0x01, 0x00, 0x03, 0x04, 0x02};
   History history_;
   std::vector<plugin::Listener*> listeners_;
+  std::vector<board_t> previous_states_;
+  unsigned char inactive_turn = 0;
 };
 
 /*
