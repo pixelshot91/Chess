@@ -27,7 +27,6 @@ set(SRC_ai src/AI/AI.cc src/AI/main_ai.cc src/move.cc src/quiet-move.cc
   src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
   src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
 
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 #include_directories(src)
