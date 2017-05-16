@@ -15,6 +15,9 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
   return o;
 }*/
 
+ChessBoard::ChessBoard() 
+{}
+
 ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
   : listeners_(listeners)
 {

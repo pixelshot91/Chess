@@ -18,6 +18,7 @@ public:
   using board_t = std::array<std::array<cell_t, 8>, 8>;
   ChessBoard(std::vector<plugin::Listener*>);
   ChessBoard(const ChessBoard&);
+  ChessBoard();
 
   bool three_fold_repetition();
 
