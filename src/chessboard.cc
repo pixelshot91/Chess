@@ -121,9 +121,7 @@ int ChessBoard::update(std::shared_ptr<Move> move_ptr)
     static_cast<plugin::Color>(not static_cast<bool>(move.color_get()));
   plugin::Position opponent_king_position = get_king_position(opponent_color);
   bool no_possible_move = RuleChecker::no_possible_move(*this, opponent_color);
-  std::cerr << "end no_possible_move" << std::endl;
   bool in_check = RuleChecker::isCheck(*this, opponent_king_position);
-  std::cerr << "end check" << std::endl;
 
   if (no_possible_move and in_check)
   {
@@ -325,7 +323,6 @@ bool ChessBoard::is_attacked(plugin::Color color,
         }
       }
     }
-  std::cerr << "position " << current_cell << " is not attacked" << std::endl;
   return false;
 }
 

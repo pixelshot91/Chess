@@ -290,7 +290,6 @@ bool RuleChecker::no_possible_move(const ChessBoard& board, plugin::Color color)
                                    board.piecetype_get(start_pos).value(),
                                    attack, false);
               if (RuleChecker::is_move_valid(board, quiet_move)) {
-                std::cerr << "valid move = " << quiet_move << std::endl;
                 return false;
               }
             }
