@@ -19,7 +19,7 @@ set (SRC_TEST_ChessBoard tests/chessboard.cc src/move.cc src/quiet-move.cc
   src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
   src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
 
-set(SRC_human src/main_human.cc src/human-player.cc)
+set(SRC_human src/main_human.cc src/human-player.cc client.cc)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
