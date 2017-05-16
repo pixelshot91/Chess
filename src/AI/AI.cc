@@ -1,7 +1,17 @@
-AI::AI(plugin::Color AI_color)
+#include "AI.hh"
+  AI::AI(plugin::Color AI_color)
   AI_color_(AI_color)
 {}
 
+std::string AI::play_next_move(std::string received_move)
+{
+
+  received_move=received_move;
+  std::string input;
+  input;
+  //AI
+  return input;
+}
 
 /*
 int GameControl::Evaluate(ChessBoard _B)

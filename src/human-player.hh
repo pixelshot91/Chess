@@ -1,15 +1,11 @@
 #pragma once
-#include "network-api/client-network-api.hh"
-#include "plugin/color.hh"
-
-class HumanPlayer
+#include <string>
+#include "player.hh"
+class HumanPlayer : public Player
 {
-public:
-  HumanPlayer(const std::string& ip, const std::string& port);
-  int start();
-
 private:
-  network_api::ClientNetworkAPI client_;
-  std::string ip_;
-  std::string port_;
+  std::string player play_next_move(std::string received_move) override;
 };
+
+std::cin >> input;
+
