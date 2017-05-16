@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
 set(BIN_ENGINE "chessengine")
 set(BIN_HUMAN "human")
-set(BIN_AI "ai")
+#set(BIN_AI "ai")
 
 set(SRC_engine src/main_engine.cc src/move.cc src/quiet-move.cc src/parser.cc src/adaptater.cc
   src/chessboard.cc src/rule-checker.cc src/engine.cc src/history.cc
@@ -22,10 +22,12 @@ set (SRC_TEST_ChessBoard tests/chessboard.cc src/move.cc src/quiet-move.cc
 
 set(SRC_human src/main_human.cc src/human-player.cc src/client.cc)
 
+if(FALSE)
 set(SRC_ai src/AI/AI.cc src/move.cc src/quiet-move.cc
   src/chessboard.cc src/rule-checker.cc src/history.cc
   src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
   src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
@@ -33,7 +35,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_executable(${BIN_ENGINE} ${SRC_engine})
 add_executable(${BIN_HUMAN} ${SRC_human})
-add_executable(${BIN_AI} ${SRC_ai})
+#add_executable(${BIN_AI} ${SRC_ai})
 add_executable("test_chessboard" EXCLUDE_FROM_ALL ${SRC_TEST_ChessBoard})
 
 target_link_libraries(${BIN_ENGINE} boost_program_options)
@@ -44,4 +46,4 @@ target_link_libraries(${BIN_ENGINE} boost_system)
 #target_link_libraries(${BIN_HUMAN} boost_regex)
 target_link_libraries(${BIN_HUMAN} boost_system)
 
-target_link_libraries(${BIN_AI} boost_system)
+#target_link_libraries(${BIN_AI} boost_system)
