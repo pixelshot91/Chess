@@ -7,6 +7,7 @@
 #include "../plugin/piece-type.hh"
 #include "../plugin/position.hh"
 #include "../chessboard.hh"
+#include "../player.hh"
 
 #include <experimental/optional>
 #include <iomanip>
@@ -14,7 +15,7 @@
 #include <vector>
 #include <utility>
 
-class Ai// : public Player
+class Ai : public Player
 {
   public:
     Ai(plugin::Color ai_color);
@@ -31,7 +32,7 @@ class Ai// : public Player
    // int count_backward(const ChessBoard& board, plugin::Color color);
 
   private :
-  std::string play_next_move(std::string received_move) override;
+  std::string play_next_move(const std::string& received_move) override;
     ChessBoard board_;
     const plugin::Color ai_color_;
     const plugin::Color opponent_color_;

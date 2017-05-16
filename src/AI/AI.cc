@@ -1,18 +1,21 @@
 #include "AI.hh"
+#include "../plugin-auxiliary.hh"
 
 
-Ai::Ai(plugin::Color ai_color) 
+Ai::Ai(plugin::Color ai_color)
       : board_(), ai_color_(ai_color), opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
 {
 }
 
-std::string AI::play_next_move(std::string received_move)
+std::string Ai::play_next_move(const std::string& received_move)
 {
-  received_move = received_move;
-  std::string input;
-  input;
-  //AI
+  std::cout << received_move << std::endl;
+  /*
+  auto next_move = minimax(board_, 5, ai_color_);
+  std::string input = auxiliary::to_lan(std::get<Move>(next_move));
   return input;
+  */
+  return "toto";
 }
 
 /*
@@ -59,7 +62,6 @@ int Ai::evaluate(const ChessBoard& board)
 
   return queens + rooks + 3 *(bishops - knights) + pawns + 0.5 * (doubled + isolated); // backward
 }
-
 /*
 std::pair<Move,int> AI::minimax(const ChessBoard& board, int depth ,
 plugin::Color playing_color)
@@ -87,7 +89,7 @@ plugin::Color playing_color)
             for (auto move : moves)
             {
               //Moving
-              
+
               apply_move(move);
               move_value = minimax(depth-1 , !playing_color);
 

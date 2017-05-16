@@ -3,8 +3,8 @@
 #include "player.hh"
 class HumanPlayer : public Player
 {
-private:
-  std::string player play_next_move(std::string received_move) override;
+public:
+  std::string play_next_move(const std::string& received_move) override;
 };
 
 

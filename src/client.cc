@@ -1,9 +1,10 @@
-#include "human-player.hh"
+#include "client.hh"
+#include "plugin/color.hh"
 #include "player.hh"
-
+#include "human-player.hh"
 #include <iostream>
 
-Client::Client(const std::string& ip, const std::string& port, Player player)
+Client::Client(const std::string& ip, const std::string& port, Player& player)
   : client_(ip, port)
   , ip_(ip)
   , port_(port)
@@ -51,7 +52,7 @@ int Client::start()
       return -1;
 
     //std::cout << "Wainting for input : ";
-    std::string input = player.play_next_move(received_move);
+    std::string input = player_.play_next_move(received_move);
     //std::cerr << "input is " << input << std::endl;
     // move = /* get bestmove */;
     client_.send("bestmove " + input);
