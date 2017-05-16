@@ -30,8 +30,9 @@ ChessBoard::ChessBoard(const ChessBoard& board)
       board_[i][j] = board.board_[i][j];
 }
 
-int ChessBoard::update(Move& move)
+int ChessBoard::update(std::shared_ptr<Move> move_ptr)
 { // FIX ME PROMOTION
+  Move& move = *move_ptr;
   if (!RuleChecker::is_move_valid(*this, move))
   {
     for (auto l : listeners_)
@@ -70,7 +71,8 @@ int ChessBoard::update(Move& move)
       l->on_player_disqualified(move.color_get()); // Disqualified
     return -1;
   }
-  history_.add(move);
+  //history_.add(move);
+  last_move_ = move_ptr;
 
   // throw std::invalid_argument("invalid move : The King would be in check");
 
@@ -118,7 +120,34 @@ int ChessBoard::update(Move& move)
   plugin::Color opponent_color =
     static_cast<plugin::Color>(not static_cast<bool>(move.color_get()));
   plugin::Position opponent_king_position = get_king_position(opponent_color);
-  if (RuleChecker::isCheck(*this, opponent_king_position))
+  bool no_possible_move = RuleChecker::no_possible_move(*this, opponent_color);
+  std::cerr << "end no_possible_move" << std::endl;
+  bool in_check = RuleChecker::isCheck(*this, opponent_king_position);
+  std::cerr << "end check" << std::endl;
+
+  if (no_possible_move and in_check)
+  {
+    for (auto l : listeners_)
+      l->on_player_mat(opponent_color); // Checkmate
+    return -1;
+  }
+  if (in_check)
+  {
+    for (auto l : listeners_)
+      l->on_player_check(opponent_color); // Check
+  }
+  if (no_possible_move)
+  {
+    for (auto l : listeners_)
+      l->on_player_pat(opponent_color);
+    for (auto l : listeners_)
+      l->on_draw();
+    return -1;
+  }
+
+
+
+  /*if (RuleChecker::isCheck(*this, opponent_king_position))
   {
     if (RuleChecker::isCheckmate(*this, opponent_king_position))
     {
@@ -136,7 +165,7 @@ int ChessBoard::update(Move& move)
     for (auto l : listeners_)
       l->on_draw();
     return -1;
-  }
+  }*/
   if (three_fold_repetition() or inactive_turn == 50) {
     for (auto l : listeners_)
       l->on_draw();
@@ -166,7 +195,7 @@ bool ChessBoard::three_fold_repetition()
 
 }
 
-void ChessBoard::apply_move(Move& move)
+void ChessBoard::apply_move(const Move& move)
 {
   if (move.move_type_get() == Move::Type::QUIET)
   {
@@ -286,23 +315,17 @@ bool ChessBoard::is_attacked(plugin::Color color,
       if (piecetype_get(pos) != std::experimental::nullopt and
           color_get(pos) != color)
       {
-        try
+        if (RuleChecker::is_move_valid(
+              *this,
+              QuietMove(
+                static_cast<plugin::Color>(not static_cast<bool>(color)), pos,
+                current_cell, piecetype_get(pos).value(), true, true)))
         {
-          if (RuleChecker::is_move_valid(
-                *this,
-                QuietMove(
-                  static_cast<plugin::Color>(not static_cast<bool>(color)), pos,
-                  current_cell, piecetype_get(pos).value(), true, true)))
-          {
-            return true;
-          }
-        }
-        catch (std::invalid_argument& e)
-        {
-          return false;
+          return true;
         }
       }
     }
+  std::cerr << "position " << current_cell << " is not attacked" << std::endl;
   return false;
 }
 
@@ -621,9 +644,13 @@ std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
 */
 
 
-History ChessBoard::history_get() const
+/*History ChessBoard::history_get() const
 {
   return history_;
+}*/
+
+const std::shared_ptr<Move> ChessBoard::last_move_get() const {
+  return last_move_;
 }
 
 plugin::Position ChessBoard::initial_king_position(plugin::Color c)

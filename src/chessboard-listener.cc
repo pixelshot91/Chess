@@ -98,7 +98,7 @@ void ChessboardListener::on_piece_moved(const PieceType piece,
 
         GetUnicodeChar(
           0x2654 + color * 6 +
-            PieceTypeToInt(std::get<plugin::PieceType>(piece.value())),
+            auxiliary::PieceTypeToInt(std::get<plugin::PieceType>(piece.value())),
           chars);
         std::cout << chars;
       }

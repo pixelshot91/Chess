@@ -2,6 +2,7 @@
 
 #include <boost/regex.hpp>
 #include <string>
+#include <memory>
 
 #include "move.hh"
 #include "quiet-move.hh"
@@ -9,11 +10,12 @@
 class Parser
 {
 public:
+  using moves_t = std::vector<std::shared_ptr<Move>>;
   Parser(std::string pgn_path);
-  std::vector<Move*> parse();
-  static Move& parse_move(std::string, plugin::Color color);
+  moves_t parse();
+  static std::shared_ptr<Move> parse_move(std::string, plugin::Color color, bool pgn_check = false);
 
 private:
-  static QuietMove* generateMove(plugin::Color color, boost::smatch what);
+  static std::shared_ptr<QuietMove> generateMove(plugin::Color color, boost::smatch what);
   std::string pgn_path_;
 };

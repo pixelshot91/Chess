@@ -36,7 +36,7 @@ int Engine::start()
     for (auto m : moves)
     {
       //std::cerr << *m << std::endl;
-      if (chessboard_.update(*m) == -1)
+      if (chessboard_.update(m) == -1)
         break;
       // chessboard_.print();
     }
@@ -94,10 +94,12 @@ int Engine::start()
 
       clients_[color]->send("go");
 
-      client_move = clients_[color]->receive(); //.substr(9);
+      client_move = clients_[color]->receive().substr(9);
       //std::cerr << "bestmove = " << client_move << std::endl;
-      if (chessboard_.update(Parser::parse_move(
-            client_move, static_cast<plugin::Color>(color))) == -1)
+      auto best_move = Parser::parse_move(
+            client_move, static_cast<plugin::Color>(color));
+      std::cerr << "update with move : " << *best_move << std::endl;
+      if (chessboard_.update(best_move) == -1)
       {
         //std::cout << "invalid move : You are disqualified";
         for (auto l : listeners_)

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         std::invalid_argument("Can't open librairy");
       dlerror();
       Listener* listener =
-        reinterpret_cast<Listener* (*)()>(dlsym(handle, "listener_create"))();
+      reinterpret_cast<Listener* (*)()>(dlsym(handle, "listener_create"))();
       listeners.push_back(listener);
     }
   }
@@ -53,16 +53,19 @@ int main(int argc, char* argv[])
     unsigned short port = vm["port"].as<unsigned short>();
     Engine engine(listeners, port);
     engine.start();
-    return 0;
+    //return 0;
   }
-  if (vm.count("pgn"))
+  else if (vm.count("pgn"))
   {
     std::string pgn_path = vm["pgn"].as<std::string>();
     Engine engine(listeners, pgn_path);
     engine.start();
-    return 0;
+    //return 0;
   }
-  std::cerr << "No option were given." << std::endl
+  else
+    std::cerr << "No option were given." << std::endl
             << "Please use --pgn or -port option" << std::endl;
+  for (auto l : listeners)
+    delete l;
   return 0;
 }

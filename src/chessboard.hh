@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 class ChessBoard
 {
@@ -22,9 +23,9 @@ public:
 
   bool three_fold_repetition();
 
-  int update(Move& move);
+  int update(std::shared_ptr<Move> move);
   void move_piece(plugin::Position start, plugin::Position end);
-  void apply_move(Move& move);
+  void apply_move(const Move& move);
 
   void set_square(plugin::Position position, cell_t value);
   cell_t get_square(plugin::Position position) const;
@@ -40,7 +41,8 @@ public:
   std::vector<Piece*> get_piece(plugin::Color color);
   std::vector<Move> get_possible_actions(plugin::Position position);
 
-  History history_get() const;
+  //History history_get() const;
+  const std::shared_ptr<Move> last_move_get() const;
 
   static plugin::Position initial_king_position(plugin::Color c);
   static plugin::Position initial_rook_position(plugin::Color c,
@@ -63,7 +65,8 @@ private:
     0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87,
     0x87, 0x87, 0x87, 0x87, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05,
     0x05, 0x02, 0x04, 0x03, 0x01, 0x00, 0x03, 0x04, 0x02};
-  History history_;
+  //History history_;
+  std::shared_ptr<Move> last_move_;
   std::vector<plugin::Listener*> listeners_;
   std::vector<board_t> previous_states_;
   unsigned char inactive_turn = 0;
