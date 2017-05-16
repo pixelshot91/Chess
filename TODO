@@ -1,12 +1,26 @@
 [X] Level 0: Modeling
 
-[.] Level 1: Input/Output
-    [.] Build System
-    [.] Option parser
-    [ ] PGN parser
-    [ ] Listeners
+[X] Level 1: Input/Output
+    [X] Build System
+    [X] Option parser
+    [X] PGN parser
+    [X] Listeners
 
-[ ] Level 2: Move Checking
-[ ] Level 3: Rules
+[X] Level 2: Move Checking
+    [X] Basic Moves
+    [X] Legal Moves
+
+[X] Level 3: Rules
+    [X] Check
+    [X] Checkmate
+    [X] Draw
+        [X] Stalemate
+        [x] 50 last turn
+        [X] Threefold repetition
+    [ ] Timeout
+    [X] Castling
+    [X] En passant
+    [x] Promotion
+
 [ ] Level 4: Network and Human Player
 [ ] Level 5: Artificial Intelligence
