@@ -33,8 +33,21 @@ bool RuleChecker::is_move_valid(const ChessBoard& board, const Move& move)
 {
   if (!isMoveAuthorized(board, move))
     return false; // Based on the Piece Type and position of start and end cell
-  //std::cerr << "Move AUTHORIZED" << std::endl;
-  return isMoveLegal(board, move);
+  if (!isMoveLegal(board, move))
+    return false;
+  if (move.move_type_get() == Move::Type::QUIET)
+  {
+    const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
+    auto end_pos = quiet_move.end_get();
+    if (board.piecetype_get(end_pos) == plugin::PieceType::KING)
+      return true;
+  }
+  auto tmp = ChessBoard(board);
+  tmp.apply_move(move);
+  plugin::Position king_pos = tmp.get_king_position(move.color_get());
+  if (isCheck(tmp, king_pos))
+    return false;
+  return true;
 }
 
 bool RuleChecker::isMoveAuthorized(const ChessBoard& board, const Move& move)
@@ -117,18 +130,24 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
             board.color_get(quiet_move.end_get()); // different color
         else
         { // en passant ?
-          Move& last_move = board.history_get().last_get();
-          if (last_move.move_type_get() != Move::Type::QUIET)
-            return false;
+          //Move& last_move = board.history_get().last_get();
+          if (board.last_move_get() == nullptr)
+            return invalid_move("There was no last move");
+          Move& last_move = *board.last_move_get();
+          if (last_move.move_type_get() != Move::Type::QUIET) {
+            return invalid_move("last move was not a quiet move");
+          }
           const QuietMove& last_quiet_move =
             static_cast<const QuietMove&>(last_move);
-          return last_move.move_type_get() == Move::Type::QUIET and
-            last_quiet_move.piecetype_get() == plugin::PieceType::PAWN and
-            last_quiet_move.end_get().file_get() ==
-            quiet_move.end_get().file_get() and
-            last_quiet_move.end_get().rank_get() ==
-            quiet_move.start_get().rank_get() and
-            last_quiet_move.color_get() != quiet_move.color_get() and
+          if (last_quiet_move.piecetype_get() != plugin::PieceType::PAWN)
+            return invalid_move("The last piece to move was not a pawn");
+          if (last_quiet_move.end_get().file_get() !=
+            quiet_move.end_get().file_get())
+            return invalid_move("The last moving pawn and the current pawn wont be in the same file");
+          if (last_quiet_move.end_get().rank_get() !=
+            quiet_move.start_get().rank_get())
+            return invalid_move("The pawn is not one the same rank as the pawn to eat");
+          return last_quiet_move.color_get() != quiet_move.color_get() and
             abs(static_cast<char>(last_quiet_move.end_get().rank_get()) -
                 static_cast<char>(last_quiet_move.start_get().rank_get())) ==
             2;
@@ -139,10 +158,15 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     }
     else
     {
-      if ((not quiet_move.is_a_test()) and quiet_move.is_an_attack() and
-          board.piecetype_get(quiet_move.end_get()) ==
+      if (quiet_move.is_an_attack()) { // Attack
+        if ((not quiet_move.is_a_test()) and board.piecetype_get(quiet_move.end_get()) ==
             std::experimental::nullopt)
         return invalid_move("can't attack an empty cell");
+      }
+      else {// Simple move
+        if (board.piecetype_get(quiet_move.end_get()) != std::experimental::nullopt)
+          return invalid_move("can't move to occupied cell");
+      }
       if (board.piecetype_get(quiet_move.end_get()) !=
             std::experimental::nullopt and
           quiet_move.color_get() == board.color_get(quiet_move.end_get()))
@@ -150,6 +174,11 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
         return invalid_move("cant move to a cell containing the same color as "
                             "the moving piece"); // same color
       }
+      /*if ((not quiet_move.is_a_test()) and quiet_move.is_an_attack() and
+          board.piecetype_get(quiet_move.end_get()) ==
+            std::experimental::nullopt)
+        return invalid_move("can't attack an empty cell");*/
+      
       if (quiet_move.piecetype_get() != plugin::PieceType::KNIGHT)
       { // Piece in the path
 
@@ -233,7 +262,7 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
   return true;
 }
 
-bool RuleChecker::isStalemate(const ChessBoard& board, plugin::Color color)
+bool RuleChecker::no_possible_move(const ChessBoard& board, plugin::Color color)
 {
   for (int i = 0; i < 8; ++i)
   {
@@ -253,14 +282,15 @@ bool RuleChecker::isStalemate(const ChessBoard& board, plugin::Color color)
             plugin::Position end_pos(static_cast<plugin::File>(x),
                                      static_cast<plugin::Rank>(y));
             for (int attack = 0;
-                 attack <= (board.piecetype_get(start_pos).value() ==
-                            plugin::PieceType::PAWN);
+                 attack <= 1 /*(board.piecetype_get(start_pos).value() ==
+                            plugin::PieceType::PAWN)*/;
                  ++attack)
             {
               QuietMove quiet_move(color, start_pos, end_pos,
                                    board.piecetype_get(start_pos).value(),
                                    attack, false);
               if (RuleChecker::is_move_valid(board, quiet_move)) {
+                std::cerr << "valid move = " << quiet_move << std::endl;
                 return false;
               }
             }
@@ -280,7 +310,7 @@ bool RuleChecker::isStalemate(const ChessBoard& board, plugin::Color color)
 // QuietMove(plugin::Color color, plugin::Position start, plugin::Position end,
 // plugin::PieceType, bool attack, bool promotion);
 
-bool RuleChecker::isCheckmate(const ChessBoard& board,
+/*bool RuleChecker::isCheckmate(const ChessBoard& board,
                               plugin::Position king_pos)
 {
   
@@ -334,7 +364,7 @@ bool RuleChecker::clear_check(const ChessBoard& board, Move& move)
   if (isCheck(tmp, tmp.get_king_position(move.color_get())))
     return false;
   return true;
-}
+}*/
 
 bool RuleChecker::isCheck(const ChessBoard& board, plugin::Position king_pos)
 {

@@ -16,9 +16,10 @@ public:
   static bool invalid_move(std::string reason);
 
 public:
-  static bool isStalemate(const ChessBoard& board, plugin::Color color);
+  //static bool isStalemate(const ChessBoard& board, plugin::Color color);
+  static bool no_possible_move(const ChessBoard& board, plugin::Color color);
   static bool isCheck(const ChessBoard& board, plugin::Position position);
-  static bool isCheckmate(const ChessBoard& board, plugin::Position king_pos);
-  static bool clear_check(const ChessBoard& board, Move& move);
+  //static bool isCheckmate(const ChessBoard& board, plugin::Position king_pos);
+  //static bool clear_check(const ChessBoard& board, Move& move);
   //static bool is_a_draw(const ChessBoard& board);
 };
