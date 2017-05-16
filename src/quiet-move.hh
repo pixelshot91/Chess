@@ -16,6 +16,7 @@ public:
   bool is_a_test() const;
 
   void print(std::ostream& o) const override;
+  std::string to_lan() const override;
 
 private:
   plugin::Position start_;

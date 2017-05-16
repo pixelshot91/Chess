@@ -24,8 +24,17 @@ void Move::print(std::ostream& o) const
     o << "Queen castling" << std::endl;
 }
 
+std::string Move::to_lan() const
+{
+  if (move_type_ == KING_CASTLING)
+    return "O-O";
+  return "O-O-O";
+}
+
+
 std::ostream& operator<<(std::ostream& o, const Move& m)
 {
   m.print(o);
+  o << " " << m.to_lan();
   return o;
 }

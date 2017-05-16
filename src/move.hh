@@ -19,8 +19,9 @@ public:
   Type move_type_get() const;
   plugin::Color color_get() const;
   virtual void print(std::ostream& o) const;
+  virtual std::string to_lan() const;
 
-private:
+protected:
   Type move_type_;
   plugin::Color color_;
 };

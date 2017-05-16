@@ -1,4 +1,5 @@
 #include "quiet-move.hh"
+#include "plugin-auxiliary.hh"
 
 QuietMove::QuietMove(plugin::Color color, plugin::Position start,
                      plugin::Position end, plugin::PieceType type, bool attack,
@@ -48,6 +49,17 @@ bool QuietMove::is_a_test() const
   return test_;
 }
 
+std::string QuietMove::to_lan() const
+{
+  std::string result;
+  if (piecetype_get() != plugin::PieceType::PAWN)
+    result += static_cast<char>(piecetype_get());
+  result += auxiliary::to_lan(start_get());
+  result += attack_ ? 'x' : '-';
+  result += auxiliary::to_lan(end_get());
+  return result;
+}
+
 std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 {
   o << (char)(static_cast<char>(p.file_get()) + 'A')
@@ -57,6 +69,6 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 
 void QuietMove::print(std::ostream& o) const
 {
-  o << static_cast<char>(piecetype_get()) << (attack_ ? " attack" : " move")
+  o << static_cast<char>(piecetype_get()) << " (" << static_cast<int>(color_) << ") " << (attack_ ? " attack" : " move")
     << " from " << start_get() << " to " << end_get();
 }
