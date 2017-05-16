@@ -28,6 +28,7 @@ class Ai// : public Player
 
     int count_isolated(const ChessBoard& board, plugin::Color color);
     int count_doubled(const ChessBoard& board, plugin::Color color);
+   // int count_backward(const ChessBoard& board, plugin::Color color);
 
   private :
   std::string play_next_move(std::string received_move) override;

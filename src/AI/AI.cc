@@ -182,3 +182,50 @@ int Ai::count_isolated(const ChessBoard& board, plugin::Color color)
   return count;
 
 }
+
+
+/*
+int Ai::count_backward(const ChessBoard& board)
+{
+
+}
+
+
+// Always searches opponent -> thus opponent color
+int Ai::king_tropism(const ChessBoard& board)
+{
+  int count = 0;
+  for (auto i = 0; i < 8; i++)
+  {
+    for (auto j = 0; j < 8; j++)
+    {
+      auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      auto piece_color = board.color_get(pos);
+      auto piece_type = board.piecetype_get(pos);
+
+      if (piece_color == opponent_color_)
+      {
+        switch(piece_type)
+        {
+          case plugin::PieceType::QUEEN:
+            count += 2 * abs(j - i,);
+            break;
+
+          case plugin::PieceType::ROOK:
+            break;
+
+          case plugin::PieceType::BISHOP:
+            break;
+
+          case plugin::PieceType::KNIGHT:
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+  }
+  return count;
+}
+*/
