@@ -1,7 +1,7 @@
 #include "AI.hh"
 #include "../plugin-auxiliary.hh"
 
-Ai::Ai(plugin::Color ai_color) 
+AI::AI(plugin::Color ai_color) 
       : board_()
       , ai_color_(ai_color)
       , opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
@@ -9,7 +9,7 @@ Ai::Ai(plugin::Color ai_color)
 {
 }
 
-std::string AI::play_next_move(const std::string received_move)
+std::string AI::play_next_move(const std::string& received_move)
 {
   std::cout << received_move << std::endl;
 
@@ -46,12 +46,12 @@ int GameControl::Evaluate(ChessBoard _B)
 }
 */
 
-int Ai::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
+int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
 {
   switch (piece)
   {
     case plugin::PieceType::QUEEN:
-      return evalboard_.get_queen_board()[i][j];
+      return queen_weight_board()[i][j];
     case plugin::PieceType::ROOK:
       return evalboard_.get_rook_board()[i][j];
     case plugin::PieceType::BISHOP:
@@ -64,7 +64,7 @@ int Ai::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
 }
 
 
-int Ai::board_bonus_position(const ChessBoard& board)
+int AI::board_bonus_position(const ChessBoard& board)
 {
   //int material = 0;
   //int bonus = 0;
@@ -91,7 +91,7 @@ int Ai::board_bonus_position(const ChessBoard& board)
 }
 
 
-int Ai::board_material(const ChessBoard& board)
+int AI::board_material(const ChessBoard& board)
 {
   int queens = 9 * (piece_numbers(board, plugin::PieceType::QUEEN, ai_color_) - piece_numbers(board, plugin::PieceType::QUEEN, opponent_color_));
 
@@ -108,7 +108,7 @@ int Ai::board_material(const ChessBoard& board)
 
 
 // Coefficients aren't set yet
-int Ai::evaluate(const ChessBoard& board)
+int AI::evaluate(const ChessBoard& board)
 {
   int bonus_position = board_bonus_position(board);
   int material = board_material(board);
@@ -164,7 +164,7 @@ plugin::Color playing_color)
 */
 
 
-int Ai::piece_numbers(const ChessBoard& board, plugin::PieceType type,
+int AI::piece_numbers(const ChessBoard& board, plugin::PieceType type,
 plugin::Color color)
 {
   int count;
@@ -185,7 +185,7 @@ plugin::Color color)
 
 
 
-int Ai::count_doubled(const ChessBoard& board, plugin::Color color)
+int AI::count_doubled(const ChessBoard& board, plugin::Color color)
 {
   auto count = 0;
   for (auto j = 0; j < 8; j++)
@@ -207,7 +207,7 @@ int Ai::count_doubled(const ChessBoard& board, plugin::Color color)
   return count;
 }
 
-int Ai::count_isolated(const ChessBoard& board, plugin::Color color)
+int AI::count_isolated(const ChessBoard& board, plugin::Color color)
 {
   int count = 0;
   bool present = false;
@@ -243,14 +243,14 @@ int Ai::count_isolated(const ChessBoard& board, plugin::Color color)
 
 }
 
-int Ai::count_backward(const ChessBoard& board)
+int AI::count_backward(const ChessBoard& board)
 {
   return 0;
 }
 
 
 // Always searches opponent -> thus opponent color
-int Ai::king_tropism(const ChessBoard& board)
+int AI::king_tropism(const ChessBoard& board)
 {
   int count = 0;
   auto king_pos = board_.get_king_position(ai_color_);
