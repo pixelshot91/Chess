@@ -17,3 +17,5 @@ private:
   std::string ip_;
   std::string port_;
 };
+
+#include "client.hxx"

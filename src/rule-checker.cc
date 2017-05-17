@@ -1,14 +1,5 @@
 #include "rule-checker.hh"
-
-char operator~(plugin::File f)
-{
-  return static_cast<char>(f);
-}
-
-char operator~(plugin::Rank r)
-{
-  return static_cast<char>(r);
-}
+#include "plugin-auxiliary.hh"
 
 char operator~(plugin::Color c)
 {
@@ -304,6 +295,47 @@ bool RuleChecker::no_possible_move(const ChessBoard& board, plugin::Color color)
                                  Move(Move::Type::QUEEN_CASTLING, color)))
     return false;
   return true;
+}
+
+std::vector<std::shared_ptr<Move>> RuleChecker::possible_moves(const ChessBoard& board, plugin::Position start_pos)
+{
+  std::vector<std::shared_ptr<Move>> moves;
+  auto color = board.color_get(start_pos);
+  if (board.piecetype_get(start_pos) != std::experimental::nullopt and
+      board.color_get(start_pos) == color)
+  {
+    for (char x = 0; x < 8; ++x)
+    {
+      for (char y = 0; y < 8; ++y)
+      {
+        if (~start_pos.file_get() == x and ~start_pos.rank_get() == y)
+          continue;
+        plugin::Position end_pos(static_cast<plugin::File>(x),
+            static_cast<plugin::Rank>(y));
+        for (int attack = 0;
+            attack <= 1 /*(board.piecetype_get(start_pos).value() ==
+                          plugin::PieceType::PAWN)*/;
+            ++attack)
+        {
+          QuietMove quiet_move(color, start_pos, end_pos,
+              board.piecetype_get(start_pos).value(),
+              attack, false);
+          if (RuleChecker::is_move_valid(board, quiet_move)) {
+            moves.push_back(std::make_shared<QuietMove>(quiet_move));
+          }
+        }
+      }
+    }
+  }
+  /*if (RuleChecker::is_move_valid(board, Move(Move::Type::KING_CASTLING, color)))
+    return false;
+    if (RuleChecker::is_move_valid(board,
+    Move(Move::Type::QUEEN_CASTLING, color)))
+    return false;
+    return true;*/
+  //std::cerr << "RuleChecker::possible_moves genereated " << moves.size() << " moves at " << start_pos << std::endl;
+  return moves;
+
 }
 
 // QuietMove(plugin::Color color, plugin::Position start, plugin::Position end,

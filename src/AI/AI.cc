@@ -1,54 +1,71 @@
 #include "AI.hh"
-#include "../plugin-auxiliary.hh"
+#include "rule-checker.hh"
+#include "plugin-auxiliary.hh"
+#include "parser.hh"
 
-AI::AI(plugin::Color ai_color) 
-      : board_()
-      , ai_color_(ai_color)
-      , opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
+AI::AI(plugin::Color color) 
+  : Player(color) 
+    , opponent_color_(!color)
+    , best_move_(nullptr)
+    , board_()
 {
+  std::cerr << "my color is " << color_ << " and my opponent color is " << opponent_color_ << std::endl;
 }
 
 std::string AI::play_next_move(const std::string& received_move)
 {
-  std::cout << received_move << std::endl;
+  std::cout << "received = " << received_move << std::endl;
+  if (received_move != "") {
+    auto pos = received_move.find_last_of(' ');
+    std::string move = received_move.substr(pos);
+    auto opponent_move = Parser::parse_move(move, opponent_color_);
+    std::cerr << "opponent played " << opponent_move << std::endl;
+    board_.update(opponent_move);
+  }
 
-  /*
-  auto next_move = minimax(board_, 5, ai_color_);
-  std::string input = auxiliary::to_lan(std::get<Move>(next_move));
-  input;
-  */
-  return "toto";
+  best_move_ = nullptr;
+
+  history_board_.push_back(&board_);
+  board_.pretty_print();
+  auto best_move_value = minimax(0, color_);
+  history_board_.pop_back();
+  std::cerr << "best move is : " << *best_move_ << std::endl << "its value is " << best_move_value << std::endl;
+  board_.update(best_move_);
+  std::string input = best_move_->to_lan();
+  return input;
 }
 
 /*
-int GameControl::Evaluate(ChessBoard _B)
-{
-    int material=0,bonus=0,mobility=0;
-    for(int i=0;i < 8; i++)
-        for(int j = 0; j < 8; j++)
-        {
-            if(_B.Board[i][j]!=EMPTY)
-            {
-                if(_B.Board[i][j]->pieceColor==WHITE){
-                    material+=-_B.Board[i][j]->Weight;
-                    bonus+=-_B.Board[i][j]->bonusPosition[i][j];
-                    mobility+=-_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
-                }
-                else {
-                    material+=_B.Board[i][j]->Weight;
-                    bonus+=_B.Board[i][j]->bonusPosition[i][j];
-                    mobility+=_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
-                }
-            }
-        }
-        return material+bonus/10+mobility/20;
-}
-*/
+   int GameControl::Evaluate(ChessBoard _B)
+   {
+   int material=0,bonus=0,mobility=0;
+   for(int i=0;i < 8; i++)
+   for(int j = 0; j < 8; j++)
+   {
+   if(_B.Board[i][j]!=EMPTY)
+   {
+   if(_B.Board[i][j]->pieceColor==WHITE){
+   material+=-_B.Board[i][j]->Weight;
+   bonus+=-_B.Board[i][j]->bonusPosition[i][j];
+   mobility+=-_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
+   }
+   else {
+   material+=_B.Board[i][j]->Weight;
+   bonus+=_B.Board[i][j]->bonusPosition[i][j];
+   mobility+=_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
+   }
+   }
+   }
+   return material+bonus/10+mobility/20;
+   }
+   */
 
 int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
 {
   switch (piece)
   {
+    case plugin::PieceType::PAWN:
+      return pawn_weight_board[i][j];
     case plugin::PieceType::QUEEN:
       return queen_weight_board[i][j];
     case plugin::PieceType::ROOK:
@@ -59,6 +76,8 @@ int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
       return king_middle_weight_board[i][j];
     case plugin::PieceType::KNIGHT:
       return knight_weight_board[i][j];
+    default:
+      return 0;
   }
 }
 
@@ -77,12 +96,12 @@ int AI::board_bonus_position(const ChessBoard& board)
       auto piece_type = board.piecetype_get(pos);
       auto piece_color = board.color_get(pos);
 
-      if (piece_type == std::experimental::nullopt)
+      if (piece_type != std::experimental::nullopt)
       {
-        if (piece_color == plugin::Color::WHITE)
-          mobility += get_piece_bonus_position(piece_type, i, j);
+        if (piece_color == plugin::Color::BLACK)
+          mobility += get_piece_bonus_position(piece_type.value(), i, j);
         else
-          mobility += get_piece_bonus_position(piece_type, 7 - i, 7 - j);
+          mobility += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);
       }
     }
   }
@@ -92,91 +111,114 @@ int AI::board_bonus_position(const ChessBoard& board)
 
 int AI::board_material(const ChessBoard& board)
 {
-  int queens = 9 * (piece_numbers(board, plugin::PieceType::QUEEN, ai_color_) - piece_numbers(board, plugin::PieceType::QUEEN, opponent_color_));
+  int queens = piece_numbers(board, plugin::PieceType::QUEEN, color_) - piece_numbers(board, plugin::PieceType::QUEEN, opponent_color_);
 
-  int rooks = 5 * (piece_numbers(board, plugin::PieceType::ROOK, ai_color_) - piece_numbers(board, plugin::PieceType::ROOK, opponent_color_));
+  int rooks = piece_numbers(board, plugin::PieceType::ROOK, color_) - piece_numbers(board, plugin::PieceType::ROOK, opponent_color_);
 
-  int bishops = piece_numbers(board, plugin::PieceType::BISHOP, ai_color_) - piece_numbers(board, plugin::PieceType::BISHOP, opponent_color_);
+  int bishops = piece_numbers(board, plugin::PieceType::BISHOP, color_) - piece_numbers(board, plugin::PieceType::BISHOP, opponent_color_);
 
-  int knights = piece_numbers(board, plugin::PieceType::KNIGHT, ai_color_) - piece_numbers(board, plugin::PieceType::KNIGHT, opponent_color_);
+  int knights = piece_numbers(board, plugin::PieceType::KNIGHT, color_) - piece_numbers(board, plugin::PieceType::KNIGHT, opponent_color_);
 
-  int pawns = piece_numbers(board, plugin::PieceType::PAWN, ai_color_) - piece_numbers(board, plugin::PieceType::PAWN, opponent_color_);
-
-  return queens + rooks + 3 *(bishops - knights) + pawns + 0.5 * (doubled + isolated); // backward
+  int pawns = piece_numbers(board, plugin::PieceType::PAWN, color_) - piece_numbers(board, plugin::PieceType::PAWN, opponent_color_);
+  int score = 9 * queens + 5 * rooks + 3 * (bishops + knights) + pawns;
+  /*if (score != 0) {
+    board.pretty_print();
+    std::cerr << "score = " << score << std::endl;
+  }*/
+  return score; // backward
 }
 
 
 // Coefficients aren't set yet
 int AI::evaluate(const ChessBoard& board)
 {
-  int bonus_position = board_bonus_position(board);
+  //std::cerr << "Evaluation of " << std::endl;
+  //board.pretty_print();
   int material = board_material(board);
-  int king_trop = king_tropism(board);
-  int doubled = count_doubled(board, ai_color_) - count_doubled(board, opponent_color_);
-  int isolated = count_isolated(board, ai_color_) - count_isolated(board, opponent_color_);
+  //int bonus_position = board_bonus_position(board);
+  /*int king_trop = king_tropism(board);
+  int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
+  int isolated = count_isolated(board, color_) - count_isolated(board, opponent_color_);*/
+  plugin::Position king_position = board_.get_king_position(color_);
+  plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
+  int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);
 
-  return bonus_position + material + king_trop + doubled + isolated;
+
+  int score = 1000 * check + material;// + 0.05 * bonus_position;// + king_trop + 0.5 * (doubled + isolated);
+  //std::cerr << "score is " << score << std::endl;
+  return score;
 }
 
-/*
-std::pair<Move,int> AI::minimax(const ChessBoard& board, int depth ,
-plugin::Color playing_color)
+int AI::minimax(int depth , plugin::Color playing_color)
 {
-    if (!depth)
+  /*std::cerr << "depth = " << depth << std::endl;
+  std::cerr << "playing color = " << playing_color << std::endl;*/
+  if (depth >= max_depth_)
+  {
+    return evaluate(*history_board_[depth]);
+  }
+
+  int best_move_value = (playing_color == color_) ? -100000 : 100000;
+
+  const ChessBoard& board = *(history_board_.at(depth));
+
+  for (auto i = 0; i < 8; i++)
+  {
+    for (auto j = 0; j < 8; j++)
     {
-      auto eval  = evaluate(board);
-    }
+      auto position = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      if (board.piecetype_get(position) == std::experimental::nullopt or board.color_get(position) != playing_color)
+        continue;
 
-    int bestValue = -9999;
-    std::pair<Move,int> bestMove_value;
-    std::pair<Move,int> move_value;
+      std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, position);
 
-    history_board_.push_back(&board);
-
-    for (auto i = 0; i < 8; i++)
-      for (auto j = 0; j < 8; j++)
+      for (auto move_ptr : moves)
       {
-        Position position = Position(static_cast<File> i,
-            static_cast<Rank>j)i;
-        if (board_.piecetype_get(position) != std::experimental::nullopt;
-&& board_.color_get(position) == playing_color)
+        Move& move = *move_ptr;
+        //std::cerr << "move is " << move << std::endl;
+        //Moving
+        ChessBoard tmp = ChessBoard(board);
 
-          std::vector<Move> moves = bord_.get_possible_actions(position);
-            for (auto move : moves)
-            {
-              //Moving
-              
-              apply_move(move);
-              move_value = minimax(depth-1 , !playing_color);
+        tmp.apply_move(move);
+        history_board_.push_back(&tmp);
+        //tmp.pretty_print();
+        auto move_value = minimax(depth + 1, !playing_color);
 
-              //Save best move
-              if ((move_value.first > bestMove_value.second)
-                  == (playing_color == AI_color))
-                bestMove_value = value;
-              //Undo Move
+        //Save best move
+        if (depth == 0)
+          std::cerr << "move " << move << " scored " << move_value << std::endl;
+        if ((move_value > best_move_value) == (playing_color == color_)) {
+          best_move_value = move_value;
+          if (depth == 0) {
+            best_move_ = move_ptr;
+            std::cerr << "best_move so far is " << *best_move_ << std::endl;
+          }
+
         }
+        history_board_.pop_back();
+        //Undo Move
       }
-    //julien est bete ohhhhhhhh! non mais on l'aime notre juju :D
-    history_board_.pop_back();
-    return bestMove_value;
+    }
+  }
+  //julien est bete ohhhhhhhh! non mais on l'aime notre juju :D
+  return best_move_value;
 }
-*/
 
 
 int AI::piece_numbers(const ChessBoard& board, plugin::PieceType type,
-plugin::Color color)
+    plugin::Color color)
 {
-  int count;
+  int count = 0;
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
     {
       auto piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
-                                                        static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
       auto piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
-                                                        static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
       if (piece_type == type && piece_color == color)
-        count++;
+        ++count;
     }
   }
   return count;
@@ -193,9 +235,9 @@ int AI::count_doubled(const ChessBoard& board, plugin::Color color)
     for (auto i = 0; i < 8; i++)
     { // vertical traversal - not horizontal like we usually do
       auto piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
-                                            static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
       auto piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
-                                                        static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
 
       if (!present && (piece_type == plugin::PieceType::PAWN) && (piece_color == color))
         present = true;
@@ -217,9 +259,9 @@ int AI::count_isolated(const ChessBoard& board, plugin::Color color)
     for (auto i = 0; i < 8; i++)
     { // vertical traversal - not horizontal like we usually do
       auto piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
-                                            static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
       auto piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
-                                                        static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j)));
 
       if (piece_type == plugin::PieceType::PAWN && piece_color == color)
       {
@@ -242,54 +284,47 @@ int AI::count_isolated(const ChessBoard& board, plugin::Color color)
 
 }
 
-int AI::count_backward(const ChessBoard& board)
-{
+/*int AI::count_backward(const ChessBoard& board)
+  {
   return 0;
-}
+  }*/
 
 
 // Always searches opponent -> thus opponent color
 int AI::king_tropism(const ChessBoard& board)
 {
   int count = 0;
-  auto king_pos = board_.get_king_position(ai_color_);
+  auto king_pos = board_.get_king_position(color_);
 
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
     {
       auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      if (board.piecetype_get(pos) == std::experimental::nullopt)
+        continue;
+      auto piece_type = board.piecetype_get(pos).value();
       auto piece_color = board.color_get(pos);
-      auto piece_type = board.piecetype_get(pos);
+      if (piece_color != opponent_color_)
+        continue;
 
-      if (piece_color == opponent_color_)
+      auto dist = auxiliary::distance(pos, king_pos);
+
+      switch(piece_type)
       {
-        switch(piece_type)
-        {
-          case plugin::PieceType::QUEEN:
-            // Manhattan distance
-            count += 4 * (abs(j - static_cast<int>(king_pos.file_get()) + abs(i - static_cast<int>(king_pos.rank_get()))));
-            break;
-
-          case plugin::PieceType::ROOK:
-            // Manhattan distance
-            count += 2 * (abs(j - static_cast<int>(king_pos.file_get()) + abs(i - static_cast<int>(king_pos.rank_get())));
-            break;
-
-          case plugin::PieceType::BISHOP:
-            // Manhattan distance
-            count += 2 * (abs(j - static_cast<int>(king_pos.file_get())) + abs(i - static_cast<int>(king_pos.rank_get())));
-            break;
-
-          case plugin::PieceType::KNIGHT:
-            // Manhattan distance
-            count += (abs(j - static_cast<int>(king_pos.file_get())) + abs(i - static_cast<int>(king_pos.rank_get())));
-            break;
-
-          default:
-            break;
-        }
+        case plugin::PieceType::QUEEN:
+          dist *= 4;
+          break;
+        case plugin::PieceType::ROOK:
+          dist *= 2;
+          break;
+        case plugin::PieceType::BISHOP:
+          dist *= 2;
+          break;
+        default:
+          break;
       }
+      count += dist;
     }
   }
   return count;

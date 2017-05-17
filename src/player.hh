@@ -8,6 +8,6 @@ class Player
   public:
     Player(plugin::Color color);
     virtual std::string play_next_move(const std::string& received_move) = 0;
-  private:
+  protected:
     plugin::Color color_;
 };

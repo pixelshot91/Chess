@@ -1,5 +1,10 @@
 #include "human-player.hh"
 #include <iostream>
+
+HumanPlayer::HumanPlayer(plugin::Color c)
+  : Player(c)
+{}
+
 std::string HumanPlayer::play_next_move(const std::string& received_move)
 {
   std::string input;

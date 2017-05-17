@@ -12,3 +12,8 @@ Adaptater::opt_piece_t Adaptater::operator[](const Position& position) const
   return side_piece_t(chessboard_.piecetype_get(position).value(),
                       chessboard_.color_get(position));
 }
+
+void Adaptater::pretty_print() const
+{
+  chessboard_.pretty_print();
+}

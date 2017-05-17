@@ -1,24 +1,27 @@
+#pragma once
+
 #include "client.hh"
 #include "plugin/color.hh"
 #include "player.hh"
 #include "human-player.hh"
 #include <iostream>
 
-Client::Client(const std::string& ip, const std::string& port, Player& player)
+template <typename T>
+Client<T>::Client(const std::string& ip, const std::string& port)
   : client_(ip, port)
   , ip_(ip)
   , port_(port)
-  , player_(player)
 {
 }
 
-int Client::start()
+template <typename T>
+int Client<T>::start()
 {
   // connection confirmation from server?
 
   plugin::Color color =
     static_cast<plugin::Color>(client_.acknowledge("nicolas.roger"));
- player_t player(color); 
+  player_t player(color); 
   /* initialization */
 
   // receive uci from engine
@@ -53,6 +56,7 @@ int Client::start()
 
     //std::cout << "Wainting for input : ";
     std::string input = player.play_next_move(received_move);
+    std::cout << "Player move is " << input << std::endl;
     //std::cerr << "input is " << input << std::endl;
     // move = /* get bestmove */;
     client_.send("bestmove " + input);

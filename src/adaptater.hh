@@ -11,6 +11,7 @@ class Adaptater : public ChessboardInterface
 public:
   Adaptater(const ChessBoard& board);
   opt_piece_t operator[](const Position& position) const;
+  void pretty_print() const;
 
 private:
   const ChessBoard& chessboard_;

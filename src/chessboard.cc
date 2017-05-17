@@ -6,6 +6,7 @@
 #include "piece/queen.hh"
 #include "piece/rook.hh"
 #include "rule-checker.hh"
+#include "plugin-auxiliary.hh"
 
 std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
 /*std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
@@ -16,10 +17,11 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
 }*/
 
 ChessBoard::ChessBoard()
+  : last_move_(nullptr)
 {}
 
 ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
-  : listeners_(listeners)
+  : last_move_(nullptr), listeners_(listeners)
 {
 }
 
@@ -28,6 +30,7 @@ ChessBoard::ChessBoard(const ChessBoard& board)
   for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
       board_[i][j] = board.board_[i][j];
+  last_move_ = board.last_move_;
 }
 
 int ChessBoard::update(std::shared_ptr<Move> move_ptr)
@@ -42,7 +45,7 @@ int ChessBoard::update(std::shared_ptr<Move> move_ptr)
   }
   // throw std::invalid_argument("invalid move - in ChessBoard update()");
 
-  plugin::PieceType piecetype_eaten;
+  plugin::PieceType piecetype_eaten = plugin::PieceType::KING;
   plugin::Position position_piece_eaten_en_passant(plugin::File::A, plugin::Rank::ONE);
   bool en_passant = false;
   if (move.move_type_get() == Move::Type::QUIET)
@@ -253,6 +256,39 @@ void ChessBoard::print() const
   }
 }
 
+void ChessBoard::pretty_print() const {
+  char chars[5];
+  std::cout << "  a  b  c  d  e  f  g  h" << std::endl;
+  for (int i = 7; i >= 0; --i)
+  {
+    std::cout << i + 1;
+    for (unsigned j = 0; j < 8; j++)
+    {
+      auto pos = plugin::Position((plugin::File)j, (plugin::Rank)i);
+      auto piece = piecetype_get(pos);
+      if ((i + j) % 2 == 0)
+        std::cout << "\x1B[07m";
+      std::cout << " ";
+      if (piece == std::experimental::nullopt)
+        std::cout << " ";
+      else
+      {
+        bool color = color_get(pos) == plugin::Color::BLACK;
+        if ((i + j) % 2)
+          color = !color;
+
+        auxiliary::GetUnicodeChar(
+          0x2654 + color * 6 +
+            auxiliary::PieceTypeToInt(piece.value()), chars);
+        std::cout << chars;
+      }
+      std::cout << " \x1B[00m";
+    }
+    std::cout << i + 1 << std::endl;
+  }
+  std::cout << "  a  b  c  d  e  f  g  h" << std::endl;
+}
+
 void ChessBoard::set_square(plugin::Position position, cell_t value)
 {
   board_[7 - static_cast<char>(position.rank_get())]
@@ -326,7 +362,8 @@ bool ChessBoard::is_attacked(plugin::Color color,
   return false;
 }
 
-std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
+/*
+std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position) const
 {
   std::vector<Move> moves{};
   auto color_piece = color_get(position);
@@ -569,6 +606,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
 
   return moves;
 }
+*/
 /*
 std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
 {
@@ -633,6 +671,8 @@ std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
 }*/
 
 const std::shared_ptr<Move> ChessBoard::last_move_get() const {
+  /*if (last_move_ == nullptr)
+    throw std::invalid_argument("No history");*/
   return last_move_;
 }
 

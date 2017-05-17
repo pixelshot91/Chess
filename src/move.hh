@@ -16,6 +16,7 @@ public:
   };
 
   Move(Type move_type, plugin::Color color);
+  virtual ~Move() = default;
   Type move_type_get() const;
   plugin::Color color_get() const;
   virtual void print(std::ostream& o) const;

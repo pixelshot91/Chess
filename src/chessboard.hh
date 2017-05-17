@@ -39,7 +39,7 @@ public:
   bool is_attacked(plugin::Color color, plugin::Position) const;
 
   std::vector<Piece*> get_piece(plugin::Color color);
-  std::vector<Move> get_possible_actions(plugin::Position position);
+  std::vector<Move> get_possible_actions(plugin::Position position) const;
 
   //History history_get() const;
   const std::shared_ptr<Move> last_move_get() const;
@@ -54,6 +54,7 @@ public:
   // bool moved(plugin::Position);
   // Color color(plugin::Position);
   void print() const;
+  void pretty_print() const;
 
   plugin::Position get_king_position(plugin::Color color);
 
