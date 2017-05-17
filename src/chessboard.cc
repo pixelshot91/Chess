@@ -15,7 +15,7 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
   return o;
 }*/
 
-ChessBoard::ChessBoard() 
+ChessBoard::ChessBoard()
 {}
 
 ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
@@ -355,17 +355,16 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
               QuietMove move1(color_piece, position, endpos1, piece_type.value(),
                   piecetype_get(endpos1) != std::experimental::nullopt,
                   false);
-              if (RuleChecker::isMoveAuthorized(*this, move1) &&
-                  RuleChecker::isMoveLegal(*this, move1))
+              if (RuleChecker::is_move_valid(*this, move1))
                 moves.push_back(move1);
             }
           }
         }
         Move KingCastle(Move::Type::KING_CASTLING,color_piece);
-        if(RuleChecker::isMoveAuthorized(*this, KingCastle))
+        if(RuleChecker::is_move_valid(*this, KingCastle))
           moves.push_back(KingCastle);
         Move QueenCastle(Move::Type::QUEEN_CASTLING,color_piece);
-        if(RuleChecker::isMoveAuthorized(*this, QueenCastle))
+        if(RuleChecker::is_move_valid(*this, QueenCastle))
           moves.push_back(QueenCastle);
         break;
       }
@@ -380,8 +379,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move1(color_piece, position, endpos1, piece_type.value(),
               piecetype_get(endpos1) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move1) &&
-              RuleChecker::isMoveLegal(*this, move1))
+          if (RuleChecker::is_move_valid(*this, move1))
             moves.push_back(move1);
 
           plugin::Position endpos2(
@@ -390,8 +388,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move2(color_piece, position, endpos2, piece_type.value(),
               piecetype_get(endpos2) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move2) &&
-              RuleChecker::isMoveLegal(*this, move2))
+          if (RuleChecker::is_move_valid(*this, move2))
             moves.push_back(move2);
         }
         for (int i = 0; i < 8; i++)
@@ -404,8 +401,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move3(color_piece, position, endpos3, piece_type.value(),
                 piecetype_get(endpos3) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move3) &&
-                RuleChecker::isMoveLegal(*this, move3))
+            if (RuleChecker::is_move_valid(*this, move3))
               moves.push_back(move3);
           }
 
@@ -417,8 +413,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move4(color_piece, position, endpos4, piece_type.value(),
                 piecetype_get(endpos4) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move4) &&
-                RuleChecker::isMoveLegal(*this, move4))
+            if (RuleChecker::is_move_valid(*this, move4))
               moves.push_back(move4);
           }
         }
@@ -437,8 +432,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move1(color_piece, position, endpos1, piece_type.value(),
                 piecetype_get(endpos1) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move1) &&
-                RuleChecker::isMoveLegal(*this, move1))
+            if (RuleChecker::is_move_valid(*this, move1))
               moves.push_back(move1);
           }
 
@@ -450,8 +444,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move2(color_piece, position, endpos2, piece_type.value(),
                 piecetype_get(endpos2) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move2) &&
-                RuleChecker::isMoveLegal(*this, move2))
+            if (RuleChecker::is_move_valid(*this, move2))
               moves.push_back(move2);
           }
         }
@@ -468,8 +461,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move1(color_piece, position, endpos1, piece_type.value(),
               piecetype_get(endpos1) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move1) &&
-              RuleChecker::isMoveLegal(*this, move1))
+          if (RuleChecker::is_move_valid(*this, move1))
             moves.push_back(move1);
 
           plugin::Position endpos2(
@@ -478,8 +470,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move2(color_piece, position, endpos2, piece_type.value(),
               piecetype_get(endpos2) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move2) &&
-              RuleChecker::isMoveLegal(*this, move2))
+          if (RuleChecker::is_move_valid(*this, move2))
             moves.push_back(move2);
         }
       break;
@@ -508,8 +499,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move1(color_piece, position, endpos1, piece_type.value(),
                 piecetype_get(endpos1) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move1) &&
-                RuleChecker::isMoveLegal(*this, move1))
+            if (RuleChecker::is_move_valid(*this, move1))
               moves.push_back(move1);
           }
           temp = x1;
@@ -528,8 +518,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
             QuietMove move2(color_piece, position, endpos2, piece_type.value(),
                 piecetype_get(endpos2) != std::experimental::nullopt,
                 false);
-            if (RuleChecker::isMoveAuthorized(*this, move2) &&
-                RuleChecker::isMoveLegal(*this, move2))
+            if (RuleChecker::is_move_valid(*this, move2))
               moves.push_back(move2);
           }
           temp = x2;
@@ -549,8 +538,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move1(color_piece, position, endpos1, piece_type.value(),
               piecetype_get(endpos1) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move1) &&
-              RuleChecker::isMoveLegal(*this, move1))
+          if (RuleChecker::is_move_valid(*this, move1))
             moves.push_back(move1);
 
           plugin::Position endpos3(
@@ -559,8 +547,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move3(color_piece, position, endpos3, piece_type.value(),
               piecetype_get(endpos3) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move3) &&
-              RuleChecker::isMoveLegal(*this, move3))
+          if (RuleChecker::is_move_valid(*this, move3))
             moves.push_back(move3);
 
           plugin::Position endpos2(
@@ -569,8 +556,7 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position)
           QuietMove move2(color_piece, position, endpos2, piece_type.value(),
               piecetype_get(endpos2) != std::experimental::nullopt,
               false);
-          if (RuleChecker::isMoveAuthorized(*this, move2) &&
-              RuleChecker::isMoveLegal(*this, move2))
+          if (RuleChecker::is_move_valid(*this, move2))
             moves.push_back(move2);
         }
         break;
