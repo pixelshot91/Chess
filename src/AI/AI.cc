@@ -1,19 +1,22 @@
 #include "AI.hh"
 #include "../plugin-auxiliary.hh"
 
-
-Ai::Ai(plugin::Color ai_color)
-      : board_(), ai_color_(ai_color), opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
+Ai::Ai(plugin::Color ai_color) 
+      : board_()
+      , ai_color_(ai_color)
+      , opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
+      , evalboard_()
 {
 }
 
-std::string Ai::play_next_move(const std::string& received_move)
+std::string AI::play_next_move(const std::string received_move)
 {
   std::cout << received_move << std::endl;
+
   /*
   auto next_move = minimax(board_, 5, ai_color_);
   std::string input = auxiliary::to_lan(std::get<Move>(next_move));
-  return input;
+  input;
   */
   return "toto";
 }
@@ -35,7 +38,7 @@ int GameControl::Evaluate(ChessBoard _B)
                 else {
                     material+=_B.Board[i][j]->Weight;
                     bonus+=_B.Board[i][j]->bonusPosition[i][j];
-                mobility+=_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
+                    mobility+=_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
                 }
             }
         }
@@ -43,7 +46,52 @@ int GameControl::Evaluate(ChessBoard _B)
 }
 */
 
-int Ai::evaluate(const ChessBoard& board)
+int Ai::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
+{
+  switch (piece)
+  {
+    case plugin::PieceType::QUEEN:
+      return evalboard_.get_queen_board()[i][j];
+    case plugin::PieceType::ROOK:
+      return evalboard_.get_rook_board()[i][j];
+    case plugin::PieceType::BISHOP:
+      return evalboard_.get_bishop_board()[i][j];
+    case plugin::PieceType::KING:
+      return evalboard_.get_king_middle_board()[i][j];
+    case plugin::PieceType::KNIGHT:
+      return evalboard_.get_knight_board()[i][j];
+  }
+}
+
+
+int Ai::board_bonus_position(const ChessBoard& board)
+{
+  //int material = 0;
+  //int bonus = 0;
+  int mobility = 0;
+
+  for (auto i = 0; i < 8; i++)
+  {
+    for (auto j = 0; j < 8; j++)
+    {
+      auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      auto piece_type = board.piecetype_get(pos);
+      auto piece_color = board.color_get(pos);
+
+      if (piece_type == std::experimental::nullopt)
+      {
+        if (piece_color == plugin::Color::WHITE)
+          mobility += get_piece_bonus_position(piece_type, i, j);
+        else
+          mobility += get_piece_bonus_position(piece_type, 7 - i, 7 - j);
+      }
+    }
+  }
+  return mobility;
+}
+
+
+int Ai::board_material(const ChessBoard& board)
 {
   int queens = 9 * (piece_numbers(board, plugin::PieceType::QUEEN, ai_color_) - piece_numbers(board, plugin::PieceType::QUEEN, opponent_color_));
 
@@ -55,13 +103,22 @@ int Ai::evaluate(const ChessBoard& board)
 
   int pawns = piece_numbers(board, plugin::PieceType::PAWN, ai_color_) - piece_numbers(board, plugin::PieceType::PAWN, opponent_color_);
 
-
-  int doubled = count_doubled(board, plugin::Color::WHITE) - count_doubled(board, plugin::Color::BLACK);
-
-  int isolated = count_isolated(board, plugin::Color::WHITE) - count_isolated(board, plugin::Color::BLACK);
-
   return queens + rooks + 3 *(bishops - knights) + pawns + 0.5 * (doubled + isolated); // backward
 }
+
+
+// Coefficients aren't set yet
+int Ai::evaluate(const ChessBoard& board)
+{
+  int bonus_position = board_bonus_position(board);
+  int material = board_material(board);
+  int king_trop = king_tropism(board);
+  int doubled = count_doubled(board, ai_color_) - count_doubled(board, opponent_color_);
+  int isolated = count_isolated(board, ai_color_) - count_isolated(board, opponent_color_);
+
+  return bonus_position + material + king_trop + doubled + isolated;
+}
+
 /*
 std::pair<Move,int> AI::minimax(const ChessBoard& board, int depth ,
 plugin::Color playing_color)
@@ -89,7 +146,7 @@ plugin::Color playing_color)
             for (auto move : moves)
             {
               //Moving
-
+              
               apply_move(move);
               move_value = minimax(depth-1 , !playing_color);
 
@@ -105,6 +162,7 @@ plugin::Color playing_color)
     return bestMove_value;
 }
 */
+
 
 int Ai::piece_numbers(const ChessBoard& board, plugin::PieceType type,
 plugin::Color color)
@@ -185,11 +243,9 @@ int Ai::count_isolated(const ChessBoard& board, plugin::Color color)
 
 }
 
-
-/*
 int Ai::count_backward(const ChessBoard& board)
 {
-
+  return 0;
 }
 
 
@@ -197,6 +253,8 @@ int Ai::count_backward(const ChessBoard& board)
 int Ai::king_tropism(const ChessBoard& board)
 {
   int count = 0;
+  auto king_pos = board_.get_king_position(ai_color_);
+
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
@@ -210,16 +268,23 @@ int Ai::king_tropism(const ChessBoard& board)
         switch(piece_type)
         {
           case plugin::PieceType::QUEEN:
-            count += 2 * abs(j - i,);
+            // Manhattan distance
+            count += 4 * (abs(j - static_cast<int>(king_pos.file_get()) + abs(i - static_cast<int>(king_pos.rank_get()))));
             break;
 
           case plugin::PieceType::ROOK:
+            // Manhattan distance
+            count += 2 * (abs(j - static_cast<int>(king_pos.file_get()) + abs(i - static_cast<int>(king_pos.rank_get())));
             break;
 
           case plugin::PieceType::BISHOP:
+            // Manhattan distance
+            count += 2 * (abs(j - static_cast<int>(king_pos.file_get())) + abs(i - static_cast<int>(king_pos.rank_get())));
             break;
 
           case plugin::PieceType::KNIGHT:
+            // Manhattan distance
+            count += (abs(j - static_cast<int>(king_pos.file_get())) + abs(i - static_cast<int>(king_pos.rank_get())));
             break;
 
           default:
@@ -230,4 +295,3 @@ int Ai::king_tropism(const ChessBoard& board)
   }
   return count;
 }
-*/
