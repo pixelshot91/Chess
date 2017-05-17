@@ -297,31 +297,38 @@ bool RuleChecker::no_possible_move(const ChessBoard& board, plugin::Color color)
   return true;
 }
 
-std::vector<std::shared_ptr<Move>> RuleChecker::possible_moves(const ChessBoard& board, plugin::Position start_pos)
+std::vector<std::shared_ptr<Move>> RuleChecker::possible_moves(const ChessBoard& board, plugin::Color color)
 {
   std::vector<std::shared_ptr<Move>> moves;
-  auto color = board.color_get(start_pos);
-  if (board.piecetype_get(start_pos) != std::experimental::nullopt and
-      board.color_get(start_pos) == color)
+  for (int i = 0; i < 8; ++i)
   {
-    for (char x = 0; x < 8; ++x)
+    for (int j = 0; j < 8; ++j)
     {
-      for (char y = 0; y < 8; ++y)
+      plugin::Position start_pos(static_cast<plugin::File>(i),
+          static_cast<plugin::Rank>(j));
+      if (board.piecetype_get(start_pos) != std::experimental::nullopt and
+          board.color_get(start_pos) == color)
       {
-        if (~start_pos.file_get() == x and ~start_pos.rank_get() == y)
-          continue;
-        plugin::Position end_pos(static_cast<plugin::File>(x),
-            static_cast<plugin::Rank>(y));
-        for (int attack = 0;
-            attack <= 1 /*(board.piecetype_get(start_pos).value() ==
-                          plugin::PieceType::PAWN)*/;
-            ++attack)
+        for (char x = 0; x < 8; ++x)
         {
-          QuietMove quiet_move(color, start_pos, end_pos,
-              board.piecetype_get(start_pos).value(),
-              attack, false);
-          if (RuleChecker::is_move_valid(board, quiet_move)) {
-            moves.push_back(std::make_shared<QuietMove>(quiet_move));
+          for (char y = 0; y < 8; ++y)
+          {
+            if (~start_pos.file_get() == x and ~start_pos.rank_get() == y)
+              continue;
+            plugin::Position end_pos(static_cast<plugin::File>(x),
+                static_cast<plugin::Rank>(y));
+            for (int attack = 0;
+                attack <= 1 /*(board.piecetype_get(start_pos).value() ==
+                              plugin::PieceType::PAWN)*/;
+                ++attack)
+            {
+              QuietMove quiet_move(color, start_pos, end_pos,
+                  board.piecetype_get(start_pos).value(),
+                  attack, false);
+              if (RuleChecker::is_move_valid(board, quiet_move)) {
+                moves.push_back(std::make_shared<QuietMove>(quiet_move));
+              }
+            }
           }
         }
       }

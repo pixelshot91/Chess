@@ -18,7 +18,7 @@ private:
 public:
   //static bool isStalemate(const ChessBoard& board, plugin::Color color);
   static bool no_possible_move(const ChessBoard& board, plugin::Color color);
-  static std::vector<std::shared_ptr<Move>> possible_moves(const ChessBoard& board, plugin::Position pos);
+  static std::vector<std::shared_ptr<Move>> possible_moves(const ChessBoard& board, plugin::Color color);
   static bool isCheck(const ChessBoard& board, plugin::Position position);
   //static bool isCheckmate(const ChessBoard& board, plugin::Position king_pos);
   //static bool clear_check(const ChessBoard& board, Move& move);

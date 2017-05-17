@@ -31,7 +31,7 @@ class AI : public Player
     int count_isolated(const ChessBoard& board, plugin::Color color);
     int count_doubled(const ChessBoard& board, plugin::Color color);
     //int count_backward(const ChessBoard& board, plugin::Color color);
-    int king_tropism(const ChessBoard& board);
+    int king_tropism(const ChessBoard& board, plugin::Color color);
     int board_material(const ChessBoard& board);
     int board_bonus_position(const ChessBoard& board);
     int get_piece_bonus_position(plugin::PieceType piece, int i, int j);
@@ -41,7 +41,7 @@ class AI : public Player
     ChessBoard board_;
     
     std::vector<ChessBoard*> history_board_;
-    int max_depth_ = 3;
+    int max_depth_ = 4;
 
     const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {
