@@ -51,15 +51,15 @@ int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
   switch (piece)
   {
     case plugin::PieceType::QUEEN:
-      return queen_weight_board()[i][j];
+      return queen_weight_board[i][j];
     case plugin::PieceType::ROOK:
-      return evalboard_.get_rook_board()[i][j];
+      return rook_weight_board[i][j];
     case plugin::PieceType::BISHOP:
-      return evalboard_.get_bishop_board()[i][j];
+      return bishop_weight_board[i][j];
     case plugin::PieceType::KING:
-      return evalboard_.get_king_middle_board()[i][j];
+      return king_middle_weight_board[i][j];
     case plugin::PieceType::KNIGHT:
-      return evalboard_.get_knight_board()[i][j];
+      return knight_weight_board[i][j];
   }
 }
 
