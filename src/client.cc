@@ -18,7 +18,7 @@ int Client::start()
 
   plugin::Color color =
     static_cast<plugin::Color>(client_.acknowledge("nicolas.roger"));
-
+ player_t player(color); 
   /* initialization */
 
   // receive uci from engine
@@ -52,7 +52,7 @@ int Client::start()
       return -1;
 
     //std::cout << "Wainting for input : ";
-    std::string input = player_.play_next_move(received_move);
+    std::string input = player.play_next_move(received_move);
     //std::cerr << "input is " << input << std::endl;
     // move = /* get bestmove */;
     client_.send("bestmove " + input);

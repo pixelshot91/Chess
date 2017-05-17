@@ -5,7 +5,6 @@ AI::AI(plugin::Color ai_color)
       : board_()
       , ai_color_(ai_color)
       , opponent_color_(static_cast<plugin::Color>(!static_cast<bool>(ai_color_)))
-      , evalboard_()
 {
 }
 

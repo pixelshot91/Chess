@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   std::string ip(argv[1]);
   std::string port(argv[2]);
   std::cout << "port is " << port << std::endl;
-  auto player = HumanPlayer();
+  HumanPlayer player;
   Client client(ip, port, player);
   return client.start();
 }
