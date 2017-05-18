@@ -307,6 +307,11 @@ ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
   return board_[i][j];
 }
 
+const ChessBoard::board_t& ChessBoard::board_get() const
+{
+  return board_;
+}
+
 ChessBoard::cell_t ChessBoard::get_opt(plugin::Position position,
     cell_t mask) const
 {
@@ -351,8 +356,7 @@ bool ChessBoard::is_attacked(plugin::Color color,
       {
         if (RuleChecker::is_move_valid(
               *this,
-              QuietMove(
-                static_cast<plugin::Color>(not static_cast<bool>(color)), pos,
+              QuietMove(!color, pos,
                 current_cell, piecetype_get(pos).value(), true, true)))
         {
           return true;
@@ -820,7 +824,6 @@ plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color,
 
 plugin::Position ChessBoard::get_king_position(plugin::Color color) const
 {
-  plugin::Position p(plugin::File::A, plugin::Rank::ONE);
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
@@ -832,5 +835,8 @@ plugin::Position ChessBoard::get_king_position(plugin::Color color) const
       }
     }
   }
-  return plugin::Position(plugin::File::A, plugin::Rank::ONE);;
+  throw std::invalid_argument("There is no king !");
+  std::cerr << "There is no king in the following chessbaord" << std::endl;
+  pretty_print();
+  std::cerr << "Up" << std::endl;
 }

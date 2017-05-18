@@ -20,6 +20,7 @@ public:
   static bool no_possible_move(const ChessBoard& board, plugin::Color color);
   static std::vector<std::shared_ptr<Move>> possible_moves(const ChessBoard& board, plugin::Color color);
   static bool isCheck(const ChessBoard& board, plugin::Position position);
+  static bool three_fold_repetition(const std::vector<ChessBoard*>);
   //static bool isCheckmate(const ChessBoard& board, plugin::Position king_pos);
   //static bool clear_check(const ChessBoard& board, Move& move);
   //static bool is_a_draw(const ChessBoard& board);

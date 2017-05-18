@@ -9,5 +9,5 @@ class Player
     Player(plugin::Color color);
     virtual std::string play_next_move(const std::string& received_move) = 0;
   protected:
-    plugin::Color color_;
+    const plugin::Color color_;
 };

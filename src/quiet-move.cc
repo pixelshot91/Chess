@@ -56,6 +56,11 @@ std::string QuietMove::to_lan() const
   result += auxiliary::to_lan(start_get());
   result += attack_ ? 'x' : '-';
   result += auxiliary::to_lan(end_get());
+  if (promotion_piecetype_ != -1)
+  {
+    result += '=';
+    result += static_cast<char>(plugin::piecetype_array()[promotion_piecetype_]);
+  }
   return result;
 }
 
@@ -70,4 +75,6 @@ void QuietMove::print(std::ostream& o) const
 {
   o << color_ << " " << piecetype_ << (attack_ ? " attack" : " move")
     << " from " << start_get() << " to " << end_get();
+  if (promotion_piecetype_ != -1)
+    o << " and is promoted to " << plugin::piecetype_array()[promotion_piecetype_];
 }

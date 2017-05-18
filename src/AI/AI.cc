@@ -20,7 +20,7 @@ std::string AI::play_next_move(const std::string& received_move)
     auto pos = received_move.find_last_of(' ');
     std::string move = received_move.substr(pos);
     auto opponent_move = Parser::parse_move(move, opponent_color_);
-    std::cerr << "opponent played " << opponent_move << std::endl;
+    std::cerr << "opponent played " << *opponent_move << std::endl;
     board_.update(opponent_move);
   }
 
@@ -121,6 +121,15 @@ int AI::board_material(const ChessBoard& board)
   int knights = piece_numbers(board, plugin::PieceType::KNIGHT, color_) - piece_numbers(board, plugin::PieceType::KNIGHT, opponent_color_);
 
   int pawns = piece_numbers(board, plugin::PieceType::PAWN, color_) - piece_numbers(board, plugin::PieceType::PAWN, opponent_color_);
+  int king = piece_numbers(board, plugin::PieceType::KING, color_) - piece_numbers(board, plugin::PieceType::KING, opponent_color_);
+  if (king != 0)
+  {
+    board.pretty_print();
+    std::cerr << "a king is missing" << std::endl;
+    std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
+    throw std::invalid_argument("A king is dead");
+  }
+
   int score = 9 * queens + 5 * rooks + 3 * (bishops + knights) + pawns;
   /*if (score != 0) {
     board.pretty_print();
@@ -136,17 +145,17 @@ int AI::evaluate(const ChessBoard& board)
   //std::cerr << "Evaluation of " << std::endl;
   //board.pretty_print();
   int material = board_material(board);
-  /*int bonus_position = board_bonus_position(board);
+  int bonus_position = board_bonus_position(board);
   int king_trop = king_tropism(board, color_) - king_tropism(board, opponent_color_);
   int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
   int isolated = count_isolated(board, color_) - count_isolated(board, opponent_color_);
-  plugin::Position king_position = board_.get_king_position(color_);
+  /*plugin::Position king_position = board_.get_king_position(color_);
   plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
   int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
 
 
-  //int score = 1000 * check + material + 0.05 * bonus_position + king_trop + 0.5 * (doubled + isolated);
-  int score = material;
+  int score = /*1000 * check +*/ material + 0.05 * bonus_position + 0.01 * king_trop + 0.5 * (doubled + isolated);
+  //int score = material;
   //std::cerr << "score is " << score << std::endl;
   return score;
 }
@@ -162,7 +171,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 
   int best_move_value = (playing_color == color_) ? -100000 : 100000;
 
-  const ChessBoard& board = *(history_board_.at(depth));
+  const ChessBoard& board = *(history_board_[depth]);
 
   /*for (auto i = 0; i < 8; i++)
     {
@@ -182,6 +191,8 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     else
       return 0;
   }
+  if (RuleChecker::three_fold_repetition(history_board_))
+    return 0;
 
   for (auto move_ptr : moves)
   {
@@ -200,10 +211,22 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
         move_value = 100 * ((playing_color == color_) ? 1 : -1);
     }
     else {*/
-      history_board_.push_back(&tmp);
+    history_board_.push_back(&tmp);
       //tmp.pretty_print();
+<<<<<<< HEAD
       move_value = minimax(depth + 1, !playing_color, -A , -B);
     }
+=======
+    try {
+      move_value = minimax(depth + 1, !playing_color);
+    }
+    catch (std::invalid_argument e) {
+      std::cerr << "Move is " << move << std::endl;
+      board.pretty_print();
+      throw e;
+    }
+
+>>>>>>> [AI] Add three_fold_repetition to evaluation
     //Save best move
     if (depth == 0)
       std::cerr << "move " << move << " scored " << move_value << std::endl;
@@ -247,8 +270,11 @@ int AI::piece_numbers(const ChessBoard& board, plugin::PieceType type,
   {
     for (auto j = 0; j < 8; j++)
     {
+      plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      if (board.piecetype_get(pos) == std::experimental::nullopt)
+        continue;
       auto piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
-            static_cast<plugin::Rank>(j)));
+            static_cast<plugin::Rank>(j))).value();
       auto piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
             static_cast<plugin::Rank>(j)));
       if (piece_type == type && piece_color == color)

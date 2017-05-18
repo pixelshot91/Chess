@@ -30,6 +30,8 @@ public:
   void set_square(plugin::Position position, cell_t value);
   cell_t get_square(plugin::Position position) const;
   cell_t get_opt(plugin::Position position, cell_t mask) const;
+  
+  const board_t& board_get() const;
 
   std::experimental::optional<plugin::PieceType>
   piecetype_get(plugin::Position position) const;

@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     return 0;
   }
   std::vector<Listener*> listeners;
+  std::vector<void*> handles;
   if (vm.count("listeners"))
   {
     std::vector<std::string> listeners_name =
@@ -39,6 +40,7 @@ int main(int argc, char* argv[])
     for (auto s : listeners_name)
     {
       void* handle = dlopen(s.c_str(), RTLD_NOW);
+      handles.push_back(handle);
       if (handle == nullptr)
         std::invalid_argument("Can't open librairy");
       dlerror();
@@ -67,5 +69,7 @@ int main(int argc, char* argv[])
             << "Please use --pgn or -port option" << std::endl;
   for (auto l : listeners)
     delete l;
+  for (auto h : handles)
+    dlclose(h);
   return 0;
 }

@@ -26,16 +26,19 @@ bool RuleChecker::is_move_valid(const ChessBoard& board, const Move& move)
     return false; // Based on the Piece Type and position of start and end cell
   if (!isMoveLegal(board, move))
     return false;
+  //std::cerr << move << " is valid" << std::endl;
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
     auto end_pos = quiet_move.end_get();
-    if (board.piecetype_get(end_pos) == plugin::PieceType::KING)
+    if (board.piecetype_get(end_pos) != std::experimental::nullopt and board.piecetype_get(end_pos).value() == plugin::PieceType::KING)
       return true;
   }
+  //std::cerr << "checking that " << move << " doesn't cause a check to " << move.color_get() << std::endl;
   auto tmp = ChessBoard(board);
   tmp.apply_move(move);
   plugin::Position king_pos = tmp.get_king_position(move.color_get());
+  //std::cerr << "king_pos is " << king_pos << std::endl;
   if (isCheck(tmp, king_pos))
     return false;
   return true;
@@ -184,12 +187,12 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
   {
     plugin::Position king_pos =
       ChessBoard::initial_king_position(move.color_get());
-    if (board.has_moved(king_pos))
+    if (board.piecetype_get(king_pos) != plugin::PieceType::KING or board.has_moved(king_pos))
       return invalid_move("king has already moved");
 
     plugin::Position rook_pos = ChessBoard::initial_rook_position(
       move.color_get(), move.move_type_get() == Move::Type::KING_CASTLING);
-    if (board.has_moved(rook_pos))
+    if (board.piecetype_get(rook_pos) != plugin::PieceType::ROOK or board.has_moved(rook_pos))
       return invalid_move("rook has already moved");
 
     char d_file =
@@ -302,24 +305,29 @@ std::vector<std::shared_ptr<Move>> RuleChecker::possible_moves(const ChessBoard&
                               plugin::PieceType::PAWN)*/;
                 ++attack)
             {
+              if (board.piecetype_get(start_pos) == plugin::PieceType::PAWN)
+              {
+                QuietMove quiet_move(color, start_pos, end_pos,
+                    board.piecetype_get(start_pos).value(),
+                    attack, false, 1);
+                if (RuleChecker::is_move_valid(board, quiet_move))
+                  moves.push_back(std::make_shared<QuietMove>(quiet_move));
+              }
               QuietMove quiet_move(color, start_pos, end_pos,
                   board.piecetype_get(start_pos).value(),
                   attack, false);
-              if (RuleChecker::is_move_valid(board, quiet_move)) {
+              if (RuleChecker::is_move_valid(board, quiet_move))
                 moves.push_back(std::make_shared<QuietMove>(quiet_move));
-              }
             }
           }
         }
       }
     }
   }
-  /*if (RuleChecker::is_move_valid(board, Move(Move::Type::KING_CASTLING, color)))
-    return false;
-    if (RuleChecker::is_move_valid(board,
-    Move(Move::Type::QUEEN_CASTLING, color)))
-    return false;
-    return true;*/
+  if (RuleChecker::is_move_valid(board, Move(Move::Type::KING_CASTLING, color)))
+    moves.push_back(std::make_shared<Move>(Move::Type::KING_CASTLING, color));
+  if (RuleChecker::is_move_valid(board, Move(Move::Type::QUEEN_CASTLING, color)))
+    moves.push_back(std::make_shared<Move>(Move::Type::QUEEN_CASTLING, color));
   //std::cerr << "RuleChecker::possible_moves genereated " << moves.size() << " moves at " << start_pos << std::endl;
   return moves;
 
@@ -393,3 +401,19 @@ bool RuleChecker::isCheck(const ChessBoard& board, plugin::Position king_pos)
 {
   return false;
 }*/
+
+bool RuleChecker::three_fold_repetition(const std::vector<ChessBoard*> vec)
+{
+  int counter = 0;
+  const ChessBoard::board_t& last_board = vec.back()->board_get();
+  for (auto it = vec.rbegin() + 1; it != vec.rend(); ++it) {
+    if ((*it)->board_get() == last_board) {
+      if (counter == 1)
+        return true;
+      ++counter;
+    }
+  }
+  return false;
+
+}
+
