@@ -74,12 +74,6 @@ std::string QuietMove::to_an() const
   return result;
 }
 
-std::ostream& operator<<(std::ostream& o, const plugin::Position p)
-{
-  o << (char)(static_cast<char>(p.file_get()) + 'A')
-    << (char)(static_cast<char>(p.rank_get()) + '1');
-  return o;
-}
 
 void QuietMove::print(std::ostream& o) const
 {

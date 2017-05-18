@@ -10,6 +10,7 @@ plugin::Color operator!(plugin::Color color);
 
 std::ostream& operator<<(std::ostream& o, const plugin::Color c);
 std::ostream& operator<<(std::ostream& o, const plugin::PieceType type);
+std::ostream& operator<<(std::ostream& o, const plugin::Position p);
 
 namespace auxiliary {
 

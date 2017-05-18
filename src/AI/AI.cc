@@ -15,10 +15,10 @@ AI::AI(plugin::Color color)
 
 std::string AI::play_next_move(const std::string& received_move)
 {
-  std::cout << "received = " << received_move << std::endl;
+  //std::cout << "received = " << received_move << std::endl;
   if (received_move != "") {
     auto pos = received_move.find_last_of(' ');
-    std::string move = received_move.substr(pos);
+    std::string move = received_move.substr(pos + 1);
     auto opponent_move = Parser::parse_uci(move, opponent_color_, board_);
     std::cerr << "opponent played " << *opponent_move << std::endl;
     board_.update(opponent_move);

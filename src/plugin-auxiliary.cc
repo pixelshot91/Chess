@@ -50,6 +50,13 @@ std::ostream& operator<<(std::ostream& o, const plugin::PieceType type)
   return o;
 }
 
+std::ostream& operator<<(std::ostream& o, const plugin::Position p)
+{
+  o << (char)(static_cast<char>(p.file_get()) + 'a')
+    << (char)(static_cast<char>(p.rank_get()) + '1');
+  return o;
+}
+
 
 namespace auxiliary {
   char PieceTypeToInt(plugin::PieceType type)

@@ -15,8 +15,11 @@ Parser::Parser(std::string pgn_path)
 
 std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, const ChessBoard& board)
 {
+  /*std::cerr << "parsing string = " << s << "end";
+  std::cerr << "start file is " << (int) (s[0] - 'a') << "end";*/
   plugin::Position pos_start(static_cast<plugin::File>(s[0] - 'a'), static_cast<plugin::Rank>(s[1] - '1'));
   plugin::Position pos_end(static_cast<plugin::File>(s[2] - 'a'), static_cast<plugin::Rank>(s[3] - '1'));
+  //std::cerr << "first pos is " << pos_start << " end";
   auto type = board.piecetype_get(pos_start).value();
   if (type == plugin::PieceType::KING) //castling
   {
