@@ -173,11 +173,12 @@ int AI::minimax(int depth , plugin::Color playing_color)
     continue;*/
 
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
+  int positive_if_ai_color = (playing_color == color_) ? 1 : -1;
   if (moves.size() == 0)
   {
     auto playing_king_position = board.get_king_position(playing_color);
     if (RuleChecker::isCheck(board, playing_king_position))
-      return -1000;
+      return -1000 * positive_if_ai_color;
     else
       return 0;
   }
@@ -190,20 +191,19 @@ int AI::minimax(int depth , plugin::Color playing_color)
     ChessBoard tmp = ChessBoard(board);
 
     tmp.apply_move(move);
-    auto opponent_king_position = tmp.get_king_position(!playing_color);
     int move_value;
-    bool in_check = RuleChecker::isCheck(tmp, opponent_king_position);
+    /*bool in_check = RuleChecker::isCheck(tmp, opponent_king_position);
     if (in_check) {
       if (RuleChecker::no_possible_move(tmp, !playing_color))
         move_value = 1000 * ((playing_color == color_) ? 1 : -1);
       else
         move_value = 100 * ((playing_color == color_) ? 1 : -1);
     }
-    else {
+    else {*/
       history_board_.push_back(&tmp);
       //tmp.pretty_print();
       move_value = minimax(depth + 1, !playing_color);
-    }
+    //}
 
     //Save best move
     if (depth == 0)
@@ -226,7 +226,7 @@ int AI::minimax(int depth , plugin::Color playing_color)
         std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
     }
-    if (!in_check)
+    //if (!in_check)
       history_board_.pop_back();
     //Undo Move
   }
