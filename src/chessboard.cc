@@ -707,7 +707,7 @@ plugin::Position ChessBoard::castling_rook_end_position(plugin::Color color,
                                                         : plugin::Rank::EIGHT);
 }
 
-plugin::Position ChessBoard::get_king_position(plugin::Color color)
+plugin::Position ChessBoard::get_king_position(plugin::Color color) const
 {
   plugin::Position p(plugin::File::A, plugin::Rank::ONE);
   for (auto i = 0; i < 8; i++)

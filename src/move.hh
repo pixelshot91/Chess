@@ -3,6 +3,7 @@
 #include "plugin/color.hh"
 #include "plugin/piece-type.hh"
 #include "plugin/position.hh"
+#include "plugin-auxiliary.hh"
 #include <iostream>
 
 class Move

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-g++ -shared -fPIC -o libchessboard-listener.so src/chessboard-listener.cc
+g++ -shared -fPIC -o libchessboard-listener.so src/chessboard-listener.cc src/adaptater.cc

@@ -1,4 +1,5 @@
 #include "chessboard-listener.hh"
+#include "adaptater.hh"
 #include "plugin-auxiliary.hh"
 
 LISTENER_EXPORT(ChessboardListener);
@@ -28,7 +29,8 @@ void ChessboardListener::on_piece_moved(const PieceType piece,
   {
     std::cout << "Board isn't registered" << std::endl;
   }
-  adaptater_.pretty_print();
+  auto my_adaptater = reinterpret_cast<const Adaptater*>(adaptater_);
+  my_adaptater->pretty_print();
 }
 
 void ChessboardListener::on_piece_taken(const PieceType piece,

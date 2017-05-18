@@ -173,6 +173,14 @@ int AI::minimax(int depth , plugin::Color playing_color)
     continue;*/
 
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
+  if (moves.size() == 0)
+  {
+    auto playing_king_position = board.get_king_position(playing_color);
+    if (RuleChecker::isCheck(board, playing_king_position))
+      return -1000;
+    else
+      return 0;
+  }
 
   for (auto move_ptr : moves)
   {

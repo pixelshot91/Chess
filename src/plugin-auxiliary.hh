@@ -9,6 +9,7 @@ char operator~(plugin::Rank r);
 plugin::Color operator!(plugin::Color color);
 
 std::ostream& operator<<(std::ostream& o, const plugin::Color c);
+std::ostream& operator<<(std::ostream& o, const plugin::PieceType type);
 
 namespace auxiliary {
 

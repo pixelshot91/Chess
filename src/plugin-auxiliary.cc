@@ -24,6 +24,33 @@ std::ostream& operator<<(std::ostream& o, const plugin::Color c)
   return o;
 }
 
+std::ostream& operator<<(std::ostream& o, const plugin::PieceType type)
+{
+  switch (type)
+  {
+    case plugin::PieceType::KING:
+      o << "King";
+      break;
+    case plugin::PieceType::QUEEN:
+      o << "Queen";
+      break;
+    case plugin::PieceType::ROOK:
+      o << "Rook";
+      break;
+    case plugin::PieceType::BISHOP:
+      o << "Bishop";
+      break;
+    case plugin::PieceType::KNIGHT:
+      o << "Knight";
+      break;
+    case plugin::PieceType::PAWN:
+      o << "Pawn";
+      break;
+  }
+  return o;
+}
+
+
 namespace auxiliary {
   char PieceTypeToInt(plugin::PieceType type)
   {

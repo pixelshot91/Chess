@@ -1,5 +1,4 @@
 #include "quiet-move.hh"
-#include "plugin-auxiliary.hh"
 
 QuietMove::QuietMove(plugin::Color color, plugin::Position start,
                      plugin::Position end, plugin::PieceType type, bool attack,
@@ -69,6 +68,6 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 
 void QuietMove::print(std::ostream& o) const
 {
-  o << static_cast<char>(piecetype_get()) << " (" << static_cast<int>(color_) << ") " << (attack_ ? " attack" : " move")
+  o << color_ << " " << piecetype_ << (attack_ ? " attack" : " move")
     << " from " << start_get() << " to " << end_get();
 }

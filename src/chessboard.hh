@@ -56,7 +56,7 @@ public:
   void print() const;
   void pretty_print() const;
 
-  plugin::Position get_king_position(plugin::Color color);
+  plugin::Position get_king_position(plugin::Color color) const;
 
 private:
   board_t board_ = {

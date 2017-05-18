@@ -111,16 +111,18 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
     if (quiet_move.piecetype_get() == plugin::PieceType::KING and
         board.is_attacked(quiet_move.color_get(), quiet_move.end_get()))
       return invalid_move("Can't move King to check position");
+    if (board.piecetype_get(quiet_move.end_get()) !=
+        std::experimental::nullopt and
+        quiet_move.color_get() == board.color_get(quiet_move.end_get()))
+      return invalid_move("cant move to a cell containing the same color as "
+          "the moving piece"); // same color
 
-    if (quiet_move.piecetype_get() == plugin::PieceType::PAWN)
-    {
-      if (quiet_move.is_an_attack()) {
-        if (board.piecetype_get(quiet_move.end_get()) !=
-            std::experimental::nullopt) // case non vide
-          return quiet_move.color_get() !=
-            board.color_get(quiet_move.end_get()); // different color
-        else
-        { // en passant ?
+    if (quiet_move.is_an_attack()) { // Attack
+      if (board.piecetype_get(quiet_move.end_get()) == std::experimental::nullopt) // case vide
+      { 
+        if (quiet_move.piecetype_get() == plugin::PieceType::PAWN)
+        {
+          // en passant ?
           //Move& last_move = board.history_get().last_get();
           if (board.last_move_get() == nullptr)
             return invalid_move("There was no last move");
@@ -133,73 +135,51 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
           if (last_quiet_move.piecetype_get() != plugin::PieceType::PAWN)
             return invalid_move("The last piece to move was not a pawn");
           if (last_quiet_move.end_get().file_get() !=
-            quiet_move.end_get().file_get())
+              quiet_move.end_get().file_get())
             return invalid_move("The last moving pawn and the current pawn wont be in the same file");
           if (last_quiet_move.end_get().rank_get() !=
-            quiet_move.start_get().rank_get())
+              quiet_move.start_get().rank_get())
             return invalid_move("The pawn is not one the same rank as the pawn to eat");
           return last_quiet_move.color_get() != quiet_move.color_get() and
             abs(static_cast<char>(last_quiet_move.end_get().rank_get()) -
                 static_cast<char>(last_quiet_move.start_get().rank_get())) ==
             2;
         }
+        else if (not quiet_move.is_a_test())// Attacking empty cell but not a pawn
+          return invalid_move("can't attack an empty cell");
       }
-      else // Not an attack -> the cell must be empty
-        return board.piecetype_get(quiet_move.end_get()) == std::experimental::nullopt;
-    }
-    else
+    } // END Attack
+    else // Simple move
     {
-      if (quiet_move.is_an_attack()) { // Attack
-        if ((not quiet_move.is_a_test()) and board.piecetype_get(quiet_move.end_get()) ==
-            std::experimental::nullopt)
-        return invalid_move("can't attack an empty cell");
-      }
-      else {// Simple move
-        if (board.piecetype_get(quiet_move.end_get()) != std::experimental::nullopt)
-          return invalid_move("can't move to occupied cell");
-      }
-      if (board.piecetype_get(quiet_move.end_get()) !=
-            std::experimental::nullopt and
-          quiet_move.color_get() == board.color_get(quiet_move.end_get()))
+      if (board.piecetype_get(quiet_move.end_get()) != std::experimental::nullopt) // Not an attack -> the cell must be empty
+        return invalid_move("can't move to occupied cell");
+    }
+    if (quiet_move.piecetype_get() != plugin::PieceType::KNIGHT)
+      // In all case check that the piece doesn't go through another peice (except for the Knight)
+    { // Piece in the path
+      auto d_file = static_cast<char>(quiet_move.end_get().file_get()) -
+        static_cast<char>(quiet_move.start_get().file_get());
+      auto d_rank = static_cast<char>(quiet_move.end_get().rank_get()) -
+        static_cast<char>(quiet_move.start_get().rank_get());
+      char dir_x = (d_file > 0) ? 1 : (d_file == 0) ? 0 : -1;
+      char dir_y = (d_rank > 0) ? 1 : (d_rank == 0) ? 0 : -1;
+      char file =
+        static_cast<char>(quiet_move.start_get().file_get()) + dir_x;
+      char rank =
+        static_cast<char>(quiet_move.start_get().rank_get()) + dir_y;
+      for (;
+          not(file == static_cast<char>(quiet_move.end_get().file_get()) and
+            rank == static_cast<char>(quiet_move.end_get().rank_get()));
+          file += dir_x, rank += dir_y)
       {
-        return invalid_move("cant move to a cell containing the same color as "
-                            "the moving piece"); // same color
-      }
-      /*if ((not quiet_move.is_a_test()) and quiet_move.is_an_attack() and
-          board.piecetype_get(quiet_move.end_get()) ==
-            std::experimental::nullopt)
-        return invalid_move("can't attack an empty cell");*/
-      
-      if (quiet_move.piecetype_get() != plugin::PieceType::KNIGHT)
-      { // Piece in the path
-
-        auto d_file = static_cast<char>(quiet_move.end_get().file_get()) -
-                      static_cast<char>(quiet_move.start_get().file_get());
-        auto d_rank = static_cast<char>(quiet_move.end_get().rank_get()) -
-                      static_cast<char>(quiet_move.start_get().rank_get());
-        char dir_x = (d_file > 0) ? 1 : (d_file == 0) ? 0 : -1;
-        char dir_y = (d_rank > 0) ? 1 : (d_rank == 0) ? 0 : -1;
-        char file =
-          static_cast<char>(quiet_move.start_get().file_get()) + dir_x;
-        char rank =
-          static_cast<char>(quiet_move.start_get().rank_get()) + dir_y;
-        for (;
-             not(file == static_cast<char>(quiet_move.end_get().file_get()) and
-                 rank == static_cast<char>(quiet_move.end_get().rank_get()));
-             file += dir_x, rank += dir_y)
-        {
-        /*  std::cerr << "checking : "
-                    << plugin::Position(static_cast<plugin::File>(file),
-                                        static_cast<plugin::Rank>(rank))
-                    << std::endl;*/
-          if (board.piecetype_get(plugin::Position(
+        if (board.piecetype_get(plugin::Position(
                 static_cast<plugin::File>(file),
                 static_cast<plugin::Rank>(rank))) != std::experimental::nullopt)
-            return invalid_move("Cant move through piece");
-        }
+          return invalid_move("Cant move through piece");
       }
     }
-  }
+
+  } // END Quiet Move
   else // Special Move  // CHECKING IS CASTLING POSSIBLE
   {
     plugin::Position king_pos =
