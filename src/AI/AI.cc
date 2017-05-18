@@ -202,7 +202,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     else {*/
       history_board_.push_back(&tmp);
       //tmp.pretty_print();
-      move_value = minimax(depth + 1, !playing_color, A , B);
+      move_value = minimax(depth + 1, !playing_color, -A , -B);
     }
     //Save best move
     if (depth == 0)
@@ -221,14 +221,12 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     else if ((move_value > best_move_value) == (playing_color == color_)) {
       best_move_value = move_value;
       A = best_move_value;
-      if((A > B) == static_cast<int>(playing_color))
-        return best_move_value;
-
-
       if (depth == 0) {
         best_move_ = move_ptr;
         std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
+      if((A > B) == static_cast<int>(playing_color))
+        return best_move_value;
     }
     //if (!in_check)
       history_board_.pop_back();
