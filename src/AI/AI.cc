@@ -4,8 +4,8 @@
 #include "parser.hh"
 #include <experimental/random>
 
-AI::AI(plugin::Color color)
-  : Player(color)
+AI::AI(plugin::Color color) 
+  : Player(color) 
     , opponent_color_(!color)
     , best_move_(nullptr)
     , board_()
@@ -19,7 +19,7 @@ std::string AI::play_next_move(const std::string& received_move)
   if (received_move != "") {
     auto pos = received_move.find_last_of(' ');
     std::string move = received_move.substr(pos);
-    auto opponent_move = Parser::parse_move(move, opponent_color_);
+    auto opponent_move = Parser::parse_uci(move, opponent_color_, board_);
     std::cerr << "opponent played " << *opponent_move << std::endl;
     board_.update(opponent_move);
   }
@@ -28,11 +28,11 @@ std::string AI::play_next_move(const std::string& received_move)
 
   history_board_.push_back(&board_);
   board_.pretty_print();
-  auto best_move_value = minimax(0, color_, -100000,100000);
+  auto best_move_value = minimax(0, color_);
   history_board_.pop_back();
   std::cerr << "best move is : " << *best_move_ << std::endl << "its value is " << best_move_value << std::endl;
   board_.update(best_move_);
-  std::string input = best_move_->to_lan();
+  std::string input = best_move_->to_an();
   return input;
 }
 
@@ -160,7 +160,7 @@ int AI::evaluate(const ChessBoard& board)
   return score;
 }
 
-int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
+int AI::minimax(int depth , plugin::Color playing_color)
 {
   /*std::cerr << "depth = " << depth << std::endl;
   std::cerr << "playing color = " << playing_color << std::endl;*/
@@ -213,10 +213,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     else {*/
     history_board_.push_back(&tmp);
       //tmp.pretty_print();
-<<<<<<< HEAD
-      move_value = minimax(depth + 1, !playing_color, -A , -B);
-    }
-=======
     try {
       move_value = minimax(depth + 1, !playing_color);
     }
@@ -226,7 +222,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
       throw e;
     }
 
->>>>>>> [AI] Add three_fold_repetition to evaluation
     //Save best move
     if (depth == 0)
       std::cerr << "move " << move << " scored " << move_value << std::endl;
@@ -243,13 +238,10 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     }
     else if ((move_value > best_move_value) == (playing_color == color_)) {
       best_move_value = move_value;
-      A = best_move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
         std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
-      if((A > B) == static_cast<int>(playing_color))
-        return best_move_value;
     }
     //if (!in_check)
       history_board_.pop_back();

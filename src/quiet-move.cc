@@ -64,6 +64,16 @@ std::string QuietMove::to_lan() const
   return result;
 }
 
+std::string QuietMove::to_an() const
+{
+  std::string result;
+  result += auxiliary::to_lan(start_get());
+  result += auxiliary::to_lan(end_get());
+  if (promotion_piecetype_ != -1)
+    result += static_cast<char>(plugin::piecetype_array()[promotion_piecetype_]);
+  return result;
+}
+
 std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 {
   o << (char)(static_cast<char>(p.file_get()) + 'A')

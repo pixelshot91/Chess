@@ -24,7 +24,7 @@ class AI : public Player
   private :
     int piece_numbers(const ChessBoard& board, plugin::PieceType type, plugin::Color color);
 
-    int minimax(int depth, plugin::Color playing_color,int A,int B);
+    int minimax(int depth, plugin::Color playing_color);
 
     int evaluate(const ChessBoard& board);
 
@@ -39,11 +39,11 @@ class AI : public Player
     const plugin::Color opponent_color_;
     std::shared_ptr<Move> best_move_;
     ChessBoard board_;
-
+    
     std::vector<ChessBoard*> history_board_;
     int max_depth_ = 3;
 
-    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board =
+    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {
        0, 0, 0, 0, 0, 0, 0, 0,
        50, 50, 50, 50, 50, 50, 50, 50,

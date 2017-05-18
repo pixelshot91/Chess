@@ -13,6 +13,29 @@ Parser::Parser(std::string pgn_path)
 {
 }
 
+std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, const ChessBoard& board)
+{
+  plugin::Position pos_start(static_cast<plugin::File>(s[0] - 'a'), static_cast<plugin::Rank>(s[1] - '1'));
+  plugin::Position pos_end(static_cast<plugin::File>(s[2] - 'a'), static_cast<plugin::Rank>(s[3] - '1'));
+  auto type = board.piecetype_get(pos_start).value();
+  if (type == plugin::PieceType::KING) //castling
+  {
+    auto diff = ~pos_end.file_get() - ~pos_start.file_get();
+    if (diff > 1) // Kingside caslting
+      return std::make_shared<Move>(Move::Type::KING_CASTLING, color);
+    if (diff < -1)
+      return std::make_shared<Move>(Move::Type::QUEEN_CASTLING, color);
+  }
+  char promotion = -1;
+  if (s[4] != '\0')
+    promotion = auxiliary::PieceTypeToInt(static_cast<plugin::PieceType>(s[4]));
+  bool attack = (board.piecetype_get(pos_end) != std::experimental::nullopt);
+  if (type == plugin::PieceType::PAWN and pos_start.file_get() != pos_end.file_get())
+    attack = 1;
+  return std::make_shared<QuietMove>(color, pos_start, pos_end, type,
+      attack, false, promotion); // FIX PROMOTION
+}
+
 std::shared_ptr<Move> Parser::parse_move(std::string s, plugin::Color color, bool pgn_check)
 {
   /*boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>["

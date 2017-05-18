@@ -1,5 +1,7 @@
 #include "move.hh"
 
+#include "chessboard.hh"
+
 Move::Move(Type move_type, plugin::Color color)
   : move_type_(move_type)
   , color_(color)
@@ -30,6 +32,14 @@ std::string Move::to_lan() const
   if (move_type_ == KING_CASTLING)
     return "O-O";
   return "O-O-O";
+}
+
+std::string Move::to_an() const
+{
+  std::string result;
+  result += auxiliary::to_lan(ChessBoard::initial_king_position(color_));
+  result += auxiliary::to_lan(ChessBoard::castling_king_end_position(color_, move_type_ == KING_CASTLING));
+  return result;
 }
 
 

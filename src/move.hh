@@ -22,6 +22,7 @@ public:
   plugin::Color color_get() const;
   virtual void print(std::ostream& o) const;
   virtual std::string to_lan() const;
+  virtual std::string to_an() const;
 
 protected:
   Type move_type_;

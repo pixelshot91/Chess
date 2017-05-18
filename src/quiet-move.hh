@@ -17,6 +17,7 @@ public:
 
   void print(std::ostream& o) const override;
   std::string to_lan() const override;
+  std::string to_an() const override;
 
 private:
   plugin::Position start_;

@@ -96,8 +96,8 @@ int Engine::start()
 
       client_move = clients_[color]->receive().substr(9);
       //std::cerr << "bestmove = " << client_move << std::endl;
-      auto best_move = Parser::parse_move(
-            client_move, static_cast<plugin::Color>(color));
+      auto best_move = Parser::parse_uci(
+            client_move, static_cast<plugin::Color>(color), chessboard_);
       std::cerr << "update with move : " << *best_move << std::endl;
       if (chessboard_.update(best_move) == -1)
       {

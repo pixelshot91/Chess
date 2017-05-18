@@ -6,6 +6,7 @@
 
 #include "move.hh"
 #include "quiet-move.hh"
+#include "chessboard.hh"
 
 class Parser
 {
@@ -14,6 +15,7 @@ public:
   Parser(std::string pgn_path);
   moves_t parse();
   static std::shared_ptr<Move> parse_move(std::string, plugin::Color color, bool pgn_check = false);
+  static std::shared_ptr<Move> parse_uci(std::string, plugin::Color color, const ChessBoard& board);
 
 private:
   static std::shared_ptr<QuietMove> generateMove(plugin::Color color, boost::smatch what);
