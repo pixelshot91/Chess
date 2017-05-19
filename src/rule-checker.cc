@@ -111,9 +111,9 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, const Move& move)
   if (move.move_type_get() == Move::Type::QUIET)
   {
     const QuietMove& quiet_move = static_cast<const QuietMove&>(move);
-    if (quiet_move.piecetype_get() == plugin::PieceType::KING and
+    /*if (quiet_move.piecetype_get() == plugin::PieceType::KING and
         board.is_attacked(quiet_move.color_get(), quiet_move.end_get()))
-      return invalid_move("Can't move King to check position");
+      return invalid_move("Can't move King to check position");*/
     if (board.piecetype_get(quiet_move.end_get()) !=
         std::experimental::nullopt and
         quiet_move.color_get() == board.color_get(quiet_move.end_get()))

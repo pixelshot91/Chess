@@ -120,6 +120,7 @@ int AI::board_bonus_position(const ChessBoard& board)
   //int material = 0;
   //int bonus = 0;
   int mobility = 0;
+  int pawn = 0, queen = 0, rook = 0, bishop = 0, knight = 0;
 
   for (auto i = 0; i < 8; i++)
   {
@@ -128,9 +129,29 @@ int AI::board_bonus_position(const ChessBoard& board)
       auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       auto piece_type = board.piecetype_get(pos);
       auto piece_color = board.color_get(pos);
+      int positive_if_ai_color = (piece_color == color_) ? 1 : -1;
 
       if (piece_type != std::experimental::nullopt)
       {
+        switch(piece_type.value()) {
+          case plugin::PieceType::PAWN:
+            pawn += positive_if_ai_color;
+          break;
+          case plugin::PieceType::QUEEN:
+            queen += positive_if_ai_color;
+            break;
+          case plugin::PieceType::ROOK:
+            rook += positive_if_ai_color;
+            break;
+          case plugin::PieceType::BISHOP:
+            bishop += positive_if_ai_color;
+            break;
+          case plugin::PieceType::KNIGHT:
+            knight += positive_if_ai_color;
+            break;
+          default:
+            break;
+        }
         if (piece_color == plugin::Color::BLACK)
           mobility += get_piece_bonus_position(piece_type.value(), i, j);
         else
@@ -138,16 +159,28 @@ int AI::board_bonus_position(const ChessBoard& board)
       }
     }
   }
-  return mobility;
+
+  return 900 * queen + 500 * rook + 300 * bishop + 300 * knight + 100 * pawn + 0.5 * mobility;
 }
 
 
-int AI::board_material(const ChessBoard& board)
+/*int AI::board_material(const ChessBoard& board)
 {
   int piece_nb[6] = {0};
   int piece_weight[6] = {1000, 9, 5, 3, 3, 1};
   int score = 0;
-  for (int i = 0; i < 6; ++i)
+
+  for (auto i = 0; i < 8; i++)
+  {
+    for (auto j = 0; j < 8; j++)
+    {
+      auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+
+    }
+  }*/
+
+
+  /*for (int i = 0; i < 6; ++i)
   {
     auto type = plugin::piecetype_array()[i];
     piece_nb[i] = piece_numbers(board, type, color_) - piece_numbers(board, type, opponent_color_);
@@ -162,9 +195,9 @@ int AI::board_material(const ChessBoard& board)
 
     //std::cerr << type << " = " << piece_nb[i] << std::endl;
     score += 100 * piece_weight[i] * piece_nb[i];
-  }
-  return score; // backward
-}
+  }*/
+  //return score; // backward
+//}
 
 
 // Coefficients aren't set yet
@@ -172,8 +205,8 @@ int AI::evaluate(const ChessBoard& board)
 {
   /*std::cerr << "Evaluation of " << std::endl;
   board.pretty_print();*/
-  int material = board_material(board);
-  int bonus_position = board_bonus_position(board);
+  //int material = board_material(board);
+  int material_bonus_position = board_bonus_position(board);
   int king_trop = king_tropism(board, color_) - king_tropism(board, opponent_color_);
   int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
   int isolated = count_isolated(board, color_) - count_isolated(board, opponent_color_);
@@ -182,7 +215,7 @@ int AI::evaluate(const ChessBoard& board)
   int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
 
 
-  int score = /*1000 * check +*/ material + 0.5 * bonus_position + 3 * king_trop + 50 * (doubled + isolated);
+  int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position 
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
