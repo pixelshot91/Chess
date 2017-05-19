@@ -52,7 +52,7 @@ std::string AI::play_next_move(const std::string& received_move)
 
     history_board_.push_back(&board_);
     board_.pretty_print();
-    auto best_move_value = minimax(0, color_);
+    auto best_move_value = minimax(0, color_, -1000000, 10000000);
     if (best_move_ == nullptr)
     {
       std::cerr << "I am doomed" << std::endl;
@@ -151,32 +151,18 @@ int AI::board_material(const ChessBoard& board)
   {
     auto type = plugin::piecetype_array()[i];
     piece_nb[i] = piece_numbers(board, type, color_) - piece_numbers(board, type, opponent_color_);
+    if (i == 0 and piece_nb[0])
+    {
+      board.pretty_print();
+      std::cerr << "a king is missing" << std::endl;
+      std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
+      throw std::invalid_argument("A king is dead");
+    }
+
+
     //std::cerr << type << " = " << piece_nb[i] << std::endl;
     score += 100 * piece_weight[i] * piece_nb[i];
   }
-  /*int queens = piece_numbers(board, plugin::PieceType::QUEEN, color_) - piece_numbers(board, plugin::PieceType::QUEEN, opponent_color_);
-
-  int rooks = piece_numbers(board, plugin::PieceType::ROOK, color_) - piece_numbers(board, plugin::PieceType::ROOK, opponent_color_);
-
-  int bishops = piece_numbers(board, plugin::PieceType::BISHOP, color_) - piece_numbers(board, plugin::PieceType::BISHOP, opponent_color_);
-
-  int knights = piece_numbers(board, plugin::PieceType::KNIGHT, color_) - piece_numbers(board, plugin::PieceType::KNIGHT, opponent_color_);
-
-  int pawns = piece_numbers(board, plugin::PieceType::PAWN, color_) - piece_numbers(board, plugin::PieceType::PAWN, opponent_color_);
-  int king = piece_numbers(board, plugin::PieceType::KING, color_) - piece_numbers(board, plugin::PieceType::KING, opponent_color_);*/
-  /*if (king != 0)
-  {
-    board.pretty_print();
-    std::cerr << "a king is missing" << std::endl;
-    std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
-    throw std::invalid_argument("A king is dead");
-  }*/
-
-  //int score = 9 * queens + 5 * rooks + 3 * (bishops + knights) + pawns;
-  /*if (score != 0) {
-    board.pretty_print();
-    std::cerr << "score = " << score << std::endl;
-  }*/
   return score; // backward
 }
 
@@ -203,7 +189,7 @@ int AI::evaluate(const ChessBoard& board)
   return score / 50;
 }
 
-int AI::minimax(int depth , plugin::Color playing_color)
+int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 {
   /*std::cerr << "depth = " << depth << std::endl;
   std::cerr << "playing color = " << playing_color << std::endl;*/
@@ -212,7 +198,7 @@ int AI::minimax(int depth , plugin::Color playing_color)
     return evaluate(*history_board_[fixed_board_ + depth]);
   }
 
-  int best_move_value = (playing_color == color_) ? -1000000 : 1000000;
+  int best_move_value = -10000000;
 
   const ChessBoard& board = *(history_board_[fixed_board_ + depth]);
 
@@ -257,7 +243,7 @@ int AI::minimax(int depth , plugin::Color playing_color)
     history_board_.push_back(&tmp);
       //tmp.pretty_print();
     try {
-      move_value = minimax(depth + 1, !playing_color);
+      move_value = -minimax(depth + 1, !playing_color, -A, -B);
     }
     catch (std::invalid_argument e) {
       std::cerr << "Move is " << move << std::endl;
@@ -279,12 +265,21 @@ int AI::minimax(int depth , plugin::Color playing_color)
         }
       }
     }
-    else if ((move_value > best_move_value) == (playing_color == color_)) {
+    else if (move_value > best_move_value) {
       best_move_value = move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
         std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
+
+      if (A < move_value) {
+        A = move_value;
+        if (A >= B) {
+          history_board_.pop_back();
+          break;
+        }
+      }
+
     }
     //if (!in_check)
       history_board_.pop_back();

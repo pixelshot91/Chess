@@ -20,12 +20,12 @@ class AI : public Player
     using eval_cell_t = int;
     AI(plugin::Color ai_color);
     std::string play_next_move(const std::string& received_move) override;
-    void set_scripted_moves( std::vector<std::shared_ptr<Move>> moves);
+    void set_scripted_moves(std::vector<std::shared_ptr<Move>> moves);
 
   private :
     int piece_numbers(const ChessBoard& board, plugin::PieceType type, plugin::Color color);
 
-    int minimax(int depth, plugin::Color playing_color);
+    int minimax(int depth, plugin::Color playing_color, int A, int B);
 
     int evaluate(const ChessBoard& board);
 
