@@ -43,7 +43,8 @@ class AI : public Player
     std::vector<std::shared_ptr<Move>> scripted_moves_;
     
     std::vector<ChessBoard*> history_board_;
-    int max_depth_ = 2;
+    int max_depth_ = 3;
+    unsigned int fixed_board_ = 0;
 
     const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {

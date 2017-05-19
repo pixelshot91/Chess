@@ -203,12 +203,12 @@ int AI::minimax(int depth , plugin::Color playing_color)
   std::cerr << "playing color = " << playing_color << std::endl;*/
   if (depth >= max_depth_)
   {
-    return evaluate(*history_board_[depth]);
+    return evaluate(*history_board_[fixed_board_ + depth]);
   }
 
-  int best_move_value = (playing_color == color_) ? -100000 : 100000;
+  int best_move_value = (playing_color == color_) ? -1000000 : 1000000;
 
-  const ChessBoard& board = *(history_board_[depth]);
+  const ChessBoard& board = *(history_board_[fixed_board_ + depth]);
 
   /*for (auto i = 0; i < 8; i++)
     {
@@ -224,7 +224,7 @@ int AI::minimax(int depth , plugin::Color playing_color)
   {
     auto playing_king_position = board.get_king_position(playing_color);
     if (RuleChecker::isCheck(board, playing_king_position))
-      return -1000 * positive_if_ai_color;
+      return -100000 * positive_if_ai_color;
     else
       return 0;
   }

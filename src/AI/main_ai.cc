@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
   std::string ip(argv[1]);
   std::string port(argv[2]);
   std::string pgn_path;
-  if (std::string(argv[3]) != std::string(""))
+  if (argv[3] != nullptr)
     pgn_path = std::string(argv[3]);
   std::cout << "port is " << port << std::endl;
 
