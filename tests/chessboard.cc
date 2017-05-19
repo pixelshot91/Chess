@@ -3,8 +3,6 @@
 int main()
 {
 
-  std::vector<plugin::PieceType> pieceline = {plugin::PieceType::ROOK,plugin::PieceType::KNIGHT,plugin::PieceType::BISHOP,plugin::PieceType::QUEEN,plugin::PieceType::KING, plugin::PieceType::BISHOP,plugin::PieceType::KNIGHT,plugin::PieceType::ROOK};
-  std::vector<plugin::PieceType> pawnline = {plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN,plugin::PieceType::PAWN};
 
   ChessBoard b;
 

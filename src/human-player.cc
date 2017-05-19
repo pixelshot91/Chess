@@ -13,3 +13,8 @@ std::string HumanPlayer::play_next_move(const std::string& received_move)
   return input;
 }
 
+void HumanPlayer::set_scripted_moves( std::vector<std::shared_ptr<Move>> moves)
+{
+  moves = moves;
+  std::cout << "Scripted move were given" << std::endl;
+}

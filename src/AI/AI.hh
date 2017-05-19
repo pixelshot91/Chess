@@ -20,6 +20,7 @@ class AI : public Player
     using eval_cell_t = int;
     AI(plugin::Color ai_color);
     std::string play_next_move(const std::string& received_move) override;
+    void set_scripted_moves( std::vector<std::shared_ptr<Move>> moves);
 
   private :
     int piece_numbers(const ChessBoard& board, plugin::PieceType type, plugin::Color color);
@@ -39,9 +40,10 @@ class AI : public Player
     const plugin::Color opponent_color_;
     std::shared_ptr<Move> best_move_;
     ChessBoard board_;
+    std::vector<std::shared_ptr<Move>> scripted_moves_;
     
     std::vector<ChessBoard*> history_board_;
-    int max_depth_ = 3;
+    int max_depth_ = 2;
 
     const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {

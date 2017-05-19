@@ -22,9 +22,9 @@ void Move::print(std::ostream& o) const
 {
   o << color_;
   if (move_type_ == KING_CASTLING)
-    o << "King castling" << std::endl;
+    o << "King castling";
   else
-    o << "Queen castling" << std::endl;
+    o << "Queen castling";
 }
 
 std::string Move::to_lan() const

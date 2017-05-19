@@ -138,7 +138,7 @@ Parser::moves_t Parser::parse()
     { // Move
       // boost::regex exp("(?<var>\\S+)");
 
-      //std::cerr << "s = ^" << tokens[i] << "$" << std::endl;
+      std::cerr << "s = ^" << tokens[i] << "$" << std::endl;
       if (i % 3 == 0)
         continue;
       moves.push_back(parse_move(tokens[i], static_cast<plugin::Color>((i % 3)- 1), true));

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -pedantic -ldl -lpthread")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -lpthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
@@ -20,7 +20,8 @@ set (SRC_TEST_ChessBoard tests/chessboard.cc src/move.cc src/quiet-move.cc
   src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
   src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
 
-set(SRC_human src/main_human.cc src/human-player.cc src/player.cc)
+set(SRC_human src/main_human.cc src/human-player.cc src/player.cc src/parser.cc
+  src/chessboard.cc src/rule-checker.cc src/move.cc src/quiet-move.cc src/plugin-auxiliary.cc )
 
 set(SRC_ai src/AI/main_ai.cc src/player.cc src/AI/AI.cc src/move.cc src/quiet-move.cc
   src/chessboard.cc src/rule-checker.cc src/plugin-auxiliary.cc src/parser.cc)
@@ -39,6 +40,7 @@ target_link_libraries(${BIN_ENGINE} boost_regex)
 target_link_libraries(${BIN_ENGINE} boost_system)
 
 target_link_libraries(${BIN_HUMAN} boost_system)
+target_link_libraries(${BIN_HUMAN} boost_regex)
 
 target_link_libraries(${BIN_AI} boost_system)
 target_link_libraries(${BIN_AI} boost_regex)

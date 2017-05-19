@@ -4,13 +4,16 @@
 #include "plugin/color.hh"
 #include "player.hh"
 #include "human-player.hh"
+#include "parser.hh"
+#include "move.hh"
 #include <iostream>
 
 template <typename T>
-Client<T>::Client(const std::string& ip, const std::string& port)
+Client<T>::Client(const std::string& ip, const std::string& port, const std::string& pgn_path)
   : client_(ip, port)
   , ip_(ip)
   , port_(port)
+  , pgn_path_(pgn_path)
 {
 }
 
@@ -21,7 +24,19 @@ int Client<T>::start()
 
   plugin::Color color =
     static_cast<plugin::Color>(client_.acknowledge("nicolas.roger"));
-  player_t player(color); 
+  player_t player(color);
+  std::vector<std::shared_ptr<Move>> moves; 
+  if (pgn_path_ != "") {
+    std::cerr << "reading file : " << pgn_path_ << std::endl;
+    Parser parser(pgn_path_);
+    moves = parser.parse();
+    if (color == plugin::Color::BLACK)
+      moves.erase(moves.begin());
+    std::cerr << "Scripted moved :" << std::endl;
+    for (auto m : moves)
+      std::cerr << *m << std::endl;
+    player.set_scripted_moves(moves);
+  }
   /* initialization */
 
   // receive uci from engine
