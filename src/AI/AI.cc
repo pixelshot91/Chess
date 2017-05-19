@@ -53,6 +53,12 @@ std::string AI::play_next_move(const std::string& received_move)
     history_board_.push_back(&board_);
     board_.pretty_print();
     auto best_move_value = minimax(0, color_);
+    if (best_move_ == nullptr)
+    {
+      std::cerr << "I am doomed" << std::endl;
+      std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
+      best_move_ = moves[0];
+    }
     history_board_.pop_back();
     std::cerr << "best move is : " << *best_move_ << std::endl << "its value is " << best_move_value << std::endl;
     board_.update(best_move_);
@@ -194,7 +200,7 @@ int AI::evaluate(const ChessBoard& board)
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position 
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
-  return score;
+  return score / 50;
 }
 
 int AI::minimax(int depth , plugin::Color playing_color)
