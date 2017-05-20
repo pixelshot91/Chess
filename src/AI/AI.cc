@@ -35,8 +35,8 @@ std::string AI::play_next_move(const std::string& received_move)
   if (scripted_moves_.size() != 0)
   {
     std::cerr << "PLAY NEXT MOVE AI moves are : " << std::endl;
-    for (auto m : scripted_moves_)
-    std::cerr << *m << std::endl;
+    /*for (auto m : scripted_moves_)
+    std::cerr << *m << std::endl;*/
 
     auto move = scripted_moves_.front();
     std::cerr << "Playing scripted move " << *move << std::endl;
@@ -52,7 +52,7 @@ std::string AI::play_next_move(const std::string& received_move)
 
     history_board_.push_back(&board_);
     board_.pretty_print();
-    auto best_move_value = minimax(0, color_, -1000000, 10000000);
+    auto best_move_value = minimax(0, color_, -10000000, 10000000);
     if (best_move_ == nullptr)
     {
       std::cerr << "I am doomed" << std::endl;
@@ -226,9 +226,22 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 {
   /*std::cerr << "depth = " << depth << std::endl;
   std::cerr << "playing color = " << playing_color << std::endl;*/
+  const ChessBoard& board = *(history_board_[fixed_board_ + depth]);
+  std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
+  if (moves.size() == 0)
+  {
+    auto playing_king_position = board.get_king_position(playing_color);
+    if (RuleChecker::isCheck(board, playing_king_position))
+      return -100000 * (max_depth_ - depth + 1);
+    else
+      return 0;
+  }
+  /*if (RuleChecker::three_fold_repetition(history_board_))
+    return 0;*/
+
   if (depth >= max_depth_)
   {
-    int ret = evaluate(*history_board_[fixed_board_ + depth]);
+    int ret = evaluate(board);
     if (depth % 2)
       return -ret;
     return ret;
@@ -236,7 +249,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 
   int best_move_value = -10000000;
 
-  const ChessBoard& board = *(history_board_[fixed_board_ + depth]);
 
   /*for (auto i = 0; i < 8; i++)
     {
@@ -246,18 +258,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     if (board.piecetype_get(position) == std::experimental::nullopt or board.color_get(position) != playing_color)
     continue;*/
 
-  std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
-  if (moves.size() == 0)
-  {
-    auto playing_king_position = board.get_king_position(playing_color);
-    if (RuleChecker::isCheck(board, playing_king_position))
-      return -100000;
-    else
-      return 0;
-  }
-  if (RuleChecker::three_fold_repetition(history_board_))
-    return 0;
-
+  
   for (auto move_ptr : moves)
   {
     Move& move = *move_ptr;
@@ -278,7 +279,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     history_board_.push_back(&tmp);
       //tmp.pretty_print();
     try {
-      move_value = -minimax(depth + 1, !playing_color, -B, -A);
+      move_value = -minimax(depth + 1, !playing_color, -A, -B);
 
     }
     catch (std::invalid_argument e) {
@@ -312,6 +313,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
         A = move_value;
         if (A >= B) {
           history_board_.pop_back();
+          //std::cerr << "Alpha beta pruning" << std::endl;
           break;
         }
       }
