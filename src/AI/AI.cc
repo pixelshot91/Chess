@@ -257,27 +257,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     if (board.piecetype_get(position) == std::experimental::nullopt or board.color_get(position) != playing_color)
     continue;*/
 
-<<<<<<< HEAD
-  
-=======
-  //std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
-  auto moves = board.get_possible_actions(playing_color);
-  for (auto move_ptr : moves)
-    std::cerr << *move_ptr << std::endl;
-  exit(42);
-  int positive_if_ai_color = (playing_color == color_) ? 1 : -1;
-  if (moves.size() == 0)
-  {
-    auto playing_king_position = board.get_king_position(playing_color);
-    if (RuleChecker::isCheck(board, playing_king_position))
-      return -100000 * positive_if_ai_color;
-    else
-      return 0;
-  }
-  /*if (RuleChecker::three_fold_repetition(history_board_))
-    return 0;*/
-
->>>>>>> [POSSIBLE_MOVE] Start debuging get_possible_actions
   for (auto move_ptr : moves)
   {
     Move& move = *move_ptr;
@@ -301,7 +280,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     //Save best move
     if (depth == 0)
       std::cerr << "move " << move << " scored " << move_value << std::endl;
-    /*if (move_value == best_move_value)
+    if (move_value == best_move_value)
     {
       int rand = std::experimental::randint(1, 100);
       if (rand < 40) {
@@ -312,7 +291,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
         }
       }
     }
-    else*/ if (move_value > best_move_value) {
+    else if (move_value > best_move_value) {
       best_move_value = move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
@@ -349,7 +328,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
   for (auto i = 0; i < 8; i++)
   {
     for (auto j = 0; j < 8; j++)
-    {
+  {
       plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       if (board.piecetype_get(pos) == std::experimental::nullopt)
         continue;

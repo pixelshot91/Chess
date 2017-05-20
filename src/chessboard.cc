@@ -362,7 +362,7 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
                 if (i + ~file < 0 or 7 < ~file + i or ~rank + j < 0 or 7 < ~rank +j)
                   continue;
                 plugin::Position end_pos(static_cast<plugin::File>(~file + i), static_cast<plugin::Rank>(~rank + j));
-                push_move(moves, QuietMove(color_piece, position, end_pos, piece_type);
+                push_move(moves, QuietMove(color_piece, position, end_pos, piece_type));
               }
             }
             Move KingCastle(Move::Type::KING_CASTLING,color_piece);
@@ -390,24 +390,24 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
               plugin::Position end_pos(file, static_cast<plugin::Rank>(i));
               push_move(moves, QuietMove(color_piece, position, end_pos, piece_type));
             }
+          }
             break;
 
         case plugin::PieceType::BISHOP:
           {
             for (int j = 0; j < 8 - ~file; j++)
             {
-              plugin::Position diag_left(static_cast<plugin::File>(j),
-                  static_cast<plugin::Rank>(j +  static_cast<int>(position.rank_get()) -  static_cast<int>(position.file_get())));
-              QuietMove move1(color_piece, position, endpos1, piece_type,
-                  piecetype_get(endpos1) != std::experimental::nullopt,
-                  false);
+              {
+                plugin::Position diag_left_pos(static_cast<plugin::File>(j),
+                    static_cast<plugin::Rank>(j*dir +  ~rank - ~file));
+                push_move(moves, QuietMove(color_piece, position, diag_left_pos, piece_type));
+              }
 
-              plugin::Position endpos2(
-                  static_cast<plugin::File>(j),
-                  static_cast<plugin::Rank>( -j +  static_cast<int>(position.rank_get()) + static_cast<int>(position.file_get())));
-              QuietMove move2(color_piece, position, endpos2, piece_type,
-                  piecetype_get(endpos2) != std::experimental::nullopt,
-                  false);
+              {
+                plugin::Position diag_right_pos(static_cast<plugin::File>(j),
+                    static_cast<plugin::Rank>(j*-dir +  ~rank + ~file));
+                push_move(moves, QuietMove(color_piece, position, diag_right_pos, piece_type));
+              }
 
             }
             break;
@@ -423,61 +423,36 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
 
             for(int i = 0; i < 4; i++)
             {
-              if (x1 + static_cast<int>(position.file_get()) < 7 &&
-                  x1 + static_cast<int>(position.file_get()) > 0 &&
-                  y1 + static_cast<int>(position.rank_get()) < 7 &&
-                  y1 + static_cast<int>(position.rank_get()) > 0)
+              if (i + ~file < 0 or 7 < ~file + i or ~rank + j < 0 or 7 < ~rank +j)
+                continue;
               {
-                plugin::Position endpos1(
+                plugin::Position pos_1(
                     static_cast<plugin::File>(
-                      x1 +  static_cast<int>(position.file_get())),
+                      x1 +  ~file),
                     static_cast<plugin::Rank>(y1 +
-                      static_cast<int>(position.rank_get())));
-                QuietMove move1(color_piece, position, endpos1, piece_type,
-                    piecetype_get(endpos1) != std::experimental::nullopt,
-                    false);
+                      ~rank));
+                push_move(moves, QuietMove(color_piece, position, pos_1, piece_type));
 
-                QuietMove move2(color_piece, position, endpos1, piece_type,
-                    piecetype_get(endpos1) != std::experimental::nullopt,
-                    true);
-
-
-                if (RuleChecker::is_move_valid(*this, move2))
-                  moves.push_back(std::make_shared<QuietMove>(move2));
-
-                if (RuleChecker::is_move_valid(*this, move1))
-                  moves.push_back(std::make_shared<QuietMove>(move1));
+                temp = x1;
+                x1 = -y1;
+                y1 = temp;
               }
-              temp = x1;
-              x1 = -y1;
-              y1 = temp;
-              if (x2 + static_cast<int>(position.file_get()) < 7 &&
-                  x2 + static_cast<int>(position.file_get()) > 0 &&
-                  y2 + static_cast<int>(position.rank_get()) < 7 &&
-                  y2 + static_cast<int>(position.rank_get()) > 0)
+
+              if (i + ~file < 0 or 7 < ~file + i or ~rank + j < 0 or 7 < ~rank +j)
+                continue;
               {
-                plugin::Position endpos2(
+
+plugin::Position pos_2(
                     static_cast<plugin::File>(
-                      x2 +  static_cast<int>(position.file_get())),
+                      x2 +  ~file),
                     static_cast<plugin::Rank>(y2 +
-                      static_cast<int>(position.rank_get())));
-                QuietMove move2(color_piece, position, endpos2, piece_type,
-                    piecetype_get(endpos2) != std::experimental::nullopt,
-                    false);
+                      ~rank));
+                push_move(moves, QuietMove(color_piece, position, pos_2, piece_type));
 
-                QuietMove move3(color_piece, position, endpos2, piece_type,
-                    piecetype_get(endpos2) != std::experimental::nullopt,
-                    false);
-
-                if (RuleChecker::is_move_valid(*this, move3))
-                  moves.push_back(std::make_shared<QuietMove>(move3));
-                if (RuleChecker::is_move_valid(*this, move2))
-                  moves.push_back(std::make_shared<QuietMove>(move2));
-
-              }
               temp = x2;
               x2 = -y2;
               y1 = temp;
+              }
             }
             break;
           }
