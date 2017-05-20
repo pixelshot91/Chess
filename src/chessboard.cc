@@ -333,6 +333,7 @@ bool ChessBoard::is_attacked(plugin::Color color,
   return false;
 }
 
+/*
 std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Color playing_color) const
 {
   std::vector<std::shared_ptr<Move>> moves;
@@ -484,6 +485,7 @@ plugin::Position pos_2(
 
   return moves;
 }
+*/
 
 void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const
 {

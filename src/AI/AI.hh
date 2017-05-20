@@ -42,7 +42,9 @@ class AI : public Player
     ChessBoard board_;
     std::vector<std::shared_ptr<Move>> scripted_moves_;
     
-    std::vector<ChessBoard*> history_board_;
+    std::vector<ChessBoard*> temporary_history_board_;
+    std::vector<ChessBoard::board_t> permanent_history_board_;
+
     int max_depth_ = 3;
     unsigned int fixed_board_ = 0;
 

@@ -402,18 +402,24 @@ bool RuleChecker::isCheck(const ChessBoard& board, plugin::Position king_pos)
   return false;
 }*/
 
-bool RuleChecker::three_fold_repetition(const std::vector<ChessBoard*> vec)
+bool RuleChecker::three_fold_repetition(const std::vector<ChessBoard::board_t> permanent, const std::vector<ChessBoard*> temp)
 {
   int counter = 0;
-  const ChessBoard::board_t& last_board = vec.back()->board_get();
-  for (auto it = vec.rbegin() + 1; it != vec.rend(); ++it) {
+  const ChessBoard::board_t& last_board = temp.back()->board_get();
+  for (auto it = temp.rbegin() + 1; it != temp.rend(); ++it) {
     if ((*it)->board_get() == last_board) {
       if (counter == 1)
         return true;
       ++counter;
     }
   }
+  for (auto it = permanent.rbegin(); it != permanent.rend(); ++it) {
+    if (*it == last_board) {
+      if (counter == 1)
+        return true;
+      ++counter;
+    }
+  }
   return false;
-
 }
 

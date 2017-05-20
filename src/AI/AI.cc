@@ -31,6 +31,7 @@ std::string AI::play_next_move(const std::string& received_move)
     auto opponent_move = Parser::parse_uci(move, opponent_color_, board_);
     //std::cerr << "opponent played " << *opponent_move << std::endl;
     board_.apply_move(*opponent_move);
+    permanent_history_board_.push_back(board_.board_get());
   }
   if (scripted_moves_.size() != 0)
   {
@@ -50,7 +51,7 @@ std::string AI::play_next_move(const std::string& received_move)
   else {
     best_move_ = nullptr;
 
-    history_board_.push_back(&board_);
+    temporary_history_board_.push_back(&board_);
     board_.pretty_print();
     auto best_move_value = minimax(0, color_, -10000000, 10000000);
     if (best_move_ == nullptr)
@@ -59,9 +60,10 @@ std::string AI::play_next_move(const std::string& received_move)
       std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
       best_move_ = moves[0];
     }
-    history_board_.pop_back();
+    temporary_history_board_.pop_back();
     //std::cerr << "best move is : " << *best_move_ << std::endl << "its value is " << best_move_value << std::endl;
     board_.apply_move(*best_move_);
+    permanent_history_board_.push_back(board_.board_get());
     std::string input = best_move_->to_an();
     //exit(43);
     return input;
@@ -225,7 +227,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 {
   /*std::cerr << "depth = " << depth << std::endl;
   std::cerr << "playing color = " << playing_color << std::endl;*/
-  const ChessBoard& board = *(history_board_[fixed_board_ + depth]);
+  const ChessBoard& board = *(temporary_history_board_[depth]);
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
   if (moves.size() == 0)
   {
@@ -235,8 +237,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     else
       return 0;
   }
-  /*if (RuleChecker::three_fold_repetition(history_board_))
-    return 0;*/
 
   if (depth >= max_depth_)
   {
@@ -265,8 +265,18 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     ChessBoard tmp = ChessBoard(board);
 
     tmp.apply_move(move);
+    temporary_history_board_.push_back(&tmp);
+    if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
+      temporary_history_board_.pop_back();
+      /*std::cerr << "threefold _repietition" << std::endl;
+      tmp.pretty_print();
+      std::cerr << "permanent history :" << permanent_history_board_.size() << std::endl;
+      for (auto b : temporary_history_board_)
+        b->pretty_print();
+      exit(43);*/
+      return 0;
+    }
     int move_value;
-    history_board_.push_back(&tmp);
     try {
       move_value = -minimax(depth + 1, !playing_color, -B, -A);
 
@@ -295,25 +305,20 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
       best_move_value = move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
-        //std::cerr << "best_move so far is " << *best_move_ << std::endl;
+        std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
 
       if (A > move_value) {
         A = move_value;
         if (A >= B) {
-          history_board_.pop_back();
-          //std::cerr << "Alpha beta pruning" << std::endl;
+          temporary_history_board_.pop_back();
           break;
         }
       }
 
     }
-    //if (!in_check)
-      history_board_.pop_back();
-    //Undo Move
+    temporary_history_board_.pop_back();
   }
-  /* }
-  }*/
   //julien est bete ohhhhhhhh! non mais on l'aime notre juju :D
   return best_move_value;
 }
