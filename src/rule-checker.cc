@@ -6,12 +6,12 @@ char operator~(plugin::Color c)
   return static_cast<bool>(c) ? 'B' : 'W';
 }
 
-std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
+/*std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
 {
   o << (char)(static_cast<char>(p.file_get()) + 'A')
     << (char)(static_cast<char>(p.rank_get()) + '1');
   return o;
-}
+}*/
 
 bool RuleChecker::invalid_move(std::string reason)
 {
@@ -199,9 +199,9 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, Move& move)
       static_cast<char>(king_pos.file_get()); // No piece between King and Rook
     char dir_x = (d_file > 0) ? 1 : -1;
     for (char file = static_cast<char>(king_pos.file_get()) + dir_x;
-        file + dir_x != static_cast<char>(rook_pos.file_get()); file += dir_x)
+        file != static_cast<char>(rook_pos.file_get()); file += dir_x)
     {
-      /* std::cerr << "checking : "
+       /*std::cerr << "checking : "
          << plugin::Position(
          static_cast<plugin::File>(file),
          static_cast<plugin::Rank>(king_pos.rank_get()))
