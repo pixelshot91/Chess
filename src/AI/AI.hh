@@ -6,7 +6,6 @@
 #include "chessboard.hh"
 #include "player.hh"
 
-
 #include <experimental/optional>
 #include <iomanip>
 #include <memory>
@@ -29,12 +28,13 @@ class AI : public Player
 
     int evaluate(const ChessBoard& board);
 
-    int count_isolated(const ChessBoard& board, plugin::Color color);
+    int count_isolated(plugin::Color color);
     int count_doubled(const ChessBoard& board, plugin::Color color);
     //int count_backward(const ChessBoard& board, plugin::Color color);
     int king_tropism(const ChessBoard& board, plugin::Color color);
     int board_material(const ChessBoard& board);
-    int board_bonus_position(const ChessBoard& board);
+    //int board_bonus_position(const ChessBoard& board);
+    int evaluation_function(const ChessBoard& board);
     int get_piece_bonus_position(plugin::PieceType piece, int i, int j);
 
     const plugin::Color opponent_color_;
@@ -49,9 +49,13 @@ class AI : public Player
     //double time
     unsigned int fixed_board_ = 0;
 
-    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board =
+    int king_zone_attack(plugin::Position king_pos, std::experimental::optional<plugin::PieceType> piece_type, int value_of_attack, int i, int j);
+    int pawn_shield(const ChessBoard& board, plugin::Position king_pos);
+ 
+   const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {
-       0, 0, 0, 0, 0, 0, 0, 0,
+       //0, 0, 0, 0, 0, 0, 0, 0,
+       70, 70, 70, 70, 70, 70, 70, 70,
        50, 50, 50, 50, 50, 50, 50, 50,
        10, 10, 20, 30, 30, 20, 10, 10,
        5, 5, 10, 25, 25, 10, 5, 5,
@@ -133,6 +137,23 @@ class AI : public Player
        -30, -10, 20, 30, 30, 20, -10, -30,
        -30, -30, 0, 0, 0, 0, -30, -30,
        -50, -30, -30, -30, -30, -30, -30, -50
+    };
+
+    const std::array<std::array<eval_cell_t, 8>, 8> center_manhattan_distance =
+    {
+      6, 5, 4, 3, 3, 4, 5, 6,
+      5, 4, 3, 2 ,2, 3, 4, 5,
+      4, 3, 2, 1, 1, 2, 3, 4,
+      3, 2, 1, 0, 0, 1, 2, 3,
+      3, 2, 1, 0, 0, 1, 2, 3,
+      4, 3, 2, 1, 1, 2, 3, 4,
+      5, 4, 3, 2, 2, 3, 4, 5,
+      6, 5, 4, 3, 3, 4, 5, 6
+    };
+
+    const std::array<eval_cell_t, 7> attack_weight =
+    {
+      0, 50, 75, 88, 94, 97, 99 // King Safety wikiprog
     };
 
 };
