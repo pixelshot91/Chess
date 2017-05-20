@@ -235,6 +235,7 @@ void ChessBoard::pretty_print() const {
       auto pos = plugin::Position((plugin::File)j, (plugin::Rank)i);
       auto piece = piecetype_get(pos);
       if ((i + j) % 2 == 0)
+        //std::cout << "\x1B[30;48;5;95m";
         std::cout << "\x1B[07m";
       std::cout << " ";
       if (piece == std::experimental::nullopt)

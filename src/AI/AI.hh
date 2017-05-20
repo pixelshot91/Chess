@@ -6,6 +6,7 @@
 #include "chessboard.hh"
 #include "player.hh"
 
+#include <cmath>
 #include <experimental/optional>
 #include <iomanip>
 #include <memory>
@@ -48,6 +49,7 @@ class AI : public Player
     int max_depth_ = 3;
     //double time
     unsigned int fixed_board_ = 0;
+    double c_ = 5 / std::pow(20, 3);
 
     int king_zone_attack(plugin::Position king_pos, std::experimental::optional<plugin::PieceType> piece_type, int value_of_attack, int i, int j);
     int pawn_shield(const ChessBoard& board, plugin::Position king_pos);
