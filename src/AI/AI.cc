@@ -89,7 +89,7 @@ std::string AI::play_next_move(const std::string& received_move)
     board_.apply_move(*best_move_);
     permanent_history_board_.push_back(board_.board_get());
     std::string input = best_move_->to_an();
-    exit(43);
+    //exit(43);
     return input;
   }
 }
