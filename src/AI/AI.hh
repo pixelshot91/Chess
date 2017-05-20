@@ -41,14 +41,15 @@ class AI : public Player
     std::shared_ptr<Move> best_move_;
     ChessBoard board_;
     std::vector<std::shared_ptr<Move>> scripted_moves_;
-    
+
     std::vector<ChessBoard*> temporary_history_board_;
     std::vector<ChessBoard::board_t> permanent_history_board_;
 
     int max_depth_ = 3;
+    //double time
     unsigned int fixed_board_ = 0;
 
-    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
+    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board =
     {
        0, 0, 0, 0, 0, 0, 0, 0,
        50, 50, 50, 50, 50, 50, 50, 50,

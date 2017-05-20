@@ -53,7 +53,20 @@ std::string AI::play_next_move(const std::string& received_move)
 
     temporary_history_board_.push_back(&board_);
     board_.pretty_print();
-    auto best_move_value = minimax(0, color_, -10000000, 10000000);
+    double time = 0;
+    {
+      scoped_timer timer(time);
+      auto best_move_value = minimax(0, color_, -10000000, 10000000);
+    }
+    if (time < 1) {
+      max_depth_++;
+      std::cerr << "New max_depth is " << max_depth_ << std::endl;
+    }
+    else if (time > 5) {
+      max_depth_--;
+      std::cerr << "New max_depth is " << max_depth_ << std::endl;
+    }
+    std::cout << "Time is : " << time << "s" << std::endl;
     if (best_move_ == nullptr)
     {
       std::cerr << "I am doomed" << std::endl;
@@ -225,7 +238,7 @@ int AI::evaluate(const ChessBoard& board)
 
 int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
 {
-  /*std::cerr << "depth = " << depth << std::endl;
+        /*std::cerr << "depth = " << depth << std::endl;
   std::cerr << "playing color = " << playing_color << std::endl;*/
   const ChessBoard& board = *(temporary_history_board_[depth]);
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
@@ -247,7 +260,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
   }
 
   int best_move_value = -10000000;
-
 
   /*for (auto i = 0; i < 8; i++)
     {
@@ -279,7 +291,6 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     int move_value;
     try {
       move_value = -minimax(depth + 1, !playing_color, -B, -A);
-
     }
     catch (std::invalid_argument e) {
       std::cerr << "Move is " << move << std::endl;
