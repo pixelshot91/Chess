@@ -41,7 +41,7 @@ public:
 
   //std::vector<Piece*> get_piece(plugin::Color color);
   std::vector<std::shared_ptr<Move>> get_possible_actions(plugin::Color color) const;
-  void push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const;
+  void push_move(std::vector<std::shared_ptr<Move>>& moves, QuietMove move) const;
 
   //History history_get() const;
   const std::shared_ptr<Move> last_move_get() const;

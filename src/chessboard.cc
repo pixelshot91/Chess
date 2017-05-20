@@ -480,9 +480,10 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
   return moves;
 }
 
-void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const
+void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, QuietMove move) const
 {
-  moves.push_back(std::make_shared<QuietMove>(move));
+  if (RuleChecker::is_move_valid(*this, move))
+    moves.push_back(std::make_shared<QuietMove>(move));
 }
 
 /*

@@ -89,7 +89,7 @@ std::string AI::play_next_move(const std::string& received_move)
     board_.apply_move(*best_move_);
     permanent_history_board_.push_back(board_.board_get());
     std::string input = best_move_->to_an();
-    //exit(43);
+    exit(43);
     return input;
   }
 }
@@ -468,7 +468,7 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
   /*std::cerr << "depth = " << depth << std::endl;
     std::cerr << "playing color = " << playing_color << std::endl;*/
   const ChessBoard& board = *(temporary_history_board_[depth]);
-  std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
+  std::vector<std::shared_ptr<Move>> moves = /*board.get_possible_actions(playing_color);*/RuleChecker::possible_moves(board, playing_color);
   if (moves.size() == 0)
   {
     auto playing_king_position = board.get_king_position(playing_color);
