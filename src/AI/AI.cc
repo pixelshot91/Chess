@@ -279,7 +279,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     history_board_.push_back(&tmp);
       //tmp.pretty_print();
     try {
-      move_value = -minimax(depth + 1, !playing_color, -A, -B);
+      move_value = -minimax(depth + 1, !playing_color, -B, -A);
 
     }
     catch (std::invalid_argument e) {
@@ -309,7 +309,7 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
         std::cerr << "best_move so far is " << *best_move_ << std::endl;
       }
 
-      if (A < move_value) {
+      if (A > move_value) {
         A = move_value;
         if (A >= B) {
           history_board_.pop_back();
