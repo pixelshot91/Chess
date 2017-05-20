@@ -303,14 +303,14 @@ std::vector<std::shared_ptr<Move>> RuleChecker::possible_moves(const ChessBoard&
                 static_cast<plugin::Rank>(y));
             for (int attack = 0; attack <= 0; ++attack)
             {
-              /*if (board.piecetype_get(start_pos) == plugin::PieceType::PAWN)
-                {
+              if (board.piecetype_get(start_pos) == plugin::PieceType::PAWN)
+              {
                 QuietMove quiet_move(color, start_pos, end_pos,
-                board.piecetype_get(start_pos).value(),
-                attack, false, 1);
+                    board.piecetype_get(start_pos).value(),
+                    attack, false, 1);
                 if (RuleChecker::is_move_valid(board, quiet_move))
-                moves.push_back(std::make_shared<QuietMove>(quiet_move));
-                }*/
+                  moves.push_back(std::make_shared<QuietMove>(quiet_move));
+              }
               QuietMove quiet_move(color, start_pos, end_pos,
                   board.piecetype_get(start_pos).value(),
                   attack, false);

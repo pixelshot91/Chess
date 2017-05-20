@@ -94,31 +94,6 @@ std::string AI::play_next_move(const std::string& received_move)
   }
 }
 
-/*
-   int GameControl::Evaluate(ChessBoard _B)
-   {
-   int material=0,bonus=0,mobility=0;
-   for(int i=0;i < 8; i++)
-   for(int j = 0; j < 8; j++)
-   {
-   if(_B.Board[i][j]!=EMPTY)
-   {
-   if(_B.Board[i][j]->pieceColor==WHITE){
-   material+=-_B.Board[i][j]->Weight;
-   bonus+=-_B.Board[i][j]->bonusPosition[i][j];
-   mobility+=-_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
-   }
-   else {
-   material+=_B.Board[i][j]->Weight;
-   bonus+=_B.Board[i][j]->bonusPosition[i][j];
-   mobility+=_B.Board[i][j]->getPossibleMovesList(i,j,B).size();
-   }
-   }
-   }
-   return material+bonus/10+mobility/20;
-   }
-   */
-
 int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
 {
   switch (piece)
@@ -140,7 +115,6 @@ int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
   }
 }
 
-/*
 int AI::board_bonus_position(const ChessBoard& board)
 {
   //int material = 0;
@@ -187,12 +161,11 @@ int AI::board_bonus_position(const ChessBoard& board)
   }
 
   return 900 * queen + 500 * rook + 300 * bishop + 300 * knight + 100 * pawn + 0.5 * bonus_pos;
-}*/
+}
 
 
 int AI::evaluation_function(const ChessBoard& board)
 {
-  int piece_material = 0;
   //int bonus = 0;
   int king_tropism = 0;
   int bonus_pos = 0;
@@ -211,10 +184,10 @@ int AI::evaluation_function(const ChessBoard& board)
   bool left_king_file_empty = true;
   bool right_king_file_empty = true;
 
-  static int piece_attacking = 0;
+  /*static int piece_attacking = 0;
   static int value_of_attack = 0;
   static int opponent_value_of_attack = 0;
-  static int opponent_piece_attacking = 0;
+  static int opponent_piece_attacking = 0;*/
 
   for (auto i = 0; i < 8; i++)
   {
@@ -239,10 +212,10 @@ int AI::evaluation_function(const ChessBoard& board)
       {
 
         /* Attacking Our King Zone */
-        if (piece_color == opponent_color_)
+        /*if (piece_color == opponent_color_)
           value_of_attack = king_zone_attack(king_pos, piece_type, value_of_attack, i, j);
         else
-          opponent_value_of_attack = king_zone_attack(op_king_pos, piece_type, opponent_value_of_attack, i, j); 
+          opponent_value_of_attack = king_zone_attack(op_king_pos, piece_type, opponent_value_of_attack, i, j); */
 
         /* Calculating king file disadvantage */
         if (j == king_file - 1)
@@ -297,19 +270,19 @@ int AI::evaluation_function(const ChessBoard& board)
               break;
           }
         }
-
+/*
         if (piece_color == plugin::Color::BLACK)
           bonus_pos += get_piece_bonus_position(piece_type.value(), i, j);
         else
           bonus_pos += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);
 
+      */}
    
   /**************************************
   * 
   * Double count
   *
   ***************************************/
-      }
         auto double_piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
               static_cast<plugin::Rank>(j)));
         auto double_piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
@@ -335,25 +308,25 @@ int AI::evaluation_function(const ChessBoard& board)
   * Material Adjustement
   *
   ***************************************/
-
+  int material_bonus = 0;
   if (bishop > 1)
-    bishop += 50;
+    material_bonus += 50;
   if (op_bishop > 1)
-    op_bishop += 50;
+    material_bonus -= 50;
   if (rook > 1)
-    rook -= 15;
+    material_bonus -= 15;
   if (op_rook > 1)
-    op_rook -= 15;
+    material_bonus += 15;
   if (knight > 1)
-    knight -= 20;
+    material_bonus -= 20;
   if (op_knight > 1)
-    knight -= 20;
+    material_bonus += 20;
 
   // lack of pawns
   if (!pawn)
-    pawn -= 10;
+    material_bonus -= 10;
   if (!op_pawn)
-    op_pawn -=10;
+    material_bonus +=10;
 
   /**************************************
   * 
@@ -379,17 +352,18 @@ int AI::evaluation_function(const ChessBoard& board)
 
   /******************/
 
-  int attacking_king_zone = value_of_attack * attack_weight[piece_attacking]/ 100;
-  int opponent_attacking_king_zone = opponent_value_of_attack * attack_weight[opponent_piece_attacking] / 100;
+  //int attacking_king_zone = value_of_attack * attack_weight[piece_attacking]/ 100;
+  //int opponent_attacking_king_zone = opponent_value_of_attack * attack_weight[opponent_piece_attacking] / 100;
+  //std::cerr << "there is " << queen << " queen" << std::endl;
   
-  piece_material = 900 * (queen - op_queen) + 500 * (rook - op_rook) + 300 * (bishop - op_bishop) + 300 * (knight - op_knight) + 100 * (pawn - op_knight);
+  int piece_material = 900 * (queen - op_queen) + 500 * (rook - op_rook) + 300 * (bishop - op_bishop) + 300 * (knight - op_knight) + 100 * (pawn - op_pawn);
 
-  return piece_material 
+  return piece_material
          + 0.5 * bonus_pos 
          + king_tropism 
          - 50 * (double_count - op_double_count + count_isolated(color_) - count_isolated(opponent_color_))
-         - king_file_malus
-         + (opponent_attacking_king_zone - attacking_king_zone);
+         - king_file_malus;
+       //  + (opponent_attacking_king_zone - attacking_king_zone);
 
 }
 
@@ -488,8 +462,8 @@ int AI::evaluate(const ChessBoard& board)
 {
   /*std::cerr << "Evaluation of " << std::endl;
   board.pretty_print();*/
-/*  int material_bonus_position = board_bonus_position(board);
-  int king_trop = king_tropism(board, color_) - king_tropism(board, opponent_color_);
+ //int material_bonus_position = board_bonus_position(board);
+  /*int king_trop = king_tropism(board, color_) - king_tropism(board, opponent_color_);
   int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
   int isolated = count_isolated(board, color_) - count_isolated(board,
 opponent_color_);*/
@@ -502,7 +476,7 @@ opponent_color_);*/
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
-//  return score / 50;
+  //return material_bonus_position / 50;
 }
 
 int AI::minimax(int depth, plugin::Color playing_color, int A, int B)

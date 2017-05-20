@@ -34,7 +34,7 @@ class AI : public Player
     //int count_backward(const ChessBoard& board, plugin::Color color);
     int king_tropism(const ChessBoard& board, plugin::Color color);
     int board_material(const ChessBoard& board);
-    //int board_bonus_position(const ChessBoard& board);
+    int board_bonus_position(const ChessBoard& board);
     int evaluation_function(const ChessBoard& board);
     int get_piece_bonus_position(plugin::PieceType piece, int i, int j);
 
@@ -56,8 +56,8 @@ class AI : public Player
  
    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {
-       //0, 0, 0, 0, 0, 0, 0, 0,
-       70, 70, 70, 70, 70, 70, 70, 70,
+       0, 0, 0, 0, 0, 0, 0, 0,
+       //70, 70, 70, 70, 70, 70, 70, 70,
        50, 50, 50, 50, 50, 50, 50, 50,
        10, 10, 20, 30, 30, 20, 10, 10,
        5, 5, 10, 25, 25, 10, 5, 5,
