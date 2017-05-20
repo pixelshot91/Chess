@@ -4,8 +4,8 @@
 #include "parser.hh"
 #include <experimental/random>
 
-AI::AI(plugin::Color color) 
-  : Player(color) 
+AI::AI(plugin::Color color)
+  : Player(color)
     , opponent_color_(!color)
     , best_move_(nullptr)
     , board_()
@@ -217,7 +217,7 @@ int AI::evaluate(const ChessBoard& board)
 
   int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
   //int score = material;
-  /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position 
+  /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
   return score / 50;
 }
@@ -228,7 +228,10 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
   std::cerr << "playing color = " << playing_color << std::endl;*/
   if (depth >= max_depth_)
   {
-    return evaluate(*history_board_[fixed_board_ + depth]);
+    int ret = evaluate(*history_board_[fixed_board_ + depth]);
+    if (depth % 2)
+      return -ret;
+    return ret;
   }
 
   int best_move_value = -10000000;
@@ -244,12 +247,11 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     continue;*/
 
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
-  int positive_if_ai_color = (playing_color == color_) ? 1 : -1;
   if (moves.size() == 0)
   {
     auto playing_king_position = board.get_king_position(playing_color);
     if (RuleChecker::isCheck(board, playing_king_position))
-      return -100000 * positive_if_ai_color;
+      return -100000;
     else
       return 0;
   }
@@ -276,7 +278,8 @@ int AI::minimax(int depth , plugin::Color playing_color, int A, int B)
     history_board_.push_back(&tmp);
       //tmp.pretty_print();
     try {
-      move_value = -minimax(depth + 1, !playing_color, -A, -B);
+      move_value = -minimax(depth + 1, !playing_color, -B, -A);
+
     }
     catch (std::invalid_argument e) {
       std::cerr << "Move is " << move << std::endl;
