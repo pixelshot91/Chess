@@ -334,7 +334,6 @@ bool ChessBoard::is_attacked(plugin::Color color,
   return false;
 }
 
-/*
 std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Color playing_color) const
 {
   std::vector<std::shared_ptr<Move>> moves;
@@ -428,11 +427,8 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
               if (i + ~file < 0 or 7 < ~file + i or ~rank + j < 0 or 7 < ~rank +j)
                 continue;
               {
-                plugin::Position pos_1(
-                    static_cast<plugin::File>(
-                      x1 +  ~file),
-                    static_cast<plugin::Rank>(y1 +
-                      ~rank));
+                plugin::Position pos_1(static_cast<plugin::File>(x1 +  ~file),
+                    static_cast<plugin::Rank>(y1 + ~rank));
                 push_move(moves, QuietMove(color_piece, position, pos_1, piece_type));
 
                 temp = x1;
@@ -444,16 +440,13 @@ std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Colo
                 continue;
               {
 
-plugin::Position pos_2(
-                    static_cast<plugin::File>(
-                      x2 +  ~file),
-                    static_cast<plugin::Rank>(y2 +
-                      ~rank));
+                plugin::Position pos_2(static_cast<plugin::File>(x2 +  ~file),
+                    static_cast<plugin::Rank>(y2 + ~rank));
                 push_move(moves, QuietMove(color_piece, position, pos_2, piece_type));
 
-              temp = x2;
-              x2 = -y2;
-              y1 = temp;
+                temp = x2;
+                x2 = -y2;
+                y1 = temp;
               }
             }
             break;
@@ -486,7 +479,6 @@ plugin::Position pos_2(
 
   return moves;
 }
-*/
 
 void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const
 {

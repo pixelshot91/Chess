@@ -5,10 +5,10 @@
 #include <experimental/random>
 
 AI::AI(plugin::Color color) 
-    : Player(color) 
-    , opponent_color_(!color)
-    , best_move_(nullptr)
-    , board_()
+  : Player(color) 
+  , opponent_color_(!color)
+  , best_move_(nullptr)
+  , board_()
     , scripted_moves_()
 {
   std::cerr << "my color is " << color_ << " and my opponent color is " << opponent_color_ << std::endl;
@@ -37,7 +37,7 @@ std::string AI::play_next_move(const std::string& received_move)
   {
     std::cerr << "PLAY NEXT MOVE AI moves are : " << std::endl;
     /*for (auto m : scripted_moves_)
-    std::cerr << *m << std::endl;*/
+      std::cerr << *m << std::endl;*/
 
     auto move = scripted_moves_.front();
     std::cerr << "Playing scripted move " << *move << std::endl;
@@ -72,11 +72,11 @@ std::string AI::play_next_move(const std::string& received_move)
     /*if (time < 1) {
       max_depth_++;
       std::cerr << "New max_depth is " << max_depth_ << std::endl;
-    }
-    else if (time > 5) {
+      }
+      else if (time > 5) {
       max_depth_--;
       std::cerr << "New max_depth is " << max_depth_ << std::endl;
-    }*/
+      }*/
     std::cout << "Time is : " << time << "s" << std::endl;
     if (best_move_ == nullptr)
     {
@@ -122,9 +122,9 @@ int AI::board_bonus_position(const ChessBoard& board)
   int bonus_pos = 0;
   int pawn = 0, queen = 0, rook = 0, bishop = 0, knight = 0;
 
-    for (auto j = 0; j < 8; j++)
+  for (auto j = 0; j < 8; j++)
   {
-  for (auto i = 0; i < 8; i++)
+    for (auto i = 0; i < 8; i++)
     {
       auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       auto piece_type = board.piecetype_get(pos);
@@ -136,7 +136,7 @@ int AI::board_bonus_position(const ChessBoard& board)
         switch(piece_type.value()) {
           case plugin::PieceType::PAWN:
             pawn += positive_if_ai_color;
-          break;
+            break;
           case plugin::PieceType::QUEEN:
             queen += positive_if_ai_color;
             break;
@@ -172,8 +172,6 @@ int AI::evaluation_function(const ChessBoard& board)
   int pawn = 0, queen = 0, rook = 0, bishop = 0, knight = 0;
   int op_pawn = 0, op_queen = 0, op_rook = 0, op_bishop = 0, op_knight = 0;
 
-  int double_count = 0;
-  int op_double_count = 0;
 
 
   auto king_pos = board.get_king_position(color_);
@@ -185,26 +183,27 @@ int AI::evaluation_function(const ChessBoard& board)
   bool right_king_file_empty = true;
 
   /*static int piece_attacking = 0;
-  static int value_of_attack = 0;
-  static int opponent_value_of_attack = 0;
-  static int opponent_piece_attacking = 0;*/
+    static int value_of_attack = 0;
+    static int opponent_value_of_attack = 0;
+    static int opponent_piece_attacking = 0;*/
 
+  int double_count = 0;
+  int op_double_count = 0;
   for (auto i = 0; i < 8; i++)
   {
-    bool double_present = false;
-    bool op_double_present = false;
- 
+    int nb_pawn_file = 0;
+    int op_nb_pawn_file = 0;
     for (auto j = 0; j < 8; j++)
     {
       auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
       auto piece_type = board.piecetype_get(pos);
       auto piece_color = board.color_get(pos);
 
-  /**************************************
-  * 
-  * Material Count and King Tropism Count
-  *
-  ***************************************/
+      /**************************************
+       * 
+       * Material Count and King Tropism Count
+       *
+       ***************************************/
 
       auto dist = auxiliary::distance(pos, king_pos);
 
@@ -214,7 +213,7 @@ int AI::evaluation_function(const ChessBoard& board)
         /* Attacking Our King Zone */
         /*if (piece_color == opponent_color_)
           value_of_attack = king_zone_attack(king_pos, piece_type, value_of_attack, i, j);
-        else
+          else
           opponent_value_of_attack = king_zone_attack(op_king_pos, piece_type, opponent_value_of_attack, i, j); */
 
         /* Calculating king file disadvantage */
@@ -228,7 +227,8 @@ int AI::evaluation_function(const ChessBoard& board)
           switch(piece_type.value()) {
             case plugin::PieceType::PAWN:
               pawn++;
-            break;
+              nb_pawn_file++;
+              break;
             case plugin::PieceType::QUEEN:
               queen++;
               dist *= 2;
@@ -253,7 +253,8 @@ int AI::evaluation_function(const ChessBoard& board)
           switch(piece_type.value()) {
             case plugin::PieceType::PAWN:
               op_pawn++;
-            break;
+              op_nb_pawn_file++;
+              break;
             case plugin::PieceType::QUEEN:
               op_queen++;
               break;
@@ -270,57 +271,40 @@ int AI::evaluation_function(const ChessBoard& board)
               break;
           }
         }
-/*
         if (piece_color == plugin::Color::BLACK)
           bonus_pos += get_piece_bonus_position(piece_type.value(), i, j);
         else
           bonus_pos += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);
+      }
 
-      */}
-   
-  /**************************************
-  * 
-  * Double count
-  *
-  ***************************************/
-        auto double_piece_type = board.piecetype_get(plugin::Position(static_cast<plugin::File>(i),
-              static_cast<plugin::Rank>(j)));
-        auto double_piece_color = board.color_get(plugin::Position(static_cast<plugin::File>(i),
-              static_cast<plugin::Rank>(j)));
-
-        if (double_piece_type != std::experimental::nullopt)
-        {
-          if (!double_present && (double_piece_type == plugin::PieceType::PAWN) && (double_piece_color == color_))
-            double_present = true;
-          else if (!op_double_present && (double_piece_type == plugin::PieceType::PAWN))
-            op_double_present = true;
-          else if (double_piece_type == plugin::PieceType::PAWN && double_piece_color == color_)
-            double_count++;
-          else if (double_piece_type == plugin::PieceType::PAWN)
-            op_double_count++;
-        }
-        king_tropism += dist;
+      king_tropism += dist;
     }
+
+    if (nb_pawn_file >= 2) // Double count
+      double_count++;
+    if (op_nb_pawn_file >= 2)
+      op_double_count++;
+
   }
 
   /**************************************
-  * 
-  * Material Adjustement
-  *
-  ***************************************/
+   * 
+   * Material Adjustement
+   *
+   ***************************************/
   int material_bonus = 0;
   if (bishop > 1)
     material_bonus += 50;
   if (op_bishop > 1)
     material_bonus -= 50;
-  if (rook > 1)
+  /*if (rook > 1)
     material_bonus -= 15;
-  if (op_rook > 1)
+    if (op_rook > 1)
     material_bonus += 15;
-  if (knight > 1)
+    if (knight > 1)
     material_bonus -= 20;
-  if (op_knight > 1)
-    material_bonus += 20;
+    if (op_knight > 1)
+    material_bonus += 20;*/
 
   // lack of pawns
   if (!pawn)
@@ -329,20 +313,20 @@ int AI::evaluation_function(const ChessBoard& board)
     material_bonus +=10;
 
   /**************************************
-  * 
-  * Pawn shield
-  *
-  ***************************************/
+   * 
+   * Pawn shield
+   *
+   ***************************************/
 
-  pawn += pawn_shield(board, king_pos);
-  op_pawn += pawn_shield(board, op_king_pos);
+  material_bonus += pawn_shield(board, king_pos);
+  material_bonus -= pawn_shield(board, op_king_pos);
 
 
   /*************************************
-  *
-  * Open files near king
-  *
-  *************************************/
+   *
+   * Open files near king
+   *
+   *************************************/
 
   if (!left_king_file_empty && !right_king_file_empty)
     king_file_malus = 60;
@@ -355,15 +339,15 @@ int AI::evaluation_function(const ChessBoard& board)
   //int attacking_king_zone = value_of_attack * attack_weight[piece_attacking]/ 100;
   //int opponent_attacking_king_zone = opponent_value_of_attack * attack_weight[opponent_piece_attacking] / 100;
   //std::cerr << "there is " << queen << " queen" << std::endl;
-  
+
   int piece_material = 900 * (queen - op_queen) + 500 * (rook - op_rook) + 300 * (bishop - op_bishop) + 300 * (knight - op_knight) + 100 * (pawn - op_pawn);
 
-  return piece_material
-         + 0.5 * bonus_pos 
-         + king_tropism 
-         - 50 * (double_count - op_double_count + count_isolated(color_) - count_isolated(opponent_color_))
-         - king_file_malus;
-       //  + (opponent_attacking_king_zone - attacking_king_zone);
+  return piece_material + material_bonus 
+    + 0.5 * bonus_pos 
+    + king_tropism 
+    - 50 * (double_count - op_double_count + count_isolated(color_) - count_isolated(opponent_color_))
+    - king_file_malus;
+  //  + (opponent_attacking_king_zone - attacking_king_zone);
 
 }
 
@@ -422,38 +406,38 @@ int AI::pawn_shield(const ChessBoard& board, plugin::Position king_pos)
 
 
 /*int AI::board_material(const ChessBoard& board)
-{
+  {
   int piece_nb[6] = {0};
   int piece_weight[6] = {1000, 9, 5, 3, 3, 1};
   int score = 0;
 
   for (auto i = 0; i < 8; i++)
   {
-    for (auto j = 0; j < 8; j++)
-    {
-      auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
-
-    }
-  }*/
-
-
-  /*for (int i = 0; i < 6; ++i)
+  for (auto j = 0; j < 8; j++)
   {
-    auto type = plugin::piecetype_array()[i];
-    piece_nb[i] = piece_numbers(board, type, color_) - piece_numbers(board, type, opponent_color_);
-    if (i == 0 and piece_nb[0])
-    {
-      board.pretty_print();
-      std::cerr << "a king is missing" << std::endl;
-      std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
-      throw std::invalid_argument("A king is dead");
-    }
+  auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
 
-
-    //std::cerr << type << " = " << piece_nb[i] << std::endl;
-    score += 100 * piece_weight[i] * piece_nb[i];
+  }
   }*/
-  //return score; // backward
+
+
+/*for (int i = 0; i < 6; ++i)
+  {
+  auto type = plugin::piecetype_array()[i];
+  piece_nb[i] = piece_numbers(board, type, color_) - piece_numbers(board, type, opponent_color_);
+  if (i == 0 and piece_nb[0])
+  {
+  board.pretty_print();
+  std::cerr << "a king is missing" << std::endl;
+  std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
+  throw std::invalid_argument("A king is dead");
+  }
+
+
+//std::cerr << type << " = " << piece_nb[i] << std::endl;
+score += 100 * piece_weight[i] * piece_nb[i];
+}*/
+//return score; // backward
 //}
 
 
@@ -461,28 +445,28 @@ int AI::pawn_shield(const ChessBoard& board, plugin::Position king_pos)
 int AI::evaluate(const ChessBoard& board)
 {
   /*std::cerr << "Evaluation of " << std::endl;
-  board.pretty_print();*/
- //int material_bonus_position = board_bonus_position(board);
+    board.pretty_print();*/
   /*int king_trop = king_tropism(board, color_) - king_tropism(board, opponent_color_);
-  int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
-  int isolated = count_isolated(board, color_) - count_isolated(board,
-opponent_color_);*/
+    int doubled = count_doubled(board, color_) - count_doubled(board, opponent_color_);
+    int isolated = count_isolated(board, color_) - count_isolated(board,
+    opponent_color_);*/
   /*plugin::Position king_position = board_.get_king_position(color_);
-  plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
-  int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
+    plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
+    int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
 
   return evaluation_function(board) / 50;
-//  int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
+  //  int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
-  //return material_bonus_position / 50;
+  /*int material_bonus_position = board_bonus_position(board);
+    return material_bonus_position / 50;*/
 }
 
 int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
 {
-        /*std::cerr << "depth = " << depth << std::endl;
-  std::cerr << "playing color = " << playing_color << std::endl;*/
+  /*std::cerr << "depth = " << depth << std::endl;
+    std::cerr << "playing color = " << playing_color << std::endl;*/
   const ChessBoard& board = *(temporary_history_board_[depth]);
   std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board, playing_color);
   if (moves.size() == 0)
@@ -524,11 +508,11 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
     if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
       temporary_history_board_.pop_back();
       /*std::cerr << "threefold _repietition" << std::endl;
-      tmp.pretty_print();
-      std::cerr << "permanent history :" << permanent_history_board_.size() << std::endl;
-      for (auto b : temporary_history_board_)
+        tmp.pretty_print();
+        std::cerr << "permanent history :" << permanent_history_board_.size() << std::endl;
+        for (auto b : temporary_history_board_)
         b->pretty_print();
-      exit(43);*/
+        exit(43);*/
       return 0;
     }
     int move_value;
@@ -579,26 +563,26 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
 
 
 /*int AI::piece_numbers(const ChessBoard& board, plugin::PieceType type,
-    plugin::Color color)
-{*/
-  /*std::cerr << "counting piece in " << std::endl;
+  plugin::Color color)
+  {*/
+/*std::cerr << "counting piece in " << std::endl;
   board.pretty_print();*/
 /*  int count = 0;
-  for (auto i = 0; i < 8; i++)
-  {
+    for (auto i = 0; i < 8; i++)
+    {
     for (auto j = 0; j < 8; j++)
-  {
-      plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
-      if (board.piecetype_get(pos) == std::experimental::nullopt)
-        continue;
-      auto piece_type = board.piecetype_get(pos).value();
-      auto piece_color = board.color_get(pos);
-      if (piece_type == type && piece_color == color)
-        count++;
+    {
+    plugin::Position pos(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+    if (board.piecetype_get(pos) == std::experimental::nullopt)
+    continue;
+    auto piece_type = board.piecetype_get(pos).value();
+    auto piece_color = board.color_get(pos);
+    if (piece_type == type && piece_color == color)
+    count++;
     }
-  }
-  return count;
-}*/
+    }
+    return count;
+    }*/
 
 
 
