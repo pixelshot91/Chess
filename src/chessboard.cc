@@ -1,10 +1,4 @@
 #include "chessboard.hh"
-#include "piece/bishop.hh"
-#include "piece/king.hh"
-#include "piece/knight.hh"
-#include "piece/pawn.hh"
-#include "piece/queen.hh"
-#include "piece/rook.hh"
 #include "rule-checker.hh"
 #include "plugin-auxiliary.hh"
 
@@ -26,11 +20,12 @@ ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
 }
 
 ChessBoard::ChessBoard(const ChessBoard& board)
+  : board_(board.board_)
 {
-  for (int i = 0; i < 8; ++i)
+  /*for (int i = 0; i < 8; ++i)
     for (int j = 0; j < 8; ++j)
-      board_[i][j] = board.board_[i][j];
-  last_move_ = board.last_move_;
+    board_[i][j] = board.board_[i][j];
+    last_move_ = board.last_move_;*/
 }
 
 int ChessBoard::update(std::shared_ptr<Move> move_ptr)
@@ -146,39 +141,11 @@ int ChessBoard::update(std::shared_ptr<Move> move_ptr)
     return -1;
   }
 
-
-
-  /*if (RuleChecker::isCheck(*this, opponent_king_position))
-    {
-    if (RuleChecker::isCheckmate(*this, opponent_king_position))
-    {
-    for (auto l : listeners_)
-    l->on_player_mat(opponent_color); // Checkmate
-    return -1;
-    }
-    for (auto l : listeners_)
-    l->on_player_check(opponent_color); // Check
-    }
-    else if (RuleChecker::isStalemate(*this, opponent_color))
-    {
-    for (auto l : listeners_)
-    l->on_player_pat(opponent_color);
-    for (auto l : listeners_)
-    l->on_draw();
-    return -1;
-    }*/
   if (three_fold_repetition() or inactive_turn == 50) {
     for (auto l : listeners_)
       l->on_draw();
     return -1;
   }
-
-  /*if (RuleChecker::isCheckmate(*this, get_king_position(move.color_get())))
-    {
-    for (auto l : listeners_)
-    l->on_player_check(move.color_get());
-  //throw std::invalid_argument("CHECKMATE -- in chessboard update function");
-  }*/
   return 0;
 }
 
@@ -366,360 +333,285 @@ bool ChessBoard::is_attacked(plugin::Color color,
   return false;
 }
 
-std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position) const
+std::vector<std::shared_ptr<Move>> ChessBoard::get_possible_actions(plugin::Color playing_color) const
 {
-  std::vector<Move> moves{};
-  auto color_piece = color_get(position);
-  auto piece_type = piecetype_get(position);
-  if (piece_type == std::experimental::nullopt)
-    return moves;
-
-  switch (piece_type.value())
+  std::vector<std::shared_ptr<Move>> moves;
+  for (char i = 0; i < 8; ++i)
   {
-    case plugin::PieceType::KING:
+    for (char j = 0; j < 8; ++j)
+    {
+      auto file = static_cast<plugin::File>(i);
+      auto rank = static_cast<plugin::Rank>(j);
+      plugin::Position position(file, rank);
+      char dir = (playing_color == plugin::Color::WHITE) ? 1 : -1;
+      auto color_piece = color_get(position);
+      if (color_piece != playing_color)
+        continue;
+      if (piecetype_get(position) == std::experimental::nullopt)
+        continue;//return moves;
+      plugin::PieceType piece_type = piecetype_get(position).value();
+
+      switch (piece_type)
       {
-        for (int i = -1; i < 1; i++)
-        {
-          for (int j = -1; j < 1; j++)
+        case plugin::PieceType::KING:
           {
-            if (i + static_cast<int>(position.file_get()) < 7 &&
-                i + static_cast<int>(position.file_get()) > 0 &&
-                j + static_cast<int>(position.rank_get()) < 7 &&
-                j + static_cast<int>(position.rank_get()) > 0)
+            for (int i = -1; i <= 1; i++)
+            {
+              for (int j = -1; j <= 1; j++)
+              {
+                if (i + ~file < 0 or 7 < ~file + i or ~rank + j < 0 or 7 < ~rank +j)
+                  continue;
+                plugin::Position end_pos(static_cast<plugin::File>(~file + i), static_cast<plugin::Rank>(~rank + j));
+                push_move(moves, QuietMove(color_piece, position, end_pos, piece_type);
+              }
+            }
+            Move KingCastle(Move::Type::KING_CASTLING,color_piece);
+            if(RuleChecker::is_move_valid(*this, KingCastle))
+              moves.push_back(std::make_shared<Move>(KingCastle));
+            Move QueenCastle(Move::Type::QUEEN_CASTLING,color_piece);
+            if(RuleChecker::is_move_valid(*this, QueenCastle))
+              moves.push_back(std::make_shared<Move>(QueenCastle));
+            break;
+          }
+
+        case plugin::PieceType::QUEEN:
+          {
+            for (int i = 0; i < 8; i++)
+            {
+              if (i != static_cast<int>(position.file_get()))
+              {
+                plugin::Position endpos1(
+                    static_cast<plugin::File>(i),
+                    static_cast<plugin::Rank>(static_cast<int>(position.rank_get())));
+                QuietMove move1(color_piece, position, endpos1, piece_type,
+                    piecetype_get(endpos1) != std::experimental::nullopt,
+                    false);
+                if (RuleChecker::is_move_valid(*this, move1))
+                  moves.push_back(std::make_shared<QuietMove>(move1));
+
+                QuietMove move2(color_piece, position, endpos1, piece_type,
+                    piecetype_get(endpos1) != std::experimental::nullopt,
+                    true);
+                if (RuleChecker::is_move_valid(*this, move1))
+                  moves.push_back(std::make_shared<QuietMove>(move1));
+
+                if (RuleChecker::is_move_valid(*this, move2))
+                  moves.push_back(std::make_shared<QuietMove>(move2));
+
+              }
+
+              if (i != static_cast<int>(position.rank_get()))
+              {
+                plugin::Position endpos2(
+                    static_cast<plugin::File>(static_cast<int>(position.file_get())),
+                    static_cast<plugin::Rank>(i));
+                QuietMove move2(color_piece, position, endpos2, piece_type,
+                    piecetype_get(endpos2) != std::experimental::nullopt,
+                    false);
+
+                QuietMove move3(color_piece, position, endpos2, piece_type,
+                    piecetype_get(endpos2) != std::experimental::nullopt,
+                    false);
+
+                if (RuleChecker::is_move_valid(*this, move3))
+                  moves.push_back(std::make_shared<QuietMove>(move3));
+
+
+                if (RuleChecker::is_move_valid(*this, move2))
+                  moves.push_back(std::make_shared<QuietMove>(move2));
+              }
+            }
+
+            for (int j = 0; j < 8 - static_cast<int>(position.file_get()); j++)
             {
               plugin::Position endpos1(
-                  static_cast<plugin::File>(
-                    i + static_cast<int>(0 + static_cast<int>(position.file_get()))),
-                  static_cast<plugin::Rank>(j +
-                    static_cast<int>(position.rank_get())));
-              QuietMove move1(color_piece, position, endpos1, piece_type.value(),
+                  static_cast<plugin::File>(j),
+                  static_cast<plugin::Rank>(j +  static_cast<int>(position.rank_get()) -  static_cast<int>(position.file_get())));
+              QuietMove move1(color_piece, position, endpos1, piece_type,
                   piecetype_get(endpos1) != std::experimental::nullopt,
                   false);
 
-              QuietMove move2(color_piece, position, endpos1, piece_type.value(),
+              QuietMove move3(color_piece, position, endpos1, piece_type,
                   piecetype_get(endpos1) != std::experimental::nullopt,
                   true);
+              if (RuleChecker::is_move_valid(*this, move3))
+                moves.push_back(std::make_shared<QuietMove>(move3));
 
 
               if (RuleChecker::is_move_valid(*this, move1))
-                moves.push_back(move1);
+                moves.push_back(std::make_shared<QuietMove>(move1));
+
+              plugin::Position endpos2(
+                  static_cast<plugin::File>(j),
+                  static_cast<plugin::Rank>( -j +  static_cast<int>(position.rank_get()) + static_cast<int>(position.file_get())));
+              QuietMove move2(color_piece, position, endpos2, piece_type,
+                  piecetype_get(endpos2) != std::experimental::nullopt,
+                  false);
               if (RuleChecker::is_move_valid(*this, move2))
-                moves.push_back(move2);
+                moves.push_back(std::make_shared<QuietMove>(move2));
+
+              QuietMove move4(color_piece, position, endpos2, piece_type,
+                  piecetype_get(endpos2) != std::experimental::nullopt,
+                  false);
+              if (RuleChecker::is_move_valid(*this, move4))
+                moves.push_back(std::make_shared<QuietMove>(move4));
             }
+            break;
           }
-        }
-        Move KingCastle(Move::Type::KING_CASTLING,color_piece);
-        if(RuleChecker::is_move_valid(*this, KingCastle))
-          moves.push_back(KingCastle);
-        Move QueenCastle(Move::Type::QUEEN_CASTLING,color_piece);
-        if(RuleChecker::is_move_valid(*this, QueenCastle))
-          moves.push_back(QueenCastle);
-        break;
-      }
 
-    case plugin::PieceType::QUEEN:
-      {
-        for (int i = 0; i < 8; i++)
-        {
-          if (i != static_cast<int>(position.file_get()))
+        case plugin::PieceType::ROOK:
+          for (int i = 0; i < 8; i++)
           {
-            plugin::Position endpos1(
-                static_cast<plugin::File>(i),
-                static_cast<plugin::Rank>(static_cast<int>(position.rank_get())));
-            QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                false);
-            if (RuleChecker::is_move_valid(*this, move1))
-              moves.push_back(move1);
+            if (i != ~file) {
+              plugin::Position end_pos(static_cast<plugin::File>(i), rank);
+              push_move(moves, QuietMove(color_piece, position, end_pos, piece_type));
+            }
+            if (i != ~rank) {
+              plugin::Position end_pos(file, static_cast<plugin::Rank>(i));
+              push_move(moves, QuietMove(color_piece, position, end_pos, piece_type));
+            }
+            break;
 
-            QuietMove move2(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                true);
-            if (RuleChecker::is_move_valid(*this, move1))
-              moves.push_back(move1);
-
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
-
-          }
-
-          if (i != static_cast<int>(position.rank_get()))
+        case plugin::PieceType::BISHOP:
           {
-            plugin::Position endpos2(
-                static_cast<plugin::File>(static_cast<int>(position.file_get())),
-                static_cast<plugin::Rank>(i));
-            QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                false);
+            for (int j = 0; j < 8 - ~file; j++)
+            {
+              plugin::Position end_pos(static_cast<plugin::File>(j),
+                  static_cast<plugin::Rank>(j +  static_cast<int>(position.rank_get()) -  static_cast<int>(position.file_get())));
+              QuietMove move1(color_piece, position, endpos1, piece_type,
+                  piecetype_get(endpos1) != std::experimental::nullopt,
+                  false);
 
-            QuietMove move3(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                false);
+              QuietMove move3(color_piece, position, endpos1, piece_type,
+                  piecetype_get(endpos1) != std::experimental::nullopt,
+                  true);
+              if (RuleChecker::is_move_valid(*this, move3))
+                moves.push_back(std::make_shared<QuietMove>(move3));
 
-            if (RuleChecker::is_move_valid(*this, move3))
-              moves.push_back(move3);
+
+              if (RuleChecker::is_move_valid(*this, move1))
+                moves.push_back(std::make_shared<QuietMove>(move1));
+
+              plugin::Position endpos2(
+                  static_cast<plugin::File>(j),
+                  static_cast<plugin::Rank>( -j +  static_cast<int>(position.rank_get()) + static_cast<int>(position.file_get())));
+              QuietMove move2(color_piece, position, endpos2, piece_type,
+                  piecetype_get(endpos2) != std::experimental::nullopt,
+                  false);
+              if (RuleChecker::is_move_valid(*this, move2))
+                moves.push_back(std::make_shared<QuietMove>(move2));
+
+              QuietMove move4(color_piece, position, endpos2, piece_type,
+                  piecetype_get(endpos2) != std::experimental::nullopt,
+                  false);
+              if (RuleChecker::is_move_valid(*this, move4))
+                moves.push_back(std::make_shared<QuietMove>(move4));
 
 
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
+            }
+            break;
           }
-        }
 
-        for (int j = 0; j < 8 - static_cast<int>(position.file_get()); j++)
-        {
-          plugin::Position endpos1(
-              static_cast<plugin::File>(j),
-              static_cast<plugin::Rank>(j +  static_cast<int>(position.rank_get()) -  static_cast<int>(position.file_get())));
-          QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              false);
-
-          QuietMove move3(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              true);
-          if (RuleChecker::is_move_valid(*this, move3))
-            moves.push_back(move3);
-
-
-          if (RuleChecker::is_move_valid(*this, move1))
-            moves.push_back(move1);
-
-          plugin::Position endpos2(
-              static_cast<plugin::File>(j),
-              static_cast<plugin::Rank>( -j +  static_cast<int>(position.rank_get()) + static_cast<int>(position.file_get())));
-          QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move2))
-            moves.push_back(move2);
-
-          QuietMove move4(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move4))
-            moves.push_back(move4);
-        }
-        break;
-      }
-
-    case plugin::PieceType::ROOK:
-      {
-        for (int i = 0; i < 8; i++)
-        {
-          if (i != static_cast<int>(position.file_get()))
+        case plugin::PieceType::KNIGHT:
           {
-            plugin::Position endpos1(
-                static_cast<plugin::File>(i),
-                static_cast<plugin::Rank>(static_cast<int>(position.rank_get())));
-            QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                false);
-            if (RuleChecker::is_move_valid(*this, move1))
-              moves.push_back(move1);
+            auto x1 = 1;
+            auto y1 = 2;
+            auto x2 = 2;
+            auto y2 = 1;
+            int temp;
 
-            QuietMove move2(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                true);
-            if (RuleChecker::is_move_valid(*this, move1))
-              moves.push_back(move1);
+            for(int i = 0; i < 4; i++)
+            {
+              if (x1 + static_cast<int>(position.file_get()) < 7 &&
+                  x1 + static_cast<int>(position.file_get()) > 0 &&
+                  y1 + static_cast<int>(position.rank_get()) < 7 &&
+                  y1 + static_cast<int>(position.rank_get()) > 0)
+              {
+                plugin::Position endpos1(
+                    static_cast<plugin::File>(
+                      x1 +  static_cast<int>(position.file_get())),
+                    static_cast<plugin::Rank>(y1 +
+                      static_cast<int>(position.rank_get())));
+                QuietMove move1(color_piece, position, endpos1, piece_type,
+                    piecetype_get(endpos1) != std::experimental::nullopt,
+                    false);
 
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
+                QuietMove move2(color_piece, position, endpos1, piece_type,
+                    piecetype_get(endpos1) != std::experimental::nullopt,
+                    true);
+
+
+                if (RuleChecker::is_move_valid(*this, move2))
+                  moves.push_back(std::make_shared<QuietMove>(move2));
+
+                if (RuleChecker::is_move_valid(*this, move1))
+                  moves.push_back(std::make_shared<QuietMove>(move1));
+              }
+              temp = x1;
+              x1 = -y1;
+              y1 = temp;
+              if (x2 + static_cast<int>(position.file_get()) < 7 &&
+                  x2 + static_cast<int>(position.file_get()) > 0 &&
+                  y2 + static_cast<int>(position.rank_get()) < 7 &&
+                  y2 + static_cast<int>(position.rank_get()) > 0)
+              {
+                plugin::Position endpos2(
+                    static_cast<plugin::File>(
+                      x2 +  static_cast<int>(position.file_get())),
+                    static_cast<plugin::Rank>(y2 +
+                      static_cast<int>(position.rank_get())));
+                QuietMove move2(color_piece, position, endpos2, piece_type,
+                    piecetype_get(endpos2) != std::experimental::nullopt,
+                    false);
+
+                QuietMove move3(color_piece, position, endpos2, piece_type,
+                    piecetype_get(endpos2) != std::experimental::nullopt,
+                    false);
+
+                if (RuleChecker::is_move_valid(*this, move3))
+                  moves.push_back(std::make_shared<QuietMove>(move3));
+                if (RuleChecker::is_move_valid(*this, move2))
+                  moves.push_back(std::make_shared<QuietMove>(move2));
+
+              }
+              temp = x2;
+              x2 = -y2;
+              y1 = temp;
+            }
+            break;
           }
 
-          if (i != static_cast<int>(position.rank_get()))
+        case plugin::PieceType::PAWN:
+          if (~position.rank_get() <= 0 or 7 <= ~position.rank_get())
+            break;
           {
-            plugin::Position endpos2(
-                static_cast<plugin::File>(static_cast<int>(position.file_get())),
-                static_cast<plugin::Rank>(i));
-            QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                false);
-
-            QuietMove move3(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                true);
-
-            if (RuleChecker::is_move_valid(*this, move3))
-              moves.push_back(move3);
-
-
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
+            plugin::Position front(file, static_cast<plugin::Rank>(~rank + dir)); // Simple move
+            push_move(moves, QuietMove(color_piece, position, front, piece_type, false));
           }
-        }
-        break;
-      }
-
-    case plugin::PieceType::BISHOP:
-      {
-        for (int j = 0; j < 8 - static_cast<int>(position.file_get()); j++)
-        {
-          plugin::Position endpos1(
-              static_cast<plugin::File>(j),
-              static_cast<plugin::Rank>(j +  static_cast<int>(position.rank_get()) -  static_cast<int>(position.file_get())));
-          QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              false);
-
-          QuietMove move3(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              true);
-          if (RuleChecker::is_move_valid(*this, move3))
-            moves.push_back(move3);
-
-
-          if (RuleChecker::is_move_valid(*this, move1))
-            moves.push_back(move1);
-
-          plugin::Position endpos2(
-              static_cast<plugin::File>(j),
-              static_cast<plugin::Rank>( -j +  static_cast<int>(position.rank_get()) + static_cast<int>(position.file_get())));
-          QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move2))
-            moves.push_back(move2);
-
-          QuietMove move4(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move4))
-            moves.push_back(move4);
-
-
-        }
-        break;
-      }
-
-    case plugin::PieceType::KNIGHT:
-      {
-        auto x1 = 1;
-        auto y1 = 2;
-        auto x2 = 2;
-        auto y2 = 1;
-        int temp;
-
-        for(int i = 0; i < 4; i++)
-        {
-          if (x1 + static_cast<int>(position.file_get()) < 7 &&
-              x1 + static_cast<int>(position.file_get()) > 0 &&
-              y1 + static_cast<int>(position.rank_get()) < 7 &&
-              y1 + static_cast<int>(position.rank_get()) > 0)
           {
-            plugin::Position endpos1(
-                static_cast<plugin::File>(
-                  x1 +  static_cast<int>(position.file_get())),
-                static_cast<plugin::Rank>(y1 +
-                  static_cast<int>(position.rank_get())));
-            QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                false);
-
-            QuietMove move2(color_piece, position, endpos1, piece_type.value(),
-                piecetype_get(endpos1) != std::experimental::nullopt,
-                true);
-
-
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
-
-            if (RuleChecker::is_move_valid(*this, move1))
-              moves.push_back(move1);
+            plugin::Position double_front(file, static_cast<plugin::Rank>(~rank + 2*dir)); // Double move
+            push_move(moves, QuietMove(color_piece, position, double_front, piece_type, false));
           }
-          temp = x1;
-          x1 = -y1;
-          y1 = temp;
-          if (x2 + static_cast<int>(position.file_get()) < 7 &&
-              x2 + static_cast<int>(position.file_get()) > 0 &&
-              y2 + static_cast<int>(position.rank_get()) < 7 &&
-              y2 + static_cast<int>(position.rank_get()) > 0)
-          {
-            plugin::Position endpos2(
-                static_cast<plugin::File>(
-                  x2 +  static_cast<int>(position.file_get())),
-                static_cast<plugin::Rank>(y2 +
-                  static_cast<int>(position.rank_get())));
-            QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                false);
-
-            QuietMove move3(color_piece, position, endpos2, piece_type.value(),
-                piecetype_get(endpos2) != std::experimental::nullopt,
-                false);
-
-            if (RuleChecker::is_move_valid(*this, move3))
-              moves.push_back(move3);
-            if (RuleChecker::is_move_valid(*this, move2))
-              moves.push_back(move2);
-
+          for (char i = -1; i <= 1; i += 2) { // Attack
+            plugin::Position diag_left(static_cast<plugin::File>(~file + i),
+                static_cast<plugin::Rank>(~rank + dir));
+            push_move(moves, QuietMove(color_piece, position, diag_left, piece_type, true));
           }
-          temp = x2;
-          x2 = -y2;
-          y1 = temp;
-        }
-        break;
+          break;
+
+        default:
+          throw "Impossible";
+          break;
       }
-
-    case plugin::PieceType::PAWN:
-      {
-        if (1 + static_cast<int>(position.rank_get()) < 7)
-        {
-          plugin::Position endpos1(
-              static_cast<plugin::File>(1 + static_cast<int>(position.file_get())),
-              static_cast<plugin::Rank>(1 + static_cast<int>(position.rank_get())));
-          QuietMove move1(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move1))
-            moves.push_back(move1);
-
-          plugin::Position endpos3(
-              static_cast<plugin::File>(1 + static_cast<int>(position.file_get())),
-              static_cast<plugin::Rank>(1 + static_cast<int>(position.rank_get())));
-          QuietMove move3(color_piece, position, endpos3, piece_type.value(),
-              piecetype_get(endpos3) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move3))
-            moves.push_back(move3);
-
-          plugin::Position endpos2(
-              static_cast<plugin::File>(0 + static_cast<int>(position.file_get())),
-              static_cast<plugin::Rank>(1 + static_cast<int>(position.rank_get())));
-          QuietMove move2(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              false);
-          if (RuleChecker::is_move_valid(*this, move2))
-            moves.push_back(move2);
-
-
-          QuietMove move5(color_piece, position, endpos1, piece_type.value(),
-              piecetype_get(endpos1) != std::experimental::nullopt,
-              true);
-          if (RuleChecker::is_move_valid(*this, move5))
-            moves.push_back(move5);
-
-          QuietMove move6(color_piece, position, endpos3, piece_type.value(),
-              piecetype_get(endpos3) != std::experimental::nullopt,
-              true);
-          if (RuleChecker::is_move_valid(*this, move6))
-            moves.push_back(move6);
-
-          QuietMove move7(color_piece, position, endpos2, piece_type.value(),
-              piecetype_get(endpos2) != std::experimental::nullopt,
-              true);
-          if (RuleChecker::is_move_valid(*this, move7))
-            moves.push_back(move7);
-        }
-        break;
-      }
-
-    default:
-      throw "Impossible";
-      break;
+    }
   }
 
   return moves;
+}
+
+void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const
+{
+  moves.push_back(std::make_shared<QuietMove>(move));
 }
 
 /*
@@ -778,12 +670,6 @@ std::vector<Move> ChessBoard::get_possible_actions(plugin::Position position) co
    return pieces;
    }
    */
-
-
-/*History ChessBoard::history_get() const
-  {
-  return history_;
-  }*/
 
 const std::shared_ptr<Move> ChessBoard::last_move_get() const {
   /*if (last_move_ == nullptr)

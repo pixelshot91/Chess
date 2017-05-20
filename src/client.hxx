@@ -62,7 +62,7 @@ int Client<T>::start()
     if (!first_time or color == plugin::Color::BLACK)
     {
       received_move = client_.receive();
-      std::cerr << "received move" << received_move << std::endl;
+      //std::cerr << "received move" << received_move << std::endl;
     }
     first_time = false;
 
@@ -71,7 +71,7 @@ int Client<T>::start()
 
     //std::cout << "Wainting for input : ";
     std::string input = player.play_next_move(received_move);
-    std::cout << "Player move is " << input << std::endl;
+    //std::cout << "Player move is " << input << std::endl;
     //std::cerr << "input is " << input << std::endl;
     // move = /* get bestmove */;
     client_.send("bestmove " + input);

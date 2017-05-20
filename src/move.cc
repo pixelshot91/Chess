@@ -20,7 +20,7 @@ plugin::Color Move::color_get() const
 
 void Move::print(std::ostream& o) const
 {
-  o << color_;
+  o << color_ << " ";
   if (move_type_ == KING_CASTLING)
     o << "King castling";
   else

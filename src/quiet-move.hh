@@ -6,7 +6,7 @@ class QuietMove : public Move
 {
 public:
   QuietMove(plugin::Color color, plugin::Position start, plugin::Position end,
-            plugin::PieceType, bool attack, bool test, char promotion_piecetype = - 1);
+            plugin::PieceType, bool attack = false, bool test = false, char promotion_piecetype = - 1);
   plugin::PieceType piecetype_get() const;
   char promotion_piecetype_get() const;
   plugin::Position start_get() const;

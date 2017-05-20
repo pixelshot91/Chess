@@ -1,7 +1,6 @@
 #pragma once
 
-#include "history.hh"
-#include "piece/piece.hh"
+#include "quiet-move.hh"
 #include "plugin/color.hh"
 #include "plugin/listener.hh"
 #include "plugin/piece-type.hh"
@@ -40,8 +39,9 @@ public:
   bool castleflag_get(plugin::Position position) const;
   bool is_attacked(plugin::Color color, plugin::Position) const;
 
-  std::vector<Piece*> get_piece(plugin::Color color);
-  std::vector<Move> get_possible_actions(plugin::Position position) const;
+  //std::vector<Piece*> get_piece(plugin::Color color);
+  std::vector<std::shared_ptr<Move>> get_possible_actions(plugin::Color color) const;
+  void push_move(std::vector<std::shared_ptr<Move>>& moves, const QuietMove& move) const;
 
   //History history_get() const;
   const std::shared_ptr<Move> last_move_get() const;
