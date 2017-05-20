@@ -31,6 +31,7 @@ ChessBoard::ChessBoard(const ChessBoard& board)
 int ChessBoard::update(std::shared_ptr<Move> move_ptr)
 { // FIX ME PROMOTION
   Move& move = *move_ptr;
+  std::cerr << "move is " << *move_ptr << std::endl;
   if (!RuleChecker::is_move_valid(*this, move))
   {
     for (auto l : listeners_)
@@ -321,10 +322,9 @@ bool ChessBoard::is_attacked(plugin::Color color,
       if (piecetype_get(pos) != std::experimental::nullopt and
           color_get(pos) != color)
       {
-        if (RuleChecker::is_move_valid(
-              *this,
-              QuietMove(!color, pos,
-                current_cell, piecetype_get(pos).value(), true, true)))
+        QuietMove move(!color, pos,
+                current_cell, piecetype_get(pos).value(), true, true);
+        if (RuleChecker::is_move_valid(*this, move))
         {
           return true;
         }

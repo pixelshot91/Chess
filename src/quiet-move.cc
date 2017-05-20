@@ -38,6 +38,11 @@ bool QuietMove::is_an_attack() const
   return attack_;
 }
 
+void QuietMove::set_as_attack(bool attack)
+{
+  attack_ = attack;
+}
+
 bool QuietMove::is_promotion() const
 {
   return promotion_piecetype_ != -1;

@@ -12,6 +12,7 @@ public:
   plugin::Position start_get() const;
   plugin::Position end_get() const;
   bool is_an_attack() const;
+  void set_as_attack(bool attack);
   bool is_promotion() const;
   bool is_a_test() const;
 

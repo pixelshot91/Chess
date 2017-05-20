@@ -8,10 +8,10 @@ class RuleChecker
 {
 public:
   RuleChecker() = default;
-  static bool is_move_valid(const ChessBoard& board, const Move& m);
+  static bool is_move_valid(const ChessBoard& board, Move& m);
 private:
-  static bool isMoveAuthorized(const ChessBoard& board, const Move& m);
-  static bool isMoveLegal(const ChessBoard& board, const Move& m);
+  static bool isMoveAuthorized(const ChessBoard& board,Move& m);
+  static bool isMoveLegal(const ChessBoard& board, Move& m);
 
   static bool invalid_move(std::string reason);
 
