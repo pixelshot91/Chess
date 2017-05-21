@@ -51,6 +51,11 @@ std::string AI::play_next_move(const std::string& received_move)
   else {
     best_move_ = nullptr;
 
+    if (temporary_history_board_.size() != 0) {
+      std::cerr << "temporary_history_board_ is not empty" << std::endl;
+      exit(42);
+    }
+
     temporary_history_board_.push_back(&board_);
     board_.pretty_print();
 
@@ -454,13 +459,13 @@ int AI::evaluate(const ChessBoard& board)
     plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
     int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
 
-  return evaluation_function(board) / 50;
+  //return evaluation_function(board) / 50;
   //  int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
-  /*int material_bonus_position = board_bonus_position(board);
-    return material_bonus_position / 50;*/
+  int material_bonus_position = board_bonus_position(board);
+  return material_bonus_position / 50;
 }
 
 int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
