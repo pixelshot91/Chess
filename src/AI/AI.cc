@@ -59,21 +59,21 @@ std::string AI::play_next_move(const std::string& received_move)
     temporary_history_board_.push_back(&board_);
     board_.pretty_print();
 
-    std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
+    /*std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
     size_t new_possible_nb = moves.size();
     std::cerr << "nb_possible_move = " << new_possible_nb << std::endl;
     max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
-    if (max_depth_ <= 1)
-      max_depth_ = 2;
+    if (max_depth_ < 3)
+      max_depth_ = 3;
 
     std::cerr << "c = " << c_ << std::endl;
-    std::cerr << "Max depth = " << max_depth_ << std::endl;
+    std::cerr << "Max depth = " << max_depth_ << std::endl;*/
     double time = 0;
     {
       scoped_timer timer(time);
       auto best_move_value = minimax(0, color_, -10000000, 10000000);
     }
-    c_ = (c_ + time / std::pow(new_possible_nb, max_depth_)) / 2;
+    //c_ = (c_ + time / std::pow(new_possible_nb, max_depth_)) / 2;
     /*if (time < 1) {
       max_depth_++;
       std::cerr << "New max_depth is " << max_depth_ << std::endl;
@@ -94,7 +94,7 @@ std::string AI::play_next_move(const std::string& received_move)
     board_.apply_move(*best_move_);
     permanent_history_board_.push_back(board_.board_get());
     std::string input = best_move_->to_an();
-    //exit(43);
+    exit(43);
     return input;
   }
 }

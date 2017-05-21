@@ -46,7 +46,7 @@ class AI : public Player
     std::vector<ChessBoard*> temporary_history_board_;
     std::vector<ChessBoard::board_t> permanent_history_board_;
 
-    int max_depth_ = 3;
+    const int max_depth_ = 3;
     //double time
     unsigned int fixed_board_ = 0;
     double c_ = 5 / std::pow(20, 3);
