@@ -59,21 +59,30 @@ std::string AI::play_next_move(const std::string& received_move)
     temporary_history_board_.push_back(&board_);
     board_.pretty_print();
 
-    /*std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
+    std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
+    /*if (moves.size() == 1)
+    {
+      board_.apply_move(*moves[0]);
+      permanent_history_board_.push_back(board_.board_get());
+      std::string input = best_move_->to_an();
+      return input;
+    }*/
     size_t new_possible_nb = moves.size();
     std::cerr << "nb_possible_move = " << new_possible_nb << std::endl;
-    max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
-    if (max_depth_ < 3)
-      max_depth_ = 3;
+    //max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
+    max_depth_ = std::log2(3.5 / (c_ * new_possible_nb)) / std::log2(20) + 1;
+    if (max_depth_ < 2)
+      max_depth_ = 2;
 
     std::cerr << "c = " << c_ << std::endl;
-    std::cerr << "Max depth = " << max_depth_ << std::endl;*/
+    std::cerr << "Max depth = " << max_depth_ << std::endl;
     double time = 0;
     {
       scoped_timer timer(time);
       auto best_move_value = minimax(0, color_, -10000000, 10000000);
     }
     //c_ = (c_ + time / std::pow(new_possible_nb, max_depth_)) / 2;
+    c_ = time / (new_possible_nb * std::pow(20, max_depth_ - 1));
     /*if (time < 1) {
       max_depth_++;
       std::cerr << "New max_depth is " << max_depth_ << std::endl;
@@ -410,42 +419,6 @@ int AI::pawn_shield(const ChessBoard& board, plugin::Position king_pos)
 }
 
 
-/*int AI::board_material(const ChessBoard& board)
-  {
-  int piece_nb[6] = {0};
-  int piece_weight[6] = {1000, 9, 5, 3, 3, 1};
-  int score = 0;
-
-  for (auto i = 0; i < 8; i++)
-  {
-  for (auto j = 0; j < 8; j++)
-  {
-  auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
-
-  }
-  }*/
-
-
-/*for (int i = 0; i < 6; ++i)
-  {
-  auto type = plugin::piecetype_array()[i];
-  piece_nb[i] = piece_numbers(board, type, color_) - piece_numbers(board, type, opponent_color_);
-  if (i == 0 and piece_nb[0])
-  {
-  board.pretty_print();
-  std::cerr << "a king is missing" << std::endl;
-  std::cerr << "White : " << piece_numbers(board, plugin::PieceType::KING, color_) << " Black : " << piece_numbers(board, plugin::PieceType::KING, opponent_color_) << std::endl;
-  throw std::invalid_argument("A king is dead");
-  }
-
-
-//std::cerr << type << " = " << piece_nb[i] << std::endl;
-score += 100 * piece_weight[i] * piece_nb[i];
-}*/
-//return score; // backward
-//}
-
-
 // Coefficients aren't set yet
 int AI::evaluate(const ChessBoard& board)
 {
@@ -459,13 +432,13 @@ int AI::evaluate(const ChessBoard& board)
     plugin::Position opponent_king_position = board_.get_king_position(opponent_color_);
     int check = RuleChecker::isCheck(board_, opponent_king_position) - RuleChecker::isCheck(board_, king_position);*/
 
-  //return evaluation_function(board) / 50;
+  return evaluation_function(board) / 50;
   //  int score = /*1000 * check +*/ material_bonus_position + 3 * king_trop + 50 * (doubled + isolated);
   //int score = material;
   /*std::cerr << "score is " << score << " (material : " << material << ", position " << 0.5 * bonus_position
     << ", king_tropism " << 3 * king_trop << ")" << std::endl;*/
-  int material_bonus_position = board_bonus_position(board);
-  return material_bonus_position / 50;
+  /*int material_bonus_position = board_bonus_position(board);
+  return material_bonus_position / 10;*/
 }
 
 int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
@@ -474,6 +447,18 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
     std::cerr << "playing color = " << playing_color << std::endl;*/
   const ChessBoard& board = *(temporary_history_board_[depth]);
   std::vector<std::shared_ptr<Move>> moves = /*board.get_possible_actions(playing_color);*/RuleChecker::possible_moves(board, playing_color);
+  struct {
+    bool operator()(std::shared_ptr<Move> m1, std::shared_ptr<Move> m2)
+    {
+      //std::cerr << "comparing" << std::endl;
+      return *m1 < *m2;
+    }
+  } custom;
+  std::sort(moves.begin(), moves.end(), custom);
+  /*std::cerr << "Move are : " << std::endl;
+  for (auto move_ptr : moves)
+    std::cerr << *move_ptr << std::endl;*/
+  //exit(43);
   if (moves.size() == 0)
   {
     auto playing_king_position = board.get_king_position(playing_color);
@@ -510,16 +495,16 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
 
     tmp.apply_move(move);
     temporary_history_board_.push_back(&tmp);
-    if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
-      temporary_history_board_.pop_back();
+    /*if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
+      temporary_history_board_.pop_back();*/
       /*std::cerr << "threefold _repietition" << std::endl;
         tmp.pretty_print();
         std::cerr << "permanent history :" << permanent_history_board_.size() << std::endl;
         for (auto b : temporary_history_board_)
         b->pretty_print();
         exit(43);*/
-      return 0;
-    }
+      /*return 0;
+    }*/
     int move_value;
     try {
       move_value = -minimax(depth + 1, !playing_color, -B, -A);
@@ -532,7 +517,7 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
 
     //Save best move
     if (depth == 0)
-      std::cerr << "move " << move << " scored " << move_value << std::endl;
+      std::cerr << "move " << move << "(" << move.priority_ << ") scored " << move_value << std::endl;
     if (move_value == best_move_value)
     {
       int rand = std::experimental::randint(1, 100);

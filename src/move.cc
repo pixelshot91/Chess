@@ -5,6 +5,7 @@
 Move::Move(Type move_type, plugin::Color color)
   : move_type_(move_type)
   , color_(color)
+  , priority_(0)
 {
 }
 
@@ -40,6 +41,11 @@ std::string Move::to_an() const
   result += auxiliary::to_lan(ChessBoard::initial_king_position(color_));
   result += auxiliary::to_lan(ChessBoard::castling_king_end_position(color_, move_type_ == KING_CASTLING));
   return result;
+}
+
+bool Move::operator<(const Move& m) const
+{
+  return priority_ > m.priority_;
 }
 
 

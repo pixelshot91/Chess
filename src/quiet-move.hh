@@ -20,6 +20,8 @@ public:
   std::string to_lan() const override;
   std::string to_an() const override;
 
+  bool operator<(const Move&) const;
+
 private:
   plugin::Position start_;
   plugin::Position end_;

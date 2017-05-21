@@ -46,8 +46,7 @@ class AI : public Player
     std::vector<ChessBoard*> temporary_history_board_;
     std::vector<ChessBoard::board_t> permanent_history_board_;
 
-    const int max_depth_ = 3;
-    //double time
+    int max_depth_ = 3;
     unsigned int fixed_board_ = 0;
     double c_ = 5 / std::pow(20, 3);
 
@@ -57,7 +56,6 @@ class AI : public Player
    const std::array<std::array<eval_cell_t, 8>, 8> pawn_weight_board = 
     {
        0, 0, 0, 0, 0, 0, 0, 0,
-       //70, 70, 70, 70, 70, 70, 70, 70,
        50, 50, 50, 50, 50, 50, 50, 50,
        10, 10, 20, 30, 30, 20, 10, 10,
        5, 5, 10, 25, 25, 10, 5, 5,

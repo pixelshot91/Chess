@@ -23,6 +23,8 @@ public:
   virtual void print(std::ostream& o) const;
   virtual std::string to_lan() const;
   virtual std::string to_an() const;
+  virtual bool operator<(const Move&) const;
+  int priority_;
 
 protected:
   Type move_type_;

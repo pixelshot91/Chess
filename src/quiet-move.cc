@@ -11,6 +11,8 @@ QuietMove::QuietMove(plugin::Color color, plugin::Position start,
   , test_(test)
   , promotion_piecetype_(promotion_piecetype)
 {
+  if (attack_)
+    priority_ = 1;
 }
 
 plugin::PieceType QuietMove::piecetype_get() const
@@ -41,6 +43,7 @@ bool QuietMove::is_an_attack() const
 void QuietMove::set_as_attack(bool attack)
 {
   attack_ = attack;
+  priority_ = 1;
 }
 
 bool QuietMove::is_promotion() const
@@ -51,6 +54,11 @@ bool QuietMove::is_promotion() const
 bool QuietMove::is_a_test() const
 {
   return test_;
+}
+
+bool QuietMove::operator<(const Move& m) const
+{
+  return priority_ > m.priority_;
 }
 
 std::string QuietMove::to_lan() const
