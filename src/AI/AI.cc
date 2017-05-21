@@ -58,8 +58,8 @@ std::string AI::play_next_move(const std::string& received_move)
     size_t new_possible_nb = moves.size();
     std::cerr << "nb_possible_move = " << new_possible_nb << std::endl;
     max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
-    if (max_depth_ <= 0)
-      max_depth_ = 1;
+    if (max_depth_ <= 1)
+      max_depth_ = 2;
 
     std::cerr << "c = " << c_ << std::endl;
     std::cerr << "Max depth = " << max_depth_ << std::endl;
