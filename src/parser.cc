@@ -41,21 +41,6 @@ std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, cons
 
 std::shared_ptr<Move> Parser::parse_move(std::string s, plugin::Color color, bool pgn_check)
 {
-  /*boost::regex exp("(?<piece>\\S?)(?<start_file>\\S)(?<start_rank>\\d)(?<take>["
-    "-x])(?<end_file>\\S)(?<end_rank>\\d)(?<check>[+#]?)");
-    boost::regex kingside_rook("O-O");
-    boost::smatch what;
-    if (boost::regex_search(s, what, exp))
-    {
-    return generateMove(color, what);
-    }
-    else if (boost::regex_search(s, what, kingside_rook))
-    {
-    return std::make_shared(Move(Move::Type::KING_CASTLING, color));
-    }
-    else
-    throw std::invalid_argument("invalid move");*/
-  //std::cerr << "s = " << s << std::endl;
   std::string quiet_move_s("^[\n ]*(?<piece>[BRNQK]?)(?<start_file>[a-h])(?<start_rank>["
       "1-8])(?<take>[-x])(?<end_file>[a-h])(?<end_rank>[1-8])(?<promotion>(=[BRNQ])?)");
 
@@ -70,27 +55,12 @@ std::shared_ptr<Move> Parser::parse_move(std::string s, plugin::Color color, boo
   boost::smatch what;
 
   if (boost::regex_search(s, what, quiet_move))
-  {
-    /*std::cerr << "WHAT " << what[0] << std::endl;
-      std::cerr << (what["piece"] == std::string("") ? "Pawn"
-      : what["piece"].str())
-      << " " << what["start_file"] << " " << what["start_rank"]
-      << " " << what["take"] << " " << what["end_file"] << " "
-      << what["end_rank"] << std::endl;*/
     return generateMove(color, what);
-  }
   else if (boost::regex_search(s, what, queenside_rook))
-  {
-    //std::cerr << "QUEENSIDE MOVE : " << s << std::endl;
     return std::make_shared<Move>(Move::Type::QUEEN_CASTLING, color);
-  }
   else if (boost::regex_search(s, what, kingside_rook))
-  {
-    //std::cerr << "KINGSIDE MOVE" << std::endl;
     return std::make_shared<Move>(Move::Type::KING_CASTLING, color);
-  }
   else if (boost::regex_search(s, what, game_termination)) {
-    //std::cerr << "Game termination" << s << std::endl;
     throw std::invalid_argument("game termination");
   }
   else
@@ -103,18 +73,14 @@ Parser::moves_t Parser::parse()
   std::ifstream pgn(pgn_path_);
   if (!pgn.is_open())
     throw std::invalid_argument("Try to read base from empty file");
-  // std::string s = "[Event \"name\"]";
   while (pgn.good())
   {
     std::string s;
     getline(pgn, s);
-    // boost::regex exp("(?<var>\\S+)");
     boost::regex exp("\\[(?<var>[^\"]+) \"(?<value>[^\"]+)\"]");
     boost::smatch what;
     if (boost::regex_search(s, what, exp))
     {
-      // std::cerr << "var = " << what["var"] << std::endl << "value = " <<
-      // what["value"] << std::endl;
     }
     else
     {
@@ -136,9 +102,7 @@ Parser::moves_t Parser::parse()
   try {
     for (size_t i = 0; i < tokens.size(); ++i)
     { // Move
-      // boost::regex exp("(?<var>\\S+)");
 
-      std::cerr << "s = ^" << tokens[i] << "$" << std::endl;
       if (i % 3 == 0)
         continue;
       moves.push_back(parse_move(tokens[i], static_cast<plugin::Color>((i % 3)- 1), true));

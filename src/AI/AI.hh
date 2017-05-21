@@ -30,10 +30,6 @@ class AI : public Player
     int evaluate(const ChessBoard& board);
 
     int count_isolated(plugin::Color color);
-    int count_doubled(const ChessBoard& board, plugin::Color color);
-    //int count_backward(const ChessBoard& board, plugin::Color color);
-    int king_tropism(const ChessBoard& board, plugin::Color color);
-    int board_material(const ChessBoard& board);
     int board_bonus_position(const ChessBoard& board);
     int evaluation_function(const ChessBoard& board);
     int get_piece_bonus_position(plugin::PieceType piece, int i, int j);

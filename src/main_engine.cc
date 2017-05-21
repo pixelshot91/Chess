@@ -7,7 +7,6 @@
 #include "adaptater.hh" // TO DELETE
 #include "engine.hh"
 #include "plugin/listener.hh"
-//#include "chessboard.hh"
 namespace po = boost::program_options;
 
 int main(int argc, char* argv[])
@@ -55,14 +54,12 @@ int main(int argc, char* argv[])
     unsigned short port = vm["port"].as<unsigned short>();
     Engine engine(listeners, port);
     engine.start();
-    //return 0;
   }
   else if (vm.count("pgn"))
   {
     std::string pgn_path = vm["pgn"].as<std::string>();
     Engine engine(listeners, pgn_path);
     engine.start();
-    //return 0;
   }
   else
     std::cerr << "No option were given." << std::endl

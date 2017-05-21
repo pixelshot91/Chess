@@ -9,7 +9,6 @@ int main(int argc, char* argv[])
   std::string pgn_path;
   if (argv[3] != nullptr)
     pgn_path = std::string(argv[3]);
-  std::cout << "port is " << port << std::endl;
 
   Client<AI> client(ip, port, pgn_path);
   return client.start();

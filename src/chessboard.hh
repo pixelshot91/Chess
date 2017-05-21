@@ -39,11 +39,9 @@ public:
   bool castleflag_get(plugin::Position position) const;
   bool is_attacked(plugin::Color color, plugin::Position) const;
 
-  //std::vector<Piece*> get_piece(plugin::Color color);
   std::vector<std::shared_ptr<Move>> get_possible_actions(plugin::Color color) const;
   void push_move(std::vector<std::shared_ptr<Move>>& moves, QuietMove move) const;
 
-  //History history_get() const;
   const std::shared_ptr<Move> last_move_get() const;
 
   static plugin::Position initial_king_position(plugin::Color c);
@@ -53,8 +51,6 @@ public:
                                                      bool king_side);
   static plugin::Position castling_rook_end_position(plugin::Color color,
                                                      bool king_side);
-  // bool moved(plugin::Position);
-  // Color color(plugin::Position);
   void print() const;
   void pretty_print() const;
 
@@ -68,7 +64,6 @@ private:
     0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87,
     0x87, 0x87, 0x87, 0x87, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05,
     0x05, 0x02, 0x04, 0x03, 0x01, 0x00, 0x03, 0x04, 0x02};
-  //History history_;
   std::shared_ptr<Move> last_move_;
   std::vector<plugin::Listener*> listeners_;
   std::vector<board_t> previous_states_;

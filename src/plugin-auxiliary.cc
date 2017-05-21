@@ -75,7 +75,6 @@ namespace auxiliary {
     result += static_cast<char>(pos.file_get()) + 'a';
     result += static_cast<char>(pos.rank_get()) + '1';
     return result;
-    //return std::string((char)(static_cast<char>(pos.file_get()) + 'a')) + std::string(static_cast<char>(pos.rank_get()) + '1');
   }
 
   int distance(plugin::Position& pos1, plugin::Position& pos2)

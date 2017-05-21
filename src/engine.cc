@@ -18,9 +18,6 @@ Engine::Engine(std::vector<plugin::Listener*> listeners, std::string pgn_path)
 {
 }
 
-/*clients_({network_api::ServerNetworkAPI(port),
- * network_api::ServerNetworkAPI(port)}),*/
-
 int Engine::start()
 {
   Adaptater adaptater(chessboard_);
@@ -38,7 +35,6 @@ int Engine::start()
       //std::cerr << *m << std::endl;
       if (chessboard_.update(m) == -1)
         break;
-      // chessboard_.print();
     }
     for (auto l : listeners_)
       l->on_game_finished();
@@ -51,33 +47,27 @@ int Engine::start()
     for (int i = 0; i < 2; ++i)
     { // Connection
       clients_[i] = new network_api::ServerNetworkAPI(port_);
-      //std::cerr << "The connection is established" << std::endl;
       login[i] = clients_[i]->acknowledge(static_cast<bool>(i));
-      //std::cerr << "LOGIN is " << login[i] << std::endl;
     }
 
     for (int i = 0; i < 2; ++i)
     { // Initialization
       clients_[i]->send("uci");
-      //std::cerr << "sending uci" << std::endl;
       if (clients_[i]->receive() != "uciok")
         return -1;
     }
     for (int i = 0; i < 2; ++i)
     {
-      //std::cerr << "sending isready" << std::endl;
       clients_[i]->send("isready");
       if (clients_[i]->receive() != "readyok")
         return -1;
     }
 
-    //std::cerr << "Initialization OK" << std::endl;
     /* Moves */
 
     std::string total_moves;
     std::string client_move;
 
-    // plugin::Color color = plugin::Color::WHITE;
     int color = 0;
     /* engine -> client_1 */
     bool first_time = true;
@@ -94,14 +84,19 @@ int Engine::start()
 
       clients_[color]->send("go");
 
+      try {
       client_move = clients_[color]->receive().substr(9);
+      }
+      catch (std::runtime_error& e)
+      {
+        for (auto l : listeners_)
+          l->on_player_timeout(static_cast<plugin::Color>(color));
+      }
       //std::cerr << "bestmove = " << client_move << std::endl;
       auto best_move = Parser::parse_uci(
             client_move, static_cast<plugin::Color>(color), chessboard_);
-      std::cerr << "update with move : " << *best_move << std::endl;
       if (chessboard_.update(best_move) == -1)
       {
-        //std::cout << "invalid move : You are disqualified";
         for (auto l : listeners_)
           l->on_game_finished();
         return -1;

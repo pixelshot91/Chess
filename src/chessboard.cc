@@ -3,12 +3,6 @@
 #include "plugin-auxiliary.hh"
 
 std::ostream& operator<<(std::ostream& o, const plugin::Position& p);
-/*std::ostream& operator<<(std::ostream& o, const plugin::Position& p)
-  {
-  o << (char)(static_cast<char>(p.file_get()) + 'A') <<
-  (char)(static_cast<char>(p.rank_get()) + '1');
-  return o;
-  }*/
 
 ChessBoard::ChessBoard()
   : last_move_(nullptr)
@@ -22,24 +16,18 @@ ChessBoard::ChessBoard(std::vector<plugin::Listener*> listeners)
 ChessBoard::ChessBoard(const ChessBoard& board)
   : board_(board.board_)
 {
-  /*for (int i = 0; i < 8; ++i)
-    for (int j = 0; j < 8; ++j)
-    board_[i][j] = board.board_[i][j];
-    last_move_ = board.last_move_;*/
 }
 
 int ChessBoard::update(std::shared_ptr<Move> move_ptr)
-{ // FIX ME PROMOTION
+{
   Move& move = *move_ptr;
-  std::cerr << "move is " << *move_ptr << std::endl;
+  //std::cerr << "move is " << *move_ptr << std::endl;
   if (!RuleChecker::is_move_valid(*this, move))
   {
     for (auto l : listeners_)
       l->on_player_disqualified(move.color_get()); // Disqualified
-    //std::cerr << "Move disqualiying " << move << std::endl;
     return -1;
   }
-  // throw std::invalid_argument("invalid move - in ChessBoard update()");
 
   plugin::PieceType piecetype_eaten = plugin::PieceType::KING;
   plugin::Position position_piece_eaten_en_passant(plugin::File::A, plugin::Rank::ONE);
@@ -70,10 +58,8 @@ int ChessBoard::update(std::shared_ptr<Move> move_ptr)
       l->on_player_disqualified(move.color_get()); // Disqualified
     return -1;
   }
-  //history_.add(move);
   last_move_ = move_ptr;
 
-  // throw std::invalid_argument("invalid move : The King would be in check");
 
   /* Update piece position*/
   if (move.move_type_get() == Move::Type::QUIET)
@@ -217,8 +203,6 @@ void ChessBoard::print() const
             .value())
           << " ";
 
-      // std::cout << std::hex << std::setfill('0') << std::setw(2) <<
-      // (int)board_[i][j] << " ";
     }
     std::cerr << std::endl;
   }
@@ -268,11 +252,6 @@ ChessBoard::cell_t ChessBoard::get_square(plugin::Position position) const
 {
   char j = static_cast<char>(position.file_get());
   char i = 7 - static_cast<char>(position.rank_get());
-  /*std::cout << "i = " << (unsigned)i << " j = " << (unsigned int)j <<
-    std::endl;
-    std::cout << std::hex << std::setfill('0') << std::setw(2) <<
-    (int)board_[i][j] << " ";
-    std::cout << std::endl;*/
   return board_[i][j];
 }
 
@@ -315,7 +294,6 @@ ChessBoard::piecetype_get(plugin::Position position) const
 bool ChessBoard::is_attacked(plugin::Color color,
     plugin::Position current_cell) const
 {
-  //std::cerr << "print toto" << std::endl;
   /*auto moves = get_possible_actions(!color);
   for (auto move : moves) {
     if (move->move_type_get() == Move::Type::QUIET)
@@ -513,69 +491,10 @@ void ChessBoard::push_move(std::vector<std::shared_ptr<Move>>& moves, QuietMove 
 {
   if (RuleChecker::is_move_valid(*this, move))
     moves.push_back(std::make_shared<QuietMove>(move));
-  //std::cerr << "adding move : " << move << std::endl;
 }
 
-/*
-   std::vector<Piece*> ChessBoard::get_piece(plugin::Color color)
-   {
-   std::vector<Piece*> pieces;
-   for (int i = 0; i < 8; i++)
-   for (int j = 0; j < 8; j++)
-   {
-   plugin::Position position(static_cast<plugin::File>(i),
-   static_cast<plugin::Rank>(j));
-   if (color_get(position) == color)
-   {
-   std::experimental::optional<plugin::PieceType> piece_type =
-   piecetype_get(position);
-   if (piece_type == std::experimental::nullopt)
-   continue;
-   switch (piece_type.value())
-   {
-   case plugin::PieceType::KING:
-   pieces.push_back(
-   new King(color_get(position), position, has_moved(position)));
-   break;
-
-   case plugin::PieceType::QUEEN:
-   pieces.push_back(
-   new Queen(color_get(position), position, has_moved(position)));
-   break;
-
-   case plugin::PieceType::ROOK:
-   pieces.push_back(
-   new Rook(color_get(position), position, has_moved(position)));
-   break;
-
-   case plugin::PieceType::BISHOP:
-   pieces.push_back(
-   new Bishop(color_get(position), position, has_moved(position)));
-   break;
-
-   case plugin::PieceType::KNIGHT:
-   pieces.push_back(
-   new Knight(color_get(position), position, has_moved(position)));
-   break;
-
-   case plugin::PieceType::PAWN:
-   pieces.push_back(
-   new Pawn(color_get(position), position, has_moved(position)));
-   break;
-
-   default:
-   exit(10);
-   break;
-   }
-   }
-   }
-   return pieces;
-   }
-   */
 
 const std::shared_ptr<Move> ChessBoard::last_move_get() const {
-  /*if (last_move_ == nullptr)
-    throw std::invalid_argument("No history");*/
   return last_move_;
 }
 

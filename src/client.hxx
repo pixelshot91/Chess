@@ -69,19 +69,7 @@ int Client<T>::start()
     if (client_.receive() != "go")
       return -1;
 
-    //std::cout << "Wainting for input : ";
     std::string input = player.play_next_move(received_move);
-    //std::cout << "Player move is " << input << std::endl;
-    //std::cerr << "input is " << input << std::endl;
-    // move = /* get bestmove */;
     client_.send("bestmove " + input);
   }
-
-  /*std::string opponent_moves = client_.receive();
-  std::cerr << "move received " << opponent_moves << std::endl;
-  if (client_.receive() == "go")
-  {*/
-  /*move = i;
-    client_.send("bestmove " + move);*/
-  //}
 }

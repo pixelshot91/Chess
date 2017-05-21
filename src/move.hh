@@ -24,11 +24,12 @@ public:
   virtual std::string to_lan() const;
   virtual std::string to_an() const;
   virtual bool operator<(const Move&) const;
-  int priority_;
 
 protected:
   Type move_type_;
   plugin::Color color_;
+public:
+  int priority_;
 };
 
 std::ostream& operator<<(std::ostream& o, const Move& m);

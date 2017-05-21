@@ -18,6 +18,5 @@ private:
   unsigned short port_;
   std::string pgn_path_;
   std::vector<plugin::Listener*> listeners_;
-  // network_api::ServerNetworkAPI clients_[2];
   ChessBoard chessboard_;
 };
