@@ -42,67 +42,89 @@ std::string AI::play_next_move(const std::string& received_move)
   }
   else {
     best_move_ = nullptr;
+    std::cerr << std::endl;
 
     temporary_history_board_.push_back(&board_);
     //board_.pretty_print();
 
     std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
-    /*if (moves.size() == 1)
+    if (moves.size() == 1)
     {
-      board_.apply_move(*moves[0]);
+      Move& only_move = *moves[0];
+      std::cerr << "Only move possible is : " << only_move << std::endl;
+      board_.apply_move(only_move);
       permanent_history_board_.push_back(board_.board_get());
-      std::string input = best_move_->to_an();
+      std::string input = only_move.to_an();
       return input;
-    }*/
-    size_t new_possible_nb = moves.size();
+    }
+    size_t nb_possible_moves = moves.size();
     //max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
-    max_depth_ = std::log2(3.5 / (c_ * new_possible_nb)) / std::log2(20) + 1;
-    if (max_depth_ < 2)
-      max_depth_ = 2;
-
+    max_depth_ = std::round(std::log2(3.5 / (c_ * nb_possible_moves)) / std::log2(20) + 1);
+    int min_max_dept = 2;
+    if (max_depth_ < min_max_dept)
+      max_depth_ = min_max_dept;
+    std::cerr << nb_possible_moves << " moves possible, max_depth_ = " << max_depth_ << std::endl;
+    //float estimated_time = c_ * nb_possible_moves * std::pow(20, max_depth_ - 1);
+    std::cerr << "Estimated time: " << estimate_time(nb_possible_moves) << std::endl;
+    std::cerr << "one depth less: " << estimate_time(nb_possible_moves, max_depth_ - 1) << std::endl
+              << "one_depth_more: " << estimate_time(nb_possible_moves, max_depth_ + 1) << std::endl;
+    int best_move_value;
     double time = 0;
     {
       scoped_timer timer(time);
-      minimax(0, color_, -10000000, 10000000);
+      best_move_value = minimax(0, color_, -10000000, 10000000);
     }
-    c_ = time / (new_possible_nb * std::pow(20, max_depth_ - 1));
+    std::cerr << "Time : " << time << std::endl;
+    c_ = time / (nb_possible_moves * std::pow(20, max_depth_ - 1));
     if (best_move_ == nullptr)
     {
-      //std::cerr << "I am doomed" << std::endl;
+      std::cerr << "I am doomed" << std::endl;
       std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
       best_move_ = moves[0];
     }
     temporary_history_board_.pop_back();
-    //std::cerr << "best move is : " << *best_move_ << std::endl << "its value is " << best_move_value << std::endl;
+    std::cerr << "Best move is : " << *best_move_ << " (score: " << best_move_value << ")" << std::endl;
     board_.apply_move(*best_move_);
     permanent_history_board_.push_back(board_.board_get());
     std::string input = best_move_->to_an();
+    std::cerr << std::endl;
     return input;
   }
 }
 
-int AI::get_piece_bonus_position(plugin::PieceType piece, int i, int j)
+float AI::estimate_time(int nb_possible_moves, int max_depth)
 {
+  if (max_depth < 0)
+    max_depth = max_depth_;
+  return c_ * nb_possible_moves * std::pow(20, max_depth - 1);
+}
+
+int AI::get_piece_bonus_position(plugin::Color color, plugin::PieceType piece, const plugin::Position& pos)
+{
+  int file = ~pos.file_get();
+  int rank = ~pos.rank_get();
+  if (color == plugin::Color::WHITE)
+    rank = 7 - rank;
   switch (piece)
   {
     case plugin::PieceType::PAWN:
-      return pawn_weight_board[i][j];
+      return pawn_weight_board[rank][file];
     case plugin::PieceType::QUEEN:
-      return queen_weight_board[i][j];
+      return queen_weight_board[rank][file];
     case plugin::PieceType::ROOK:
-      return rook_weight_board[i][j];
+      return rook_weight_board[rank][file];
     case plugin::PieceType::BISHOP:
-      return bishop_weight_board[i][j];
+      return bishop_weight_board[rank][file];
     case plugin::PieceType::KING:
-      return king_middle_weight_board[i][j];
+      return king_middle_weight_board[rank][file];
     case plugin::PieceType::KNIGHT:
-      return knight_weight_board[i][j];
+      return knight_weight_board[rank][file];
     default:
       return 0;
   }
 }
 
-int AI::board_bonus_position(const ChessBoard& board)
+/*int AI::board_bonus_position(const ChessBoard& board)
 {
   int bonus_pos = 0;
   int pawn = 0, queen = 0, rook = 0, bishop = 0, knight = 0;
@@ -146,7 +168,7 @@ int AI::board_bonus_position(const ChessBoard& board)
   }
 
   return 900 * queen + 500 * rook + 300 * bishop + 300 * knight + 100 * pawn + 0.5 * bonus_pos;
-}
+}*/
 
 
 int AI::evaluation_function(const ChessBoard& board)
@@ -160,7 +182,7 @@ int AI::evaluation_function(const ChessBoard& board)
 
   auto king_pos = board.get_king_position(color_);
   auto op_king_pos = board.get_king_position(opponent_color_);
-  int king_file = static_cast<int>(king_pos.file_get());
+  auto king_file = king_pos.file_get();
   int king_file_malus = 0;
 
   bool left_king_file_empty = true;
@@ -168,15 +190,19 @@ int AI::evaluation_function(const ChessBoard& board)
 
   int double_count = 0;
   int op_double_count = 0;
+  
   for (auto i = 0; i < 8; i++)
   {
     int nb_pawn_file = 0;
     int op_nb_pawn_file = 0;
     for (auto j = 0; j < 8; j++)
     {
-      auto pos = plugin::Position(static_cast<plugin::File>(i), static_cast<plugin::Rank>(j));
+      auto file = static_cast<plugin::File>(i);
+      auto rank = static_cast<plugin::Rank>(j);
+      auto pos = plugin::Position(file, rank);
       auto piece_type = board.piecetype_get(pos);
       auto piece_color = board.color_get(pos);
+      int me = (piece_color == color_) ? 1 : -1;
 
       /**************************************
        * 
@@ -196,9 +222,9 @@ int AI::evaluation_function(const ChessBoard& board)
           opponent_value_of_attack = king_zone_attack(op_king_pos, piece_type, opponent_value_of_attack, i, j); */
 
         /* Calculating king file disadvantage */
-        if (j == king_file - 1)
+        if (~i == ~king_file - 1)
           left_king_file_empty = false;
-        else if (j == king_file + 1)
+        else if (~i == ~king_file + 1)
           right_king_file_empty = false;
 
         if (piece_color == color_)
@@ -250,10 +276,7 @@ int AI::evaluation_function(const ChessBoard& board)
               break;
           }
         }
-        if (piece_color == plugin::Color::BLACK)
-          bonus_pos += get_piece_bonus_position(piece_type.value(), i, j);
-        else
-          bonus_pos += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);
+        bonus_pos += get_piece_bonus_position(piece_color, piece_type.value(), plugin::Position(file, rank)) * me;
       }
 
       king_tropism += dist;
@@ -312,13 +335,18 @@ int AI::evaluation_function(const ChessBoard& board)
   //std::cerr << "there is " << queen << " queen" << std::endl;
 
   int piece_material = 900 * (queen - op_queen) + 500 * (rook - op_rook) + 300 * (bishop - op_bishop) + 300 * (knight - op_knight) + 100 * (pawn - op_pawn);
-
-  return piece_material + material_bonus 
-    + 0.5 * bonus_pos 
+  int pawn_formation = double_count - op_double_count + count_isolated(color_) - count_isolated(opponent_color_);
+  bonus_pos *= 0.2;
+  king_tropism *= 0.2;
+  int total = piece_material + material_bonus 
+    + bonus_pos 
     + king_tropism 
-    - 50 * (double_count - op_double_count + count_isolated(color_) - count_isolated(opponent_color_))
+    - 50 * pawn_formation
     - king_file_malus;
   //  + (opponent_attacking_king_zone - attacking_king_zone);
+  /*std::cout << "material " << piece_material << " material bonus " << material_bonus << " king trop " << king_tropism << " position " << bonus_pos <<
+    std::endl << " total " << total << std::endl;*/
+  return total;
 
 }
 
@@ -379,7 +407,7 @@ int AI::pawn_shield(const ChessBoard& board, plugin::Position king_pos)
 // Coefficients aren't set yet
 int AI::evaluate(const ChessBoard& board)
 {
-  return evaluation_function(board) / 50;
+  return evaluation_function(board);// / 50;
   /*int material_bonus_position = board_bonus_position(board);
   return material_bonus_position / 10;*/
 }
@@ -423,17 +451,14 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
     temporary_history_board_.push_back(&tmp);
     if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
       temporary_history_board_.pop_back();
-        tmp.pretty_print();
-        for (auto b : temporary_history_board_)
-        b->pretty_print();
         return 0;
     }
     int move_value;
      move_value = -minimax(depth + 1, !playing_color, -B, -A);
 
     //Save best move
-    /*if (depth == 0)
-      std::cerr << "move " << move << "(" << move.priority_ << ") scored " << move_value << std::endl;*/
+    if (depth == 0)
+      std::cerr << "move " << move << "(" << move.priority_ << ") scored " << move_value << std::endl;
     if (move_value == best_move_value)
     {
       int rand = std::experimental::randint(1, 100);
@@ -441,7 +466,7 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
         best_move_value = move_value;
         if (depth == 0) {
           best_move_ = move_ptr;
-          //std::cerr << "best_move so far is " << *best_move_ << std::endl;
+          std::cerr << "best_move so far is " << *best_move_ << " score: " << move_value << std::endl;
         }
       }
     }
@@ -449,7 +474,7 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
       best_move_value = move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
-        //std::cerr << "best_move so far is " << *best_move_ << std::endl;
+        std::cerr << "best_move so far is " << *best_move_ << " score: " << move_value << std::endl;
       }
 
       if (A > move_value) {

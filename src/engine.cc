@@ -33,7 +33,7 @@ int Engine::start()
     for (auto m : moves)
     {
       //std::cerr << *m << std::endl;
-      if (chessboard_.update(m) == -1)
+      if (chessboard_.update(m) != 0)
         break;
     }
     for (auto l : listeners_)
@@ -95,7 +95,7 @@ int Engine::start()
       //std::cerr << "bestmove = " << client_move << std::endl;
       auto best_move = Parser::parse_uci(
             client_move, static_cast<plugin::Color>(color), chessboard_);
-      if (chessboard_.update(best_move) == -1)
+      if (chessboard_.update(best_move) != 0)
       {
         for (auto l : listeners_)
           l->on_game_finished();

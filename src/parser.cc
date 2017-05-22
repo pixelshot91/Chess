@@ -15,11 +15,15 @@ Parser::Parser(std::string pgn_path)
 
 std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, const ChessBoard& board)
 {
-  /*std::cerr << "parsing string = " << s << "end";
-  std::cerr << "start file is " << (int) (s[0] - 'a') << "end";*/
+  boost::regex uci_move("([a-h][1-8]){2}([BRNQ])?");
+  if (not boost::regex_match(s, uci_move))
+    throw std::invalid_argument("Invlid move: " + s + "\nThe syntax is a1b2");
   plugin::Position pos_start(static_cast<plugin::File>(s[0] - 'a'), static_cast<plugin::Rank>(s[1] - '1'));
   plugin::Position pos_end(static_cast<plugin::File>(s[2] - 'a'), static_cast<plugin::Rank>(s[3] - '1'));
   //std::cerr << "first pos is " << pos_start << " end";
+  if (board.piecetype_get(pos_start) == std::experimental::nullopt)
+    throw std::invalid_argument("Invalid move: the start cell is empty");
+    
   auto type = board.piecetype_get(pos_start).value();
   if (type == plugin::PieceType::KING) //castling
   {

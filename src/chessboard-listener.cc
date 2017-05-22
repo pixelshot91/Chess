@@ -16,6 +16,8 @@ void ChessboardListener::register_board(
 }
 void ChessboardListener::on_game_started()
 {
+  auto my_adaptater = reinterpret_cast<const Adaptater*>(adaptater_);
+  my_adaptater->pretty_print();
 }
 void ChessboardListener::on_game_finished()
 {

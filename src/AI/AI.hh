@@ -23,6 +23,7 @@ class AI : public Player
     void set_scripted_moves(std::vector<std::shared_ptr<Move>> moves);
 
   private :
+    float estimate_time(int nb_possible_moves, int max_depth = -1);
     int piece_numbers(const ChessBoard& board, plugin::PieceType type, plugin::Color color);
 
     int minimax(int depth, plugin::Color playing_color, int A, int B);
@@ -32,7 +33,7 @@ class AI : public Player
     int count_isolated(plugin::Color color);
     int board_bonus_position(const ChessBoard& board);
     int evaluation_function(const ChessBoard& board);
-    int get_piece_bonus_position(plugin::PieceType piece, int i, int j);
+    int get_piece_bonus_position(plugin::Color color, plugin::PieceType piece, const plugin::Position& pos);
 
     const plugin::Color opponent_color_;
     std::shared_ptr<Move> best_move_;

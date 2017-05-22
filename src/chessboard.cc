@@ -26,7 +26,7 @@ int ChessBoard::update(std::shared_ptr<Move> move_ptr)
   {
     for (auto l : listeners_)
       l->on_player_disqualified(move.color_get()); // Disqualified
-    return -1;
+    return -2;
   }
 
   plugin::PieceType piecetype_eaten = plugin::PieceType::KING;
