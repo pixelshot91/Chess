@@ -59,6 +59,7 @@ int Client<T>::start()
   while (true)
   {
     std::string received_move;
+    try {
     if (!first_time or color == plugin::Color::BLACK)
     {
       received_move = client_.receive();
@@ -71,5 +72,12 @@ int Client<T>::start()
 
     std::string input = player.play_next_move(received_move);
     client_.send("bestmove " + input);
+    }
+    catch (std::exception& e)
+    {
+      std::cerr << e.what() << std::endl;
+      std::cerr << "Program terminated" << std::endl;
+      exit(0);
+    }
   }
 }
