@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -pedantic -ldl -lpthread -g3")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -lpthread -O3")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
@@ -10,15 +10,10 @@ set(BIN_HUMAN "human")
 set(BIN_AI "ai")
 
 set(SRC_engine src/main_engine.cc src/move.cc src/quiet-move.cc src/parser.cc src/adaptater.cc
-  src/chessboard.cc src/rule-checker.cc src/engine.cc src/history.cc
-  src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
-  src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc
-  src/plugin-auxiliary.cc)
+  src/chessboard.cc src/rule-checker.cc src/engine.cc src/plugin-auxiliary.cc)
 
 set (SRC_TEST_ChessBoard tests/chessboard.cc src/move.cc src/quiet-move.cc
-  src/chessboard.cc src/rule-checker.cc src/history.cc
-  src/piece/pawn.cc src/piece/rook.cc src/piece/king.cc src/piece/queen.cc
-  src/piece/knight.cc src/piece/bishop.cc src/piece/piece.cc)
+  src/chessboard.cc src/rule-checker.cc)
 
 set(SRC_human src/main_human.cc src/human-player.cc src/player.cc src/parser.cc
   src/chessboard.cc src/rule-checker.cc src/move.cc src/quiet-move.cc src/plugin-auxiliary.cc )
