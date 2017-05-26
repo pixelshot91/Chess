@@ -59,10 +59,11 @@ std::string AI::play_next_move(const std::string& received_move)
     }
     size_t nb_possible_moves = moves.size();
     //max_depth_ = std::round(std::log2(3.5 / c_) / std::log2(new_possible_nb + 7));
-    max_depth_ = std::round(std::log2(3.5 / (c_ * nb_possible_moves)) / std::log2(20) + 1);
-    int min_max_dept = 2;
+    max_depth_ = std::round(std::log2(5 / (c_ * nb_possible_moves)) / std::log2(20) + 1);
+    const int min_max_dept = 2;
     if (max_depth_ < min_max_dept)
       max_depth_ = min_max_dept;
+    //max_depth_ = 1;
     std::cerr << nb_possible_moves << " moves possible, max_depth_ = " << max_depth_ << std::endl;
     //float estimated_time = c_ * nb_possible_moves * std::pow(20, max_depth_ - 1);
     std::cerr << "Estimated time: " << estimate_time(nb_possible_moves) << std::endl;
@@ -79,7 +80,6 @@ std::string AI::play_next_move(const std::string& received_move)
     if (best_move_ == nullptr)
     {
       std::cerr << "I am doomed" << std::endl;
-      std::vector<std::shared_ptr<Move>> moves = RuleChecker::possible_moves(board_, color_);
       best_move_ = moves[0];
     }
     temporary_history_board_.pop_back();
@@ -124,7 +124,7 @@ int AI::get_piece_bonus_position(plugin::Color color, plugin::PieceType piece, c
   }
 }
 
-/*int AI::board_bonus_position(const ChessBoard& board)
+int AI::board_bonus_position(const ChessBoard& board)
 {
   int bonus_pos = 0;
   int pawn = 0, queen = 0, rook = 0, bishop = 0, knight = 0;
@@ -159,16 +159,16 @@ int AI::get_piece_bonus_position(plugin::Color color, plugin::PieceType piece, c
           default:
             break;
         }
-        if (piece_color == plugin::Color::BLACK)
+        /*if (piece_color == plugin::Color::BLACK)
           bonus_pos += get_piece_bonus_position(piece_type.value(), i, j);
         else
-          bonus_pos += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);
+          bonus_pos += get_piece_bonus_position(piece_type.value(), 7 - i, 7 - j);*/
       }
     }
   }
 
   return 900 * queen + 500 * rook + 300 * bishop + 300 * knight + 100 * pawn + 0.5 * bonus_pos;
-}*/
+}
 
 
 int AI::evaluation_function(const ChessBoard& board)
@@ -415,14 +415,14 @@ int AI::evaluate(const ChessBoard& board)
 int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
 {
   const ChessBoard& board = *(temporary_history_board_[depth]);
-  std::vector<std::shared_ptr<Move>> moves = /*board.get_possible_actions(playing_color);*/RuleChecker::possible_moves(board, playing_color);
-  struct {
+  std::vector<std::shared_ptr<Move>> moves = board.get_possible_actions(playing_color);//RuleChecker::possible_moves(board, playing_color);
+  /*struct {
     bool operator()(std::shared_ptr<Move> m1, std::shared_ptr<Move> m2)
     {
       return *m1 < *m2;
     }
   } custom;
-  std::sort(moves.begin(), moves.end(), custom);
+  std::sort(moves.begin(), moves.end(), custom);*/
   if (moves.size() == 0)
   {
     auto playing_king_position = board.get_king_position(playing_color);
@@ -440,26 +440,33 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
     return ret;
   }
 
-  int best_move_value = -10000000;
+  int best_move_value = -1000000;
+
 
   for (auto move_ptr : moves)
   {
     Move& move = *move_ptr;
+    //std::cerr << move << std::endl;
+    /*if (tmp.board_get() != board.board_get())
+    {
+      board.pretty_print();
+      tmp.pretty_print();
+      throw std::invalid_argument("board mismatch");
+    }*/
     ChessBoard tmp = ChessBoard(board);
-
-    tmp.apply_move(move);
+    
+    short token = tmp.apply_move(move);
     temporary_history_board_.push_back(&tmp);
     if (RuleChecker::three_fold_repetition(permanent_history_board_, temporary_history_board_)) {
       temporary_history_board_.pop_back();
         return 0;
     }
-    int move_value;
-     move_value = -minimax(depth + 1, !playing_color, -B, -A);
+    int move_value = -minimax(depth + 1, !playing_color, -B, -A);
 
     //Save best move
     if (depth == 0)
       std::cerr << "move " << move << "(" << move.priority_ << ") scored " << move_value << std::endl;
-    if (move_value == best_move_value)
+    /*if (move_value == best_move_value)
     {
       int rand = std::experimental::randint(1, 100);
       if (rand < 40) {
@@ -470,23 +477,25 @@ int AI::minimax(int depth, plugin::Color playing_color, int A, int B)
         }
       }
     }
-    else if (move_value > best_move_value) {
+    else*/ if (move_value > best_move_value) {
       best_move_value = move_value;
       if (depth == 0) {
         best_move_ = move_ptr;
         std::cerr << "best_move so far is " << *best_move_ << " score: " << move_value << std::endl;
       }
 
-      if (A > move_value) {
+      if (move_value > A) {
         A = move_value;
         if (A >= B) {
           temporary_history_board_.pop_back();
-          break;
+          //std::cerr << "AB pruning" << std::endl;
+          return best_move_value;
         }
       }
 
     }
     temporary_history_board_.pop_back();
+    //tmp.undo_move(move, token);
   }
   //julien est bete ohhhhhhhh! non mais on l'aime notre juju :D
   return best_move_value;
