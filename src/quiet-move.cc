@@ -11,21 +11,15 @@ QuietMove::QuietMove(plugin::Color color, plugin::Position start,
   , test_(test)
   , promotion_piecetype_(promotion_piecetype)
 {
-  if (attack_)
-    priority_ = 1;
+  priority_ = attack;
 }
 
-plugin::PieceType QuietMove::piecetype_get() const
+/*plugin::PieceType QuietMove::piecetype_get() const
 {
   return piecetype_;
-}
+}*/
 
-char QuietMove::promotion_piecetype_get() const
-{
-  return promotion_piecetype_;
-}
-
-plugin::Position QuietMove::start_get() const
+/*plugin::Position QuietMove::start_get() const
 {
   return start_;
 }
@@ -33,28 +27,7 @@ plugin::Position QuietMove::start_get() const
 plugin::Position QuietMove::end_get() const
 {
   return end_;
-}
-
-bool QuietMove::is_an_attack() const
-{
-  return attack_;
-}
-
-void QuietMove::set_as_attack(bool attack)
-{
-  attack_ = attack;
-  priority_ = 1;
-}
-
-bool QuietMove::is_promotion() const
-{
-  return promotion_piecetype_ != -1;
-}
-
-bool QuietMove::is_a_test() const
-{
-  return test_;
-}
+}*/
 
 bool QuietMove::operator<(const Move& m) const
 {

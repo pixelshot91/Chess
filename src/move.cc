@@ -9,7 +9,7 @@ Move::Move(Type move_type, plugin::Color color)
 {
 }
 
-Move::Type Move::move_type_get() const
+/*Move::Type Move::move_type_get() const
 {
   return move_type_;
 }
@@ -17,7 +17,7 @@ Move::Type Move::move_type_get() const
 plugin::Color Move::color_get() const
 {
   return color_;
-}
+}*/
 
 void Move::print(std::ostream& o) const
 {

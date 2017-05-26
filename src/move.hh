@@ -18,8 +18,12 @@ public:
 
   Move(Type move_type, plugin::Color color);
   virtual ~Move() = default;
-  Type move_type_get() const;
-  plugin::Color color_get() const;
+  Type move_type_get() const {
+    return move_type_;
+  }
+  plugin::Color color_get() const {
+    return color_;
+  }
   virtual void print(std::ostream& o) const;
   virtual std::string to_lan() const;
   virtual std::string to_an() const;
