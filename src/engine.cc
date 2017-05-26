@@ -1,6 +1,8 @@
 #include "engine.hh"
 
 #include "adaptater.hh"
+#include <chrono>
+#include <thread>
 
 Engine::Engine(std::vector<plugin::Listener*> listeners, unsigned short port)
   : port_(port)
@@ -35,6 +37,8 @@ int Engine::start()
       //std::cerr << *m << std::endl;
       if (chessboard_.update(m) != 0)
         break;
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     for (auto l : listeners_)
       l->on_game_finished();
