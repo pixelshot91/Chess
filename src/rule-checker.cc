@@ -41,7 +41,12 @@ bool RuleChecker::isMoveAuthorized(const ChessBoard& board, Move& move)
   if (move.move_type_get() == Move::Type::QUIET)
   {
     QuietMove& quiet_move = static_cast<QuietMove&>(move);
-    if (quiet_move.end_get() == quiet_move.start_get())
+    if (quiet_move.end_get() == quiet_move.start_get() or (quiet_move.is_promotion() and
+        not(quiet_move.end_get().rank_get() == plugin::Rank::EIGHT or
+          quiet_move.end_get().rank_get() == plugin::Rank::ONE)) or (board.piecetype_get(quiet_move.start_get()) !=
+        quiet_move.piecetype_get())) // Condensed
+      return false;
+    /*if (quiet_move.end_get() == quiet_move.start_get())
       return invalid_move("No move has been made");
     if (quiet_move.is_promotion() and
         not(quiet_move.end_get().rank_get() == plugin::Rank::EIGHT or
@@ -49,7 +54,7 @@ bool RuleChecker::isMoveAuthorized(const ChessBoard& board, Move& move)
       return invalid_move("illegal promotion");
     if (board.piecetype_get(quiet_move.start_get()) !=
         quiet_move.piecetype_get())
-      return invalid_move("The piece is not at its starting point");
+      return invalid_move("The piece is not at its starting point");*/
     auto d_file = ~quiet_move.end_get().file_get() -
       static_cast<char>(quiet_move.start_get().file_get());
     auto d_rank = static_cast<char>(quiet_move.end_get().rank_get()) -
@@ -114,7 +119,12 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, Move& move)
           }
           const QuietMove& last_quiet_move =
             static_cast<const QuietMove&>(last_move);
-          if (last_quiet_move.piecetype_get() != plugin::PieceType::PAWN)
+          if (last_quiet_move.piecetype_get() != plugin::PieceType::PAWN or last_quiet_move.end_get().file_get() !=
+              quiet_move.end_get().file_get() or last_quiet_move.end_get().rank_get() !=
+              quiet_move.start_get().rank_get() or (last_quiet_move.color_get() == quiet_move.color_get() or
+              abs(~last_quiet_move.end_get().rank_get() - ~last_quiet_move.start_get().rank_get()) != 2)) // condensed
+            return false;
+          /*if (last_quiet_move.piecetype_get() != plugin::PieceType::PAWN)
             return invalid_move("The last piece to move was not a pawn");
           if (last_quiet_move.end_get().file_get() !=
               quiet_move.end_get().file_get())
@@ -124,7 +134,7 @@ bool RuleChecker::isMoveLegal(const ChessBoard& board, Move& move)
             return invalid_move("The pawn is not one the same rank as the pawn to eat");
           if (last_quiet_move.color_get() == quiet_move.color_get() or
               abs(~last_quiet_move.end_get().rank_get() - ~last_quiet_move.start_get().rank_get()) != 2)
-            return invalid_move("The pawn cannot move in diagonal if its not a en passant attack");
+            return invalid_move("The pawn cannot move in diagonal if its not a en passant attack");*/
         }
       }
       else if (board.piecetype_get(quiet_move.end_get()) != std::experimental::nullopt)
