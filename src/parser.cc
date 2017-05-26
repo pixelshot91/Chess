@@ -11,6 +11,8 @@
 Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
 {
+  if (pgn_path_.substr(pgn_path_.size() - 4) != ".pgn")
+    throw std::invalid_argument(pgn_path_ + " is not a valid PGN file");
 }
 
 std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, const ChessBoard& board)
