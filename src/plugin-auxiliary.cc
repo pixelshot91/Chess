@@ -59,7 +59,7 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position p)
 
 
 namespace auxiliary {
-  char PieceTypeToInt(plugin::PieceType type)
+  /*char PieceTypeToInt(plugin::PieceType type)
   {
     char i;
     for (i = 0; plugin::piecetype_array()[i] != type; ++i)
@@ -67,7 +67,7 @@ namespace auxiliary {
     if (i >= 6)
       throw std::invalid_argument("Not a piece Symbol");
     return i;
-  }
+  }*/
 
   std::string to_lan(plugin::Position pos)
   {

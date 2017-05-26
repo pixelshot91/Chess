@@ -32,7 +32,26 @@ std::ostream& operator<<(std::ostream& o, const plugin::Position p);
 
 namespace auxiliary {
 
-  char PieceTypeToInt(plugin::PieceType type);
+  constexpr char PieceTypeToInt(plugin::PieceType type) {
+    switch (type)
+    {
+      case plugin::PieceType::KING:
+        return 0;
+      case plugin::PieceType::QUEEN:
+        return 1;
+      case plugin::PieceType::ROOK:
+        return 2;
+      case plugin::PieceType::BISHOP:
+        return 3;
+      case plugin::PieceType::KNIGHT:
+        return 4;
+      case plugin::PieceType::PAWN:
+        return 5;
+      default:
+        throw std::invalid_argument("Not a piece Symbol");
+    }
+  }
+
   std::string to_lan(plugin::Position pos);
 
   int distance(plugin::Position& pos1, plugin::Position& pos2);
