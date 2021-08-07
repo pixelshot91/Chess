@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
+project(Chess)
+
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -lpthread")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
@@ -38,6 +40,7 @@ add_executable("test_chessboard" EXCLUDE_FROM_ALL ${SRC_TEST_ChessBoard})
 target_link_libraries(${BIN_ENGINE} boost_program_options)
 target_link_libraries(${BIN_ENGINE} boost_regex)
 target_link_libraries(${BIN_ENGINE} boost_system)
+target_link_libraries(${BIN_ENGINE} ${CMAKE_DL_LIBS})
 
 target_link_libraries(${BIN_HUMAN} boost_system)
 target_link_libraries(${BIN_HUMAN} boost_regex)
