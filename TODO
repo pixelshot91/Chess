@@ -24,3 +24,9 @@
 
 [ ] Level 4: Network and Human Player
 [ ] Level 5: Artificial Intelligence
+
+
+[ ] Find a way to easly replay a game where it left
+[ ] Higlight the opponent last move
+[ ] Moving a pawn to the last file ask for a promotion
+[ ] Castling is correctly processed but it does not show
