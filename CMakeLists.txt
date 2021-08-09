@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Chess)
 
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -pthread -O3")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14 -pedantic -ldl -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 #set(BIN_NAME "chess")
