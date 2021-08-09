@@ -1,11 +1,11 @@
 #include "adaptater.hh"
 
-Adaptater::Adaptater(const ChessBoard& board)
-  : chessboard_(board)
+Adaptater::Adaptater(const ChessBoard &board)
+    : chessboard_(board)
 {
 }
 
-Adaptater::opt_piece_t Adaptater::operator[](const Position& position) const
+Adaptater::opt_piece_t Adaptater::operator[](const Position &position) const
 {
   if (chessboard_.piecetype_get(position) == std::experimental::nullopt)
     return std::experimental::nullopt;

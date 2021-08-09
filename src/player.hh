@@ -8,10 +8,10 @@
 
 class Player
 {
-  public:
-    Player(plugin::Color color);
-    virtual std::string play_next_move(const std::string& received_move) = 0;
-    virtual void set_scripted_moves( std::vector<std::shared_ptr<Move>> moves) = 0;
-  protected:
-    const plugin::Color color_;
+public:
+  Player(plugin::Color color);
+  virtual std::string play_next_move(const std::string &received_move) = 0;
+
+protected:
+  const plugin::Color color_;
 };

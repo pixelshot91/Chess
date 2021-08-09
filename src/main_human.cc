@@ -3,7 +3,7 @@
 #include "human-player.hh"
 #include "client.hh"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   argc = argc;
   std::string ip(argv[1]);

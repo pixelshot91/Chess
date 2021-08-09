@@ -11,6 +11,7 @@
 Parser::Parser(std::string pgn_path)
   : pgn_path_(pgn_path)
 {
+  std::cerr << "pgn_path = " << pgn_path << std::endl;
   if (pgn_path_.substr(pgn_path_.size() - 4) != ".pgn")
     throw std::invalid_argument(pgn_path_ + " is not a valid PGN file");
 }
@@ -25,7 +26,7 @@ std::shared_ptr<Move> Parser::parse_uci(std::string s, plugin::Color color, cons
   //std::cerr << "first pos is " << pos_start << " end";
   if (board.piecetype_get(pos_start) == std::experimental::nullopt)
     throw std::invalid_argument("Invalid move: the start cell is empty");
-    
+
   auto type = board.piecetype_get(pos_start).value();
   if (type == plugin::PieceType::KING) //castling
   {
@@ -85,12 +86,14 @@ Parser::moves_t Parser::parse()
     getline(pgn, s);
     boost::regex exp("\\[(?<var>[^\"]+) \"(?<value>[^\"]+)\"]");
     boost::smatch what;
+    std::cerr << "line is: " << s << std::endl;
     if (boost::regex_search(s, what, exp))
     {
+      std::cerr << "match" << std::endl;
     }
     else
     {
-      // std::cerr << "no match" << std::endl;
+      std::cerr << "no match" << std::endl;
       break;
     }
   }
@@ -103,19 +106,26 @@ Parser::moves_t Parser::parse()
   }
   std::vector<std::string> tokens;
   boost::split(tokens, whole_file, boost::is_any_of("\n "));
+  std::cerr << "tokens : ";
+  for (std::string s : tokens)
+    std::cerr << s << std::endl;
 
   std::vector<std::shared_ptr<Move>> moves;
   try {
     for (size_t i = 0; i < tokens.size(); ++i)
     { // Move
-
-      if (i % 3 == 0)
+      std::cerr << "Parsing token: " << tokens[i] << std::endl;
+      if (i % 3 == 0) {
+        std::cerr << "Skip" << std::endl;
         continue;
+      }
       moves.push_back(parse_move(tokens[i], static_cast<plugin::Color>((i % 3)- 1), true));
     }
   }
   catch (std::invalid_argument e)
-  {}
+  {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
  return moves;
 }
 
