@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
       void *handle = dlopen(s.c_str(), RTLD_NOW);
       handles.push_back(handle);
       if (handle == nullptr)
-        std::invalid_argument("Can't open librairy");
-      dlerror();
+        throw std::invalid_argument("Can't open library: " + std::string(dlerror()));
+
       Listener *listener =
           reinterpret_cast<Listener *(*)()>(dlsym(handle, "listener_create"))();
       listeners.push_back(listener);
