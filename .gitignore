@@ -1,0 +1,12 @@
+*
+!*/
+
+!.gitignore
+!CMakeLists.txt
+!*.md
+!AUTHORS
+!TODO
+
+!*.cc
+!*.hh
+!*.hxx
